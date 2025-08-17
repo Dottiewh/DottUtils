@@ -1,6 +1,8 @@
 package mp.dottiewh;
 
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 
@@ -21,6 +23,9 @@ public class DottUtils extends JavaPlugin implements Listener{
     public static String prefix = "&5&l[&9&lDott&6&lUtils&5&l] ";
     private final String version = getDescription().getVersion();
 
+    private Set<String> comandosRegistrados = getDescription().getCommands().keySet();
+
+
 
     public void onEnable(){
         Bukkit.getConsoleSender().sendMessage(
@@ -34,11 +39,12 @@ public class DottUtils extends JavaPlugin implements Listener{
         );
     }
 
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+        new Commands(comandosRegistrados, sender, cmd, label, args);
 
-
-    //--------------------------Métodos Útiles-----------------------------------
-    public String mensajeConPrefix(String mensaje){
-        return ChatColor.translateAlternateColorCodes('&',prefix+"&f"+mensaje);
+        return true;
     }
+
 
 }

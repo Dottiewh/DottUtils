@@ -1,21 +1,12 @@
 main: mp.dottiewh.DottUtils
-version: 1.0.0
+version: 1.0.1
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
 
 commands:
-  adminchat:
-    description: Todo lo del admin chat
-    usage: /adminchat
-    aliases: [ac, achat]
-    permission: miPlugin.adminchat
-    permission-message: No puedes usar esto.
   gm:
     description: Abreviaciones del gamemode.
     usage: /gm
     permission: miPlugin.gamemode
     permission-message: No puedes usar esto.
-  jump:
-    description: Te deja saltar.
-    usage: /jump
