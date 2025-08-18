@@ -1,4 +1,6 @@
-# V (1.1.1)
+# V (1.1.2)
 
 ### Implementamos:
-- #### Comando /jump (Falta implementar el no daño de caída).
+- #### Separación de comandos por clase propia.
+- #### Implementación de no daño de caída al usar /jump.
+- #### Manejamiento del NoFall.

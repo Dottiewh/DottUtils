@@ -3,6 +3,8 @@ package mp.dottiewh;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 
@@ -41,10 +43,15 @@ public class DottUtils extends JavaPlugin implements Listener{
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        new Commands(comandosRegistrados, sender, cmd, label, args);
+        //new Commands(comandosRegistrados, sender, cmd, label, args);
+        Commands.commandCore(comandosRegistrados, sender, cmd, label, args);
 
         return true;
     }
 
 
+    @EventHandler
+    public void onFallDamage(EntityDamageEvent event){
+        U.noFall_core(event);
+    }
 }
