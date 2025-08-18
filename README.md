@@ -1,5 +1,4 @@
-# V (1.1.0)
+# V (1.1.1)
 
 ### Implementamos:
-- #### Core de los comandos.
-- #### Comando /gm.
+- #### Comando /jump (Falta implementar el no daño de caída).
