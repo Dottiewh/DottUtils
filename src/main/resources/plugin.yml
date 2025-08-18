@@ -1,5 +1,5 @@
 main: mp.dottiewh.DottUtils
-version: 1.1.0
+version: 1.1.1
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
@@ -8,5 +8,10 @@ commands:
   gm:
     description: Abreviaciones del gamemode.
     usage: /gm
-    permission: miPlugin.gamemode
+    permission: dottUtils.gamemode
+    permission-message: No puedes usar esto.
+  jump:
+    description: Te deja saltar.
+    usage: /jump
+    permission: dottUtils.gamemode
     permission-message: No puedes usar esto.
