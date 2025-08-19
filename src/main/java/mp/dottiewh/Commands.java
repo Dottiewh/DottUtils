@@ -1,10 +1,12 @@
 package mp.dottiewh;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import  mp.dottiewh.noaliasCommands.*;
+import mp.dottiewh.aliasCommands.*;
 
 import java.util.*;
 
@@ -37,12 +39,33 @@ public abstract class Commands {
         switch (cmdString.toLowerCase()){
             case "gm"-> new Gm(comandosRegistrados, sender, command, label, args);
             case "jump" -> new Jump(comandosRegistrados, sender, command, label, args);
+            case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
             default -> sender.sendMessage(U.mensajeConPrefix("&c&lComando no registrado."));
         }
 
-
+//
     }
+    private static void checkAllias(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
+
+        if (args.length<1){
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&cComando no encontrado."));
+            new Help(comandosRegistrados, sender, command, label, args);
+            return;
+        }
+        String input = args[0].toLowerCase();
+        switch (input){
+            case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
+            case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
+            case "help" -> new Help(comandosRegistrados, sender, command, label, args);
+
+            default -> {
+                sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
+                sender.sendMessage(U.mensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
+            }
+        }
+    }
+
 
     // comandos como tal
     protected abstract void run();

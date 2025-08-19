@@ -1,6 +1,10 @@
-# V (1.1.2)
+# V (1.1.3)
 
 ### Implementamos:
-- #### Separación de comandos por clase propia.
-- #### Implementación de no daño de caída al usar /jump.
-- #### Manejamiento del NoFall.
+- #### Alias /dottutils añadido.
+- #### Implementación del /du admin.
+- #### Implementacion del /du reload.
+- #### Soporte de config.
+
+### Falta:
+- #### Añadir el /du ac.
