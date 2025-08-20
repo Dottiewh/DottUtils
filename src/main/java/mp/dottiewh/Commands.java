@@ -3,6 +3,7 @@ package mp.dottiewh;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import  mp.dottiewh.noaliasCommands.*;
@@ -58,6 +59,8 @@ public abstract class Commands {
             case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
             case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
             case "help" -> new Help(comandosRegistrados, sender, command, label, args);
+            case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args);
+            case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
 
             default -> {
                 sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
@@ -74,5 +77,8 @@ public abstract class Commands {
     // metodos utiles
     protected void senderMessage(String mensaje){
         sender.sendMessage(U.mensajeConPrefix(mensaje));
+    }
+    protected void senderMessageNP(String mensaje){
+        sender.sendMessage(U.mensajeConColor(mensaje));
     }
 }

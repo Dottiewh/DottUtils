@@ -2,6 +2,7 @@ package mp.dottiewh.aliasCommands;
 
 import mp.dottiewh.Commands;
 import mp.dottiewh.U;
+import mp.dottiewh.config.Config;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -15,7 +16,8 @@ public class Reload extends Commands {
     }
 
     protected void run(){
-        U.configReload();
+
+        Config.configReload();
         senderMessage("&a&lHas recargado las configuraciones correctamente!");
     }
 }

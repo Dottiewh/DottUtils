@@ -2,6 +2,7 @@ package mp.dottiewh.aliasCommands;
 
 import mp.dottiewh.Commands;
 import mp.dottiewh.U;
+import mp.dottiewh.config.Config;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -37,17 +38,17 @@ public class Admin extends Commands {
     private void add(){
         if (!checkOfUser()) return;
 
-        U.addAdmin(nameInput);
+        Config.addAdmin(nameInput);
         senderMessage("&aHas añadido a &f"+nameInput+"&a a la lista de &9Admins&a!");
     }
     private  void remove(){
         if (!checkOfUser()) return;
 
-        U.removeAdmin(nameInput);
+        Config.removeAdmin(nameInput);
         senderMessage("&cHas removido a &f"+nameInput+"&c de la lista de &9Admins&a!");
     }
     private void list(){
-        List<String> admins = U.getAdminList();
+        List<String> admins = Config.getAdminList();
         String listaAdminsJoin = String.join(", ", admins);
         senderMessage("&aLista de admins: &f"+listaAdminsJoin);
     }

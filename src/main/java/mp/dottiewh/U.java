@@ -1,6 +1,9 @@
 package mp.dottiewh;
 
 import mp.dottiewh.config.CustomConfig;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -12,17 +15,32 @@ import static mp.dottiewh.DottUtils.prefix;
 
 public class U { //Stands for utils
     private static Set<UUID> listaNoFall = new HashSet<>();
-    private static CustomConfig config;
-    private static List<String> admins;
+
 
     //--------------------------Métodos Útiles-----------------------------------
+    public static void targetMessage(Player target, String mensaje){
+        target.sendMessage(U.mensajeConPrefix(mensaje));
+    }
+    public static void targetMessageNP(Player target, String mensaje){
+        target.sendMessage(U.mensajeConColor(mensaje));
+    }
     public static String mensajeConPrefix(String mensaje){
         return ChatColor.translateAlternateColorCodes('&',prefix+"&f"+mensaje);
+    }
+    public static String mensajeConColor(String mensaje){
+        return ChatColor.translateAlternateColorCodes('&',mensaje);
     }
     public static void mensajeConsola(String mensaje){
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',prefix+mensaje));
     }
+    public static void mensajeConsolaNP(String mensaje){
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',mensaje));
+    }
+    public static String componentGetContent(Component component){
+        String msg = PlainTextComponentSerializer.plainText().serialize(component);
 
+        return msg;
+    }
     //---------------no fall management---------
     public static void noFall_add(Player player){
         UUID uuid = player.getUniqueId();
@@ -44,41 +62,5 @@ public class U { //Stands for utils
         }
     }
 
-    //------config--------
-    public static void configInit(){
-        config = DottUtils.getRegisteredConfig();
-        admins = config.getConfig().getStringList("adminlist");
-    }
-    public static void configReload(){
-        DottUtils.initCustomConfig();
-    }
-    //------ADMINS--------
-    public static boolean addAdmin(String newAdmin){ // boolean = Was successful?
-        if (admins.contains(newAdmin)) return false;
 
-        admins.add(newAdmin);
-        config.getConfig().set("adminlist", admins);
-        config.saveConfig();
-        return true;
-    }
-    public static boolean removeAdmin(String oldAdmin){ // boolean = Was successful?
-        if (!admins.contains(oldAdmin)) return false;
-
-        for (String adminsito : new ArrayList<>(admins)) { // borrar repetidos en caso de
-            if (adminsito.equalsIgnoreCase(oldAdmin)) {
-                admins.remove(adminsito);
-            }
-        }
-
-        //admins.remove(oldAdmin);
-        config.getConfig().set("adminlist", admins);
-        config.saveConfig();
-        return true;
-    }
-    public static boolean containsAdmin(String name){
-        return admins.contains(name);
-    }
-    public static List<String> getAdminList(){
-        return admins;
-    }
 }

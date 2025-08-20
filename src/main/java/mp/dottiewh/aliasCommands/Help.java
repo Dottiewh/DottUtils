@@ -20,19 +20,27 @@ public class Help extends Commands {
     @Override
     protected void run(){
 
-        senderMessage("&8&l--------------"+prefixBellaco+"&8&l-----------------------");
+        senderMessageNP("&8&l--------------"+prefixBellaco+"&8&l-----------------------");
         msg1();
 
     }
 
     private void msg1(){
-        senderMessage("&8&lComando: &f/du admin &f&o[adm]");
-        senderMessage("&7&lUsos: &eadd, remove, list");
-        senderMessage("&4-----");
-        senderMessage("&8&lComando: &f/du reload");
-        senderMessage("&7&lDescripción: &eRecarga las configuraciones.");
+        senderMessageNP("&8&lComando: &f/du admin &f&o[adm]");
+        senderMessageNP("&7&lUsos: &eadd, remove, list");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du reload");
+        senderMessageNP("&7&lDescripción: &eRecarga las configuraciones.");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du adminchat &f&o[ac]");
+        senderMessageNP("&7&lUsos: &etoggle, leave, join");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du whitelist &f&o[wl]");
+        senderMessageNP("&7&lUsos: &eadd, remove, list, toggle, status");
+
+
 
         //
-        senderMessage("&8&l-&f&l1/?&8&l------------------------------------------");
+        senderMessageNP("&8&l-&f&l1/?&8&l------------------------------------------");
     }
 }

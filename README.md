@@ -1,10 +1,14 @@
-# V (1.1.3)
+# V (1.1.4)
 
-### Implementamos:
-- #### Alias /dottutils añadido.
-- #### Implementación del /du admin.
-- #### Implementacion del /du reload.
-- #### Soporte de config.
+## Implementamos:
+- ### Nuevos comandos!
+- #### /du adminchat, /du whitelist, /du help.
+- #### Completa configuración nueva para el chat de admins.
+- #### Nueva función! Whitelist basada en nombres.
+- #### /du help para mayor guía!
+- #### _Implementación de la API de paper._
 
-### Falta:
-- #### Añadir el /du ac.
+
+## Requisitos:
+- #### Paper hasta ahora para el adminchat y whitelist.
+- #### Testeado en las versiones 1.20+.
