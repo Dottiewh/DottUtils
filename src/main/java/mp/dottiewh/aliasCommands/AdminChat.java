@@ -21,7 +21,7 @@ import java.util.UUID;
 public class AdminChat extends Commands {
     private static final Map<String, Boolean> adminchatStatus = new HashMap<>();
     private static final Map<String, Boolean> acIsJoined = new HashMap<>();
-    private static final String acPrefix = "&6&l[&e&lAdmin&9&lChat&6&l] &7";
+    private static String acPrefix = U.getMsgPath("adminchat_prefix"); //"&6&l[&e&lAdmin&9&lChat&6&l] &7";
     private static final String errorMsg = "&cHas usado un término incorrecto.\n&6Posibles usos: &etoggle, leave, join";
     String dName;
 
@@ -156,5 +156,9 @@ public class AdminChat extends Commands {
         }
         consoleCore("Console", input);
 
+    }
+
+    public static void acPrefixReload(){
+        acPrefix = U.getMsgPath("adminchat_prefix");
     }
 }

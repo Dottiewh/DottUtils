@@ -1,24 +1,33 @@
 package mp.dottiewh.config;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.aliasCommands.AdminChat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Config {
     private static CustomConfig config;
+    private static CustomConfig configLists;
     private static List<String> admins;
     private static List<String> whitelist;
     private static boolean whitelistStatus;
+    private static boolean pvpStatus;
+    private static boolean noFallStatus;
 
 
 
     //------config--------
     public static void configInit(){
         config = DottUtils.getRegisteredConfig();
-        admins = config.getConfig().getStringList("adminlist");
-        whitelist = config.getConfig().getStringList("whitelist");
+        configLists = DottUtils.getRegisteredConfigLists();
+
+        AdminChat.acPrefixReload();
+        admins = configLists.getConfig().getStringList("adminlist");
+        whitelist = configLists.getConfig().getStringList("whitelist");
         whitelistStatus = config.getConfig().getBoolean("whitelist_active");
+        pvpStatus = config.getConfig().getBoolean("pvp");
+        noFallStatus = config.getConfig().getBoolean("no_fall");
     }
     public static void configReload(){
         DottUtils.initCustomConfig();
@@ -28,8 +37,8 @@ public class Config {
         if (admins.contains(newAdmin)) return false;
 
         admins.add(newAdmin);
-        config.getConfig().set("adminlist", admins);
-        config.saveConfig();
+        configLists.getConfig().set("adminlist", admins);
+        configLists.saveConfig();
         return true;
     }
     public static boolean removeAdmin(String oldAdmin){ // boolean = Was successful?
@@ -42,8 +51,8 @@ public class Config {
         }
 
         //admins.remove(oldAdmin);
-        config.getConfig().set("adminlist", admins);
-        config.saveConfig();
+        configLists.getConfig().set("adminlist", admins);
+        configLists.saveConfig();
         return true;
     }
     public static boolean containsAdmin(String name){
@@ -79,8 +88,8 @@ public class Config {
         if (whitelist.contains(newBlanco)) return false;
 
         whitelist.add(newBlanco);
-        config.getConfig().set("whitelist", whitelist);
-        config.saveConfig();
+        configLists.getConfig().set("whitelist", whitelist);
+        configLists.saveConfig();
         return true;
     }
     public static boolean removeWhitelist(String oldBlanco){ // boolean = Was successful?
@@ -93,8 +102,8 @@ public class Config {
         }
 
         //admins.remove(oldWhitelisted);
-        config.getConfig().set("whitelist", whitelist);
-        config.saveConfig();
+        configLists.getConfig().set("whitelist", whitelist);
+        configLists.saveConfig();
         return true;
     }
     public static boolean containsWhitelist(String name){
@@ -106,5 +115,45 @@ public class Config {
     }
     public static boolean getWhiteListStatus(){
         return whitelistStatus;
+    }
+    // -----------pvp------------------
+    public static boolean getPvPStatus(){
+        return pvpStatus;
+    }
+    public static boolean onPvP(){ // boolean = Was successful?
+        if (getPvPStatus()) return false;
+
+        config.getConfig().set("pvp", true);
+        config.saveConfig();
+        pvpStatus = true;
+        return true;
+    }
+    public static boolean offPvP(){ // boolean = Was successful?
+        if (!getPvPStatus()) return false;
+
+        config.getConfig().set("pvp", false);
+        config.saveConfig();
+        pvpStatus = false;
+        return true;
+    }
+    //---------------nofall-----------------
+    public static boolean getNoFallStatus(){
+        return noFallStatus;
+    }
+    public static boolean onNoFall(){ // boolean = Was successful?
+        if (getNoFallStatus()) return false;
+
+        config.getConfig().set("no_fall", true);
+        config.saveConfig();
+        noFallStatus = true;
+        return true;
+    }
+    public static boolean offNoFall(){ // boolean = Was successful?
+        if (!getNoFallStatus()) return false;
+
+        config.getConfig().set("no_fall", false);
+        config.saveConfig();
+        noFallStatus = false;
+        return true;
     }
 }

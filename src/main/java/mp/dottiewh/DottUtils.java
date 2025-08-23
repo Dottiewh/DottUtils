@@ -9,6 +9,7 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -17,24 +18,23 @@ import org.bukkit.event.Listener;
 
 import java.util.*;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import java.io.File;
-
-import org.bukkit.scheduler.BukkitTask;
 
 
 public class DottUtils extends JavaPlugin implements Listener {
     private static DottUtils instance;
     private File adminFile;
-    private FileConfiguration adminConfig;
-    private BukkitTask repetitivo;
+    //private FileConfiguration adminConfig;
+    //private BukkitTask repetitivo;
 
     public static String prefix = "&5&l[&9&lDott&6&lUtils&5&l] ";
     private final String version = getDescription().getVersion();
 
     private Set<String> comandosRegistrados = getDescription().getCommands().keySet();
 
+    private static CustomConfig ymlLists;
     private static CustomConfig ymlConfig;
+    public static CustomConfig ymlMessages;
 
     public void onEnable(){
         instance = this;
@@ -46,7 +46,7 @@ public class DottUtils extends JavaPlugin implements Listener {
 
         initCustomConfig();
 
-        U.mensajeConsola("&9&lWhitelist: &e&l"+Config.getWhiteListStatus());
+        U.showAllStatus();
     }
     public void onDisable(){
         Bukkit.getConsoleSender().sendMessage(
@@ -68,10 +68,14 @@ public class DottUtils extends JavaPlugin implements Listener {
         return true;
     }
 
-
+    @EventHandler
+    public void onEntityAttack(EntityDamageByEntityEvent event){
+        U.noPvP(event);
+    }
     @EventHandler
     public void onFallDamage(EntityDamageEvent event){
-        U.noFall_core(event);
+        U.noFall(event); //checkea /du nf
+        U.noFall_core(event); // solo sirve para cosas del tipo /jump
     }
 
     @EventHandler
@@ -89,6 +93,12 @@ public class DottUtils extends JavaPlugin implements Listener {
         Whitelist.checkWhitelist(event);
     }
     //----------
+    public static CustomConfig getRegisteredConfigLists(){
+        if (ymlLists == null) {
+            U.mensajeConsola("&eConfig aún no cargada...");
+        }
+        return ymlLists;
+    }
     public static CustomConfig getRegisteredConfig(){
         if (ymlConfig == null) {
             U.mensajeConsola("&eConfig aún no cargada...");
@@ -98,8 +108,15 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static void initCustomConfig(){
         DottUtils plugin = getInstance();
 
-        ymlConfig = new CustomConfig("lists.yml", null, plugin, false);
+        ymlLists = new CustomConfig("lists.yml", null, plugin, false);
+        ymlConfig = new CustomConfig("config.yml", null, plugin, false);
+        ymlMessages = new CustomConfig("messages.yml", null, plugin, false);
+        ymlMessages.registerConfig();
         ymlConfig.registerConfig();
+        ymlLists.registerConfig();
+        //
+        prefix = ymlMessages.getConfig().getString("prefix");
+
         Config.configInit();
     }
     public static DottUtils getInstance(){

@@ -37,10 +37,16 @@ public class Help extends Commands {
         senderMessageNP("&4-----");
         senderMessageNP("&8&lComando: &f/du whitelist &f&o[wl]");
         senderMessageNP("&7&lUsos: &eadd, remove, list, toggle, status");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du pvp");
+        senderMessageNP("&7&lUsos: &etoggle, status");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du nofall &f&o[nf]");
+        senderMessageNP("&7&lUsos: &etoggle, status");
 
 
 
         //
-        senderMessageNP("&8&l-&f&l1/?&8&l------------------------------------------");
+        senderMessageNP("&8&l-&f&l1/?&8&l---------------------------------------");
     }
 }

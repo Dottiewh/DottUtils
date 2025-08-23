@@ -1,5 +1,5 @@
 main: mp.dottiewh.DottUtils
-version: 1.1.4
+version: 1.1.5
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
@@ -23,3 +23,6 @@ commands:
     usage: /jump
     permission: dottUtils.gamemode
     permission-message: No puedes usar esto.
+  status:
+    description: Muestra tps y otros datos
+    usage: /status

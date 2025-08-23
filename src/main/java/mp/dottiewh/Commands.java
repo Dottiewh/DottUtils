@@ -33,16 +33,17 @@ public abstract class Commands {
     public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
         String cmdString = command.getName();
         if (!comandosRegistrados.contains(cmdString)){
-            sender.sendMessage(U.mensajeConPrefix("&c&lNo se ha encontrado tu comando."));
+            sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
             return;
         }
 
         switch (cmdString.toLowerCase()){
             case "gm"-> new Gm(comandosRegistrados, sender, command, label, args);
             case "jump" -> new Jump(comandosRegistrados, sender, command, label, args);
+            case "status" -> new Status(comandosRegistrados, sender, command, label, args);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
-            default -> sender.sendMessage(U.mensajeConPrefix("&c&lComando no registrado."));
+            default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
         }
 
 //
@@ -50,7 +51,7 @@ public abstract class Commands {
     private static void checkAllias(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
 
         if (args.length<1){
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&cComando no encontrado."));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',U.getMsgPath("non_registered_command")));
             new Help(comandosRegistrados, sender, command, label, args);
             return;
         }
@@ -61,6 +62,8 @@ public abstract class Commands {
             case "help" -> new Help(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args);
             case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
+            case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
+            case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
 
             default -> {
                 sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
