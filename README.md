@@ -1,12 +1,7 @@
 # V (1.1.5)
 
 ## Implementamos:
-- #### /du nopvp
-- #### /du nofall
-- #### Separación de config.yml y lists.yml
-- #### Messages.yml
-- #### Un poco más de documentación
-- #### /status (Muestra los tps y más datos)
+- #### /du item
 ## Requisitos:
-- #### Paper hasta ahora para el adminchat y whitelist.
+- #### Paper _(o algun fork)_.
 - #### Testeado en las versiones 1.20+.

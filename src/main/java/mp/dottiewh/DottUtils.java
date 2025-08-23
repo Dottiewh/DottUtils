@@ -35,6 +35,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     private static CustomConfig ymlLists;
     private static CustomConfig ymlConfig;
     public static CustomConfig ymlMessages;
+    public static CustomConfig ymlItems;
 
     public void onEnable(){
         instance = this;
@@ -105,15 +106,23 @@ public class DottUtils extends JavaPlugin implements Listener {
         }
         return ymlConfig;
     }
+    public static CustomConfig getRegisteredItemConfig(){
+        if (ymlConfig == null) {
+            U.mensajeConsola("&eConfig aún no cargada...");
+        }
+        return ymlItems;
+    }
     public static void initCustomConfig(){
         DottUtils plugin = getInstance();
 
         ymlLists = new CustomConfig("lists.yml", null, plugin, false);
         ymlConfig = new CustomConfig("config.yml", null, plugin, false);
         ymlMessages = new CustomConfig("messages.yml", null, plugin, false);
+        ymlItems = new CustomConfig("items.yml", null, plugin, false);
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
         ymlLists.registerConfig();
+        ymlItems.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
