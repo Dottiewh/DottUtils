@@ -1,9 +1,10 @@
 package mp.dottiewh;
 
+import mp.dottiewh.Items.ItemMainCommand;
+import mp.dottiewh.Utils.U;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import  mp.dottiewh.noaliasCommands.*;
@@ -33,7 +34,7 @@ public abstract class Commands {
     public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
         String cmdString = command.getName();
         if (!comandosRegistrados.contains(cmdString)){
-            sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
+            sender.sendMessage(U.STmensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
             return;
         }
 
@@ -43,7 +44,7 @@ public abstract class Commands {
             case "status" -> new Status(comandosRegistrados, sender, command, label, args);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
-            default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
+            default -> sender.sendMessage(U.STmensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
         }
 
 //
@@ -64,10 +65,11 @@ public abstract class Commands {
             case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
             case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
             case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
+            case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
-                sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
-                sender.sendMessage(U.mensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
+                sender.sendMessage(U.STmensajeConPrefix("&c&lSub-índice no encontrado."));
+                sender.sendMessage(U.STmensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
             }
         }
     }
@@ -79,9 +81,9 @@ public abstract class Commands {
 
     // metodos utiles
     protected void senderMessage(String mensaje){
-        sender.sendMessage(U.mensajeConPrefix(mensaje));
+        sender.sendMessage(U.STmensajeConPrefix(mensaje));
     }
     protected void senderMessageNP(String mensaje){
-        sender.sendMessage(U.mensajeConColor(mensaje));
+        sender.sendMessage(U.STmensajeConColor(mensaje));
     }
 }

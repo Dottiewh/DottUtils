@@ -1,6 +1,8 @@
 package mp.dottiewh;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import mp.dottiewh.Items.ItemConfig;
+import mp.dottiewh.Utils.U;
 import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
@@ -96,21 +98,27 @@ public class DottUtils extends JavaPlugin implements Listener {
     //----------
     public static CustomConfig getRegisteredConfigLists(){
         if (ymlLists == null) {
-            U.mensajeConsola("&eConfig aún no cargada...");
+            U.STmensajeConsola("&eConfig aún no cargada...");
         }
         return ymlLists;
     }
     public static CustomConfig getRegisteredConfig(){
         if (ymlConfig == null) {
-            U.mensajeConsola("&eConfig aún no cargada...");
+            U.STmensajeConsola("&eConfig aún no cargada...");
         }
         return ymlConfig;
     }
     public static CustomConfig getRegisteredItemConfig(){
         if (ymlConfig == null) {
-            U.mensajeConsola("&eConfig aún no cargada...");
+            U.STmensajeConsola("&eConfig aún no cargada...");
         }
         return ymlItems;
+    }
+    public static CustomConfig getRegisteredMsgConfig(){
+        if (ymlConfig == null) {
+            U.STmensajeConsola("&eConfig aún no cargada...");
+        }
+        return ymlMessages;
     }
     public static void initCustomConfig(){
         DottUtils plugin = getInstance();
@@ -127,6 +135,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         prefix = ymlMessages.getConfig().getString("prefix");
 
         Config.configInit();
+        ItemConfig.itemConfigInit();
     }
     public static DottUtils getInstance(){
         return instance;

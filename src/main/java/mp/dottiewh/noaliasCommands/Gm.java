@@ -1,7 +1,7 @@
 package mp.dottiewh.noaliasCommands;
 
 import mp.dottiewh.Commands;
-import mp.dottiewh.U;
+import mp.dottiewh.Utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -61,19 +61,19 @@ public class Gm extends Commands {
         switch (input){
             case 0 -> {
                 player.setGameMode(GameMode.SURVIVAL);
-                player.sendMessage(U.mensajeConPrefix(sucMsg+"Supervivencia"));
+                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Supervivencia"));
             }
             case 1 -> {
                 player.setGameMode(GameMode.CREATIVE);
-                player.sendMessage(U.mensajeConPrefix(sucMsg+"Creativo"));
+                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Creativo"));
             }
             case 2 -> {
                 player.setGameMode(GameMode.ADVENTURE);
-                player.sendMessage(U.mensajeConPrefix(sucMsg+"Aventura"));
+                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Aventura"));
             }
             case 3 -> {
                 player.setGameMode(GameMode.SPECTATOR);
-                player.sendMessage(U.mensajeConPrefix(sucMsg+"Espectador"));
+                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Espectador"));
             }
 
             default -> {

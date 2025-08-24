@@ -1,7 +1,7 @@
-package mp.dottiewh;
+package mp.dottiewh.Utils;
 
+import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
-import mp.dottiewh.config.CustomConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -16,41 +16,43 @@ import java.util.*;
 import static mp.dottiewh.DottUtils.prefix;
 
 public class U { //Stands for utils
-    private static Set<UUID> listaNoFall = new HashSet<>();
+    private static final Set<UUID> listaNoFall = new HashSet<>();
+   // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
 
     //--------------------------Métodos Útiles-----------------------------------
     public static void targetMessage(Player target, String mensaje){
-        target.sendMessage(U.mensajeConPrefix(mensaje));
+        target.sendMessage(U.STmensajeConPrefix(mensaje));
     }
     public static void targetMessageNP(Player target, String mensaje){
-        target.sendMessage(U.mensajeConColor(mensaje));
+        target.sendMessage(U.STmensajeConColor(mensaje));
     }
-    public static String mensajeConPrefix(String mensaje){
+    public static String STmensajeConPrefix(String mensaje){
         return ChatColor.translateAlternateColorCodes('&',prefix+"&f"+mensaje);
     }
-    public static String mensajeConColor(String mensaje){
+    public static String STmensajeConColor(String mensaje){
         return ChatColor.translateAlternateColorCodes('&',mensaje);
     }
-    public static void mensajeConsola(String mensaje){
+    public static Component componentColor(String mensaje){
+        return LegacyComponentSerializer.legacy('&').deserialize(mensaje);
+    }
+    public static void STmensajeConsola(String mensaje){
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',prefix+mensaje));
     }
-    public static void mensajeConsolaNP(String mensaje){
+    public static void STmensajeConsolaNP(String mensaje){
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',mensaje));
     }
-    public static String componentGetContent(Component component){
-        String msg = PlainTextComponentSerializer.plainText().serialize(component);
-
-        return msg;
+    public static String componentToStringMsg(Component component){
+        return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
     public static void showAllStatus(){
         boolean noFallS = Config.getNoFallStatus(), wlS = Config.getWhiteListStatus();
         boolean pvpS = Config.getPvPStatus();
 
 
-        mensajeConsolaNP("&9Whitelist: &e"+wlS);
-        mensajeConsolaNP("&9PvP: &e"+pvpS);
-        mensajeConsolaNP("&9No Fall: &e"+noFallS);
+        STmensajeConsolaNP("&9Whitelist: &e"+wlS);
+        STmensajeConsolaNP("&9PvP: &e"+pvpS);
+        STmensajeConsolaNP("&9No Fall: &e"+noFallS);
 
     }
     //---------------no fall management---------

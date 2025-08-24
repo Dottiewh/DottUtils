@@ -1,7 +1,7 @@
 package mp.dottiewh.aliasCommands;
 
 import mp.dottiewh.Commands;
-import mp.dottiewh.U;
+import mp.dottiewh.Utils.U;
 import mp.dottiewh.config.Config;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -91,6 +91,6 @@ public class Whitelist extends Commands {
         if (Config.containsAdmin(name)) return;
         if (Config.containsWhitelist(name)) return;
 
-        event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, U.mensajeConColor("&cNo estás whitelisteado!"));
+        event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, U.STmensajeConColor("&cNo estás whitelisteado!"));
     }
 }
