@@ -5,6 +5,7 @@ import io.papermc.paper.registry.RegistryKey;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.Items.Exceptions.MissingMaterialException;
 import mp.dottiewh.Utils.U;
 import mp.dottiewh.config.CustomConfig;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ItemConfig{
     //private static CustomConfig configMsg;
@@ -131,5 +133,14 @@ public class ItemConfig{
 
         itemcfg.set(path, null);
         configItem.saveConfig();
+    }
+
+    public static Set<String> getItems(){
+        FileConfiguration cfg = configItem.getConfig();
+        ConfigurationSection section = cfg.getConfigurationSection("Items");
+
+        if (section==null) throw new ItemSectionEmpty("Problema en tu Items.yml, Maybe 'Items:' doesn't exists.");
+
+        return section.getKeys(false);
     }
 }

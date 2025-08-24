@@ -1,1 +1,10 @@
 Items:
+  test:
+    Material: DIAMOND_SWORD
+    Name: '&9&lWow.'
+    Lore:
+      - '&cTest!'
+      - '&eLine 2!'
+    Enchants:
+      sharpness: 5
+      knockback: 2

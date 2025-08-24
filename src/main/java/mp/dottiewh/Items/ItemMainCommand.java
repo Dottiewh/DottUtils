@@ -3,6 +3,7 @@ package mp.dottiewh.Items;
 import mp.dottiewh.Commands;
 import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.Items.Exceptions.MissingMaterialException;
 import mp.dottiewh.Utils.U;
 import net.kyori.adventure.text.Component;
@@ -34,31 +35,45 @@ public class ItemMainCommand extends Commands {
             senderMessageIPr(errorMsg);
             return;
         }
-        if (args.length<3){
-            senderMessageIPr("&cPorfavor, añade el nombre de algún item.");
-            return;
-        }
 
         switch (args[1]){
             case "save" -> save(args[2]);
             case "get" -> get(args[2]);
-            case "delete", "del" -> del(args[2]);
+            case "delete", "del", "remove" -> del(args[2]);
+            case "list" -> list();
 
             default -> senderMessageIPr(errorMsg);
         }
     }
+    private void list(){
+        Set<String> items;
+        try{
+            items = ItemConfig.getItems();
+        }catch (ItemSectionEmpty e){
+            senderMessageIPr("Hay un error en tu yml, consola para detalles.");
+            U.STmensajeConsola(e.toString());
+            return;
+        }
+
+        String itemList = String.join("&7, &f", items);
+        senderMessageIPr("&aLista de items registrados: &f"+itemList);
+    }
     private void del(String name){
+        if (argNombreCheck()) return;
+
         try {
             ItemConfig.removeItem(name);
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cTu item posiblemente no existe, más detalles en consola.");
-            U.STmensajeConsolaNP(e.toString());
+            U.STmensajeConsola(e.toString());
             return;
         }
 
         senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
     }
     private void save(String name){
+        if (argNombreCheck()) return;
+
         if (!(sender instanceof Player player)){
             senderMessageIPr("&cEste comando solo lo puede usar un jugador.");
             return;
@@ -68,6 +83,8 @@ public class ItemMainCommand extends Commands {
         senderMessageIPr("&aHas guardado exitosamente tu item &f"+name+"!");
     }
     private void get(String name){
+        if (argNombreCheck()) return;
+
         if (!(sender instanceof Player player)){
             senderMessageIPr("&cNo eres un jugador!");
             return;
@@ -110,5 +127,12 @@ public class ItemMainCommand extends Commands {
         msg = prefix+msg;
         Component message = LegacyComponentSerializer.legacy('&').deserialize(msg);
         player.sendMessage(message);
+    }
+    private boolean argNombreCheck(){
+        if (args.length<3){
+            senderMessageIPr("&cPorfavor, añade el nombre de algún item.");
+            return true;
+        }
+        else return false;
     }
 }
