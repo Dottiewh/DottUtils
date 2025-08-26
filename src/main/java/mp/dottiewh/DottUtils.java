@@ -35,7 +35,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     private Set<String> comandosRegistrados = getDescription().getCommands().keySet();
 
     private static CustomConfig ymlLists;
-    private static CustomConfig ymlConfig;
+    public static CustomConfig ymlConfig;
     public static CustomConfig ymlMessages;
     public static CustomConfig ymlItems;
 

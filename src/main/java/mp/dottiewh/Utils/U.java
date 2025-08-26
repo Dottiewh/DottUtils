@@ -93,4 +93,7 @@ public class U { //Stands for utils
     public static String getMsgPath (String path){
         return DottUtils.ymlMessages.getConfig().getString(path);
     }
+    public static int getIntConfigPath (String path){
+        return DottUtils.ymlConfig.getConfig().getInt(path);
+    }
 }

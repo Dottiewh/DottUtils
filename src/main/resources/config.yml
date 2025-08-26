@@ -1,3 +1,4 @@
 pvp: true
 whitelist_active: false
 no_fall: false
+max_itemgive_amount: 250
