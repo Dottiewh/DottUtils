@@ -1,25 +1,35 @@
 package mp.dottiewh.Items;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
 import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.Items.Exceptions.MissingMaterialException;
+import mp.dottiewh.Utils.ItemUtils;
 import mp.dottiewh.Utils.U;
 import mp.dottiewh.config.CustomConfig;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.Registry;
+import org.bukkit.registry.RegistryAware;
+import org.checkerframework.checker.units.qual.A;
+import org.w3c.dom.Attr;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ItemConfig{
     //private static CustomConfig configMsg;
@@ -58,6 +68,24 @@ public class ItemConfig{
                 //guardar cada encantamiento
                 meta.getEnchants().forEach((ench, lvl)->
                     enchSection.set(ench.getKey().getKey(), lvl));
+            }
+            if (meta.hasAttributeModifiers()){
+                Multimap<Attribute, AttributeModifier> modifiers = meta.getAttributeModifiers();
+                if (modifiers!=null){
+                    ConfigurationSection attrSection = section.createSection("Attributes");
+
+                    for (Map.Entry<Attribute, AttributeModifier> entry : modifiers.entries()){
+                        Attribute attribute = entry.getKey();
+
+                        AttributeModifier mod = entry.getValue();
+
+
+                        String path = attribute.getKey().getKey();
+                        attrSection.set(path+".value", mod.getAmount());
+                        attrSection.set(path+".operation", mod.getOperation().name());
+                        attrSection.set(path+".slot", mod.getSlotGroup().toString());
+                    }
+                }
             }
         }
         configItem.saveConfig();
@@ -117,6 +145,43 @@ public class ItemConfig{
                     }catch (Exception e) {
                         U.STmensajeConsolaNP("&cError con encantamientos en '"+path+"'. &eDetails: "+e);
                         continue;}
+                }
+            }
+
+
+            // atributos
+            ConfigurationSection attrSection = section.getConfigurationSection("Attributes");
+            if (attrSection!=null){
+                for (String attrKey : attrSection.getKeys(false)){
+                    ConfigurationSection singleAttr = attrSection.getConfigurationSection(attrKey);
+                    if (singleAttr != null) {
+                        try{
+                            NamespacedKey key = NamespacedKey.minecraft(attrKey);
+
+                            RegistryAccess regAccess = RegistryAccess.registryAccess();
+                            Registry<Attribute> registry = regAccess.getRegistry(RegistryKey.ATTRIBUTE);
+                            double value = singleAttr.getDouble("value");
+                            String operation = singleAttr.getString("operation");
+                            String slot = singleAttr.getString("slot");
+
+                            if (operation==null) continue;
+                            if (slot==null) slot = "MAINHAND";
+
+                            Attribute attr = registry.get(key);Multimap<Attribute, AttributeModifier> atributo;
+                            AttributeModifier.Operation modOp = AttributeModifier.Operation.valueOf(operation.toUpperCase());
+                            EquipmentSlotGroup modSlot = ItemUtils.getSlotFromString(slot);
+
+                            AttributeModifier modFinal = new AttributeModifier(key, value, modOp, modSlot);
+
+                            Multimap<Attribute, AttributeModifier> toSend = HashMultimap.create();
+                            toSend.put(attr, modFinal);
+
+                            meta.setAttributeModifiers(toSend);
+                        }catch(Exception e){
+                            U.STmensajeConsolaNP("&cHa habido algún error cargando atributos con el item: "+name);
+                            continue;
+                        }
+                    }
                 }
             }
             item.setItemMeta(meta);
