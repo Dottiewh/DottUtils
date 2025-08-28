@@ -60,7 +60,7 @@ public abstract class Commands {
         switch (input){
             case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
             case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
-            case "help" -> new Help(comandosRegistrados, sender, command, label, args);
+            case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args);
             case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
             case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);

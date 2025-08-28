@@ -98,9 +98,9 @@ public class ItemConfig{
                 float saturation = food.getSaturation();
 
 
-                foodSection.set("Always_Eatable", alwaysEat);
-                foodSection.set("Nutrition", nutrition);
-                foodSection.set("Saturation", saturation);
+                foodSection.set("always_eatable", alwaysEat);
+                foodSection.set("nutrition", nutrition);
+                foodSection.set("saturation", saturation);
             }
             //---------UNBREAKABLE-------------
             if (meta.isUnbreakable()){
@@ -120,7 +120,7 @@ public class ItemConfig{
         String matName = section.getString("Material"); //checkea si existe el path
         if (matName == null) throw new MissingMaterialException(path);
 
-        Material material = Material.matchMaterial(matName); // checkea si es valido el material
+        Material material = Material.matchMaterial(matName.toUpperCase()); // checkea si es valido el material
         if (material == null) throw new InvalidMaterialException(matName, path);
 
         ItemStack item = new ItemStack(material);
@@ -148,7 +148,8 @@ public class ItemConfig{
             // ---------------------encantamientos----------------------
             ConfigurationSection enchSection = section.getConfigurationSection("Enchants");
             if (enchSection!=null){
-                for (String enchKey : enchSection.getKeys(false)){
+                for (String originalEnchKey : enchSection.getKeys(false)){
+                    String enchKey = originalEnchKey.toLowerCase();
                     NamespacedKey key = NamespacedKey.minecraft(enchKey);
 
                     try{ // no es lo óptimo, pero por si acasoooooo
@@ -157,7 +158,7 @@ public class ItemConfig{
 
                         Enchantment ench = registry.get(key);
 
-                        int lvl = enchSection.getInt(enchKey);
+                        int lvl = enchSection.getInt(originalEnchKey);
                         if (ench!=null) {
                             meta.addEnchant(ench, lvl, true);
                         }
@@ -175,6 +176,7 @@ public class ItemConfig{
                 for (String attrKey : attrSection.getKeys(false)){
                     ConfigurationSection singleAttr = attrSection.getConfigurationSection(attrKey);
                     if (singleAttr != null) {
+                        attrKey = attrKey.toLowerCase();
                         try{
                             NamespacedKey key = NamespacedKey.minecraft(attrKey);
 
@@ -185,6 +187,7 @@ public class ItemConfig{
                             String slot = singleAttr.getString("slot");
 
                             if (operation==null) continue;
+                            operation = operation.toUpperCase();
                             if (slot==null) slot = "MAINHAND";
 
                             Attribute attr = registry.get(key);Multimap<Attribute, AttributeModifier> atributo;
@@ -212,9 +215,9 @@ public class ItemConfig{
                         U.STmensajeConsolaNP("&cNo se pudo cargar datos de comida en "+name+".");
                     }
                     else {
-                        boolean alwaysEat = foodSection.getBoolean("Always_Eatable");
-                        int nutrition = foodSection.getInt("Nutrition");
-                        double saturationDB = foodSection.getDouble("Saturation");
+                        boolean alwaysEat = foodSection.getBoolean("always_eatable");
+                        int nutrition = foodSection.getInt("nutrition");
+                        double saturationDB = foodSection.getDouble("saturation");
                         float saturation = (float) saturationDB;
                         toSend.setCanAlwaysEat(alwaysEat);
                         toSend.setNutrition(nutrition);
