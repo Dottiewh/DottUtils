@@ -25,6 +25,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.Registry;
+import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.registry.RegistryAware;
 import org.checkerframework.checker.units.qual.A;
 import org.w3c.dom.Attr;
@@ -52,9 +53,9 @@ public class ItemConfig{
         if (item.hasItemMeta()){
             ItemMeta meta = item.getItemMeta();
 
-            //name
+            //--------------NAME----------------
             if (meta.hasDisplayName()) section.set("Name", U.componentToStringMsg(meta.displayName()));
-            //lore
+            //-----------LORE-----------------------
             if (meta.hasLore()){
                 List<Component> loreComp = meta.lore();
                 if (loreComp!= null){
@@ -62,13 +63,14 @@ public class ItemConfig{
                     section.set("Lore", lorePlain);
                 }
             }
-            //Enchants
+            //----------ENCANTAMIENTOS------------
             if (meta.hasEnchants()){
                 ConfigurationSection enchSection = section.createSection("Enchants");
                 //guardar cada encantamiento
                 meta.getEnchants().forEach((ench, lvl)->
                     enchSection.set(ench.getKey().getKey(), lvl));
             }
+            //-------ATRIBUTOS-----------
             if (meta.hasAttributeModifiers()){
                 Multimap<Attribute, AttributeModifier> modifiers = meta.getAttributeModifiers();
                 if (modifiers!=null){
@@ -86,6 +88,19 @@ public class ItemConfig{
                         attrSection.set(path+".slot", mod.getSlotGroup().toString());
                     }
                 }
+            }
+
+            if (meta.hasFood()){
+                ConfigurationSection foodSection = section.createSection("Food");
+                FoodComponent food = meta.getFood();
+                boolean alwaysEat = food.canAlwaysEat();
+                int nutrition = food.getNutrition();
+                float saturation = food.getSaturation();
+
+
+                foodSection.set("Always_Eatable", alwaysEat);
+                foodSection.set("Nutrition", nutrition);
+                foodSection.set("Saturation", saturation);
             }
         }
         configItem.saveConfig();
@@ -108,14 +123,14 @@ public class ItemConfig{
         ItemMeta meta = item.getItemMeta();
 
         if (meta!=null){
-            // nombre
+            // ---------------LORE------------------
             String strName = section.getString("Name");
             if (strName != null){
                 Component colorName = U.componentColor(strName);
                 meta.displayName(colorName);
             }
 
-            // lore (Hay que pasar de List<String> a list component
+            // ---------lore (Hay que pasar de List<String> a list component--------------
             List<String> strLore = section.getStringList("Lore");
             if (!strLore.isEmpty()){
                 List<Component> compLore = new ArrayList<>();
@@ -126,7 +141,7 @@ public class ItemConfig{
                 meta.lore(compLore);
             }
 
-            // encantamientos
+            // ---------------------encantamientos----------------------
             ConfigurationSection enchSection = section.getConfigurationSection("Enchants");
             if (enchSection!=null){
                 for (String enchKey : enchSection.getKeys(false)){
@@ -149,9 +164,10 @@ public class ItemConfig{
             }
 
 
-            // atributos
+            // --------------atributos----------------------
             ConfigurationSection attrSection = section.getConfigurationSection("Attributes");
             if (attrSection!=null){
+                Multimap<Attribute, AttributeModifier> allModifiers = HashMultimap.create();
                 for (String attrKey : attrSection.getKeys(false)){
                     ConfigurationSection singleAttr = attrSection.getConfigurationSection(attrKey);
                     if (singleAttr != null) {
@@ -173,17 +189,40 @@ public class ItemConfig{
 
                             AttributeModifier modFinal = new AttributeModifier(key, value, modOp, modSlot);
 
-                            Multimap<Attribute, AttributeModifier> toSend = HashMultimap.create();
-                            toSend.put(attr, modFinal);
+                            allModifiers.put(attr, modFinal);
 
-                            meta.setAttributeModifiers(toSend);
                         }catch(Exception e){
-                            U.STmensajeConsolaNP("&cHa habido algún error cargando atributos con el item: "+name);
+                            U.STmensajeConsolaNP("&cHa habido algún error cargando atributos con el item: "+name+" | key: "+ attrKey);
                             continue;
                         }
                     }
                 }
+                meta.setAttributeModifiers(allModifiers);
             }
+            ConfigurationSection foodSection = section.getConfigurationSection("Food");
+            if (foodSection!=null){
+                FoodComponent toSend = item.getItemMeta().getFood();
+                try{
+
+                    if (toSend==null){
+                        U.STmensajeConsolaNP("&cNo se pudo cargar datos de comida en "+name+".");
+                    }
+                    else {
+                        boolean alwaysEat = foodSection.getBoolean("Always_Eatable");
+                        int nutrition = foodSection.getInt("Nutrition");
+                        double saturationDB = foodSection.getDouble("Saturation");
+                        float saturation = (float) saturationDB;
+                        toSend.setCanAlwaysEat(alwaysEat);
+                        toSend.setNutrition(nutrition);
+                        toSend.setSaturation(saturation);
+                        meta.setFood(toSend);
+                    }
+                }catch (Exception e){
+                    U.STmensajeConsolaNP("&cHubo un problema intentando cargar los atributos de comida de: "+name);
+                    U.STmensajeConsolaNP(e.toString());
+                }
+            }
+
             item.setItemMeta(meta);
         }
         return item;

@@ -39,9 +39,11 @@ public class ItemUtils {
             case "SADDLE"->{
                 return EquipmentSlotGroup.SADDLE;
             }
-
+            case "ANY"->{
+                return EquipmentSlotGroup.ANY;
+            }
             //-------------------------
-            case "ANY", default -> {
+            default-> {
                 return EquipmentSlotGroup.ANY;
             }
         }
