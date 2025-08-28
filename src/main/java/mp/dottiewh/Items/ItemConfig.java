@@ -89,7 +89,7 @@ public class ItemConfig{
                     }
                 }
             }
-
+            //-----COMIDA-------------
             if (meta.hasFood()){
                 ConfigurationSection foodSection = section.createSection("Food");
                 FoodComponent food = meta.getFood();
@@ -101,6 +101,10 @@ public class ItemConfig{
                 foodSection.set("Always_Eatable", alwaysEat);
                 foodSection.set("Nutrition", nutrition);
                 foodSection.set("Saturation", saturation);
+            }
+            //---------UNBREAKABLE-------------
+            if (meta.isUnbreakable()){
+                section.set("Unbreakable", true);
             }
         }
         configItem.saveConfig();
@@ -221,6 +225,11 @@ public class ItemConfig{
                     U.STmensajeConsolaNP("&cHubo un problema intentando cargar los atributos de comida de: "+name);
                     U.STmensajeConsolaNP(e.toString());
                 }
+            }
+            //----UNBREAKABLE-----
+            boolean unbreakStatus = section.getBoolean("Unbreakable");
+            if (unbreakStatus){
+                meta.setUnbreakable(true);
             }
 
             item.setItemMeta(meta);

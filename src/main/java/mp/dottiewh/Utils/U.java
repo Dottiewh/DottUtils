@@ -49,10 +49,13 @@ public class U { //Stands for utils
         boolean noFallS = Config.getNoFallStatus(), wlS = Config.getWhiteListStatus();
         boolean pvpS = Config.getPvPStatus();
 
+        String displayNoFallS = (noFallS) ? "&eHay daño de caída &cDESACTIVADO&e." : "&eHay daño de caída &aACTIVADO&e.";
+        String displayWlS = (wlS) ? "&eLa whitelist está &aACTIVADA&e." : "&eLa whitelist está &cDESACTIVADA&e.";
+        String displaypvpS = (pvpS) ? "&eEl pvp está &aACTIVADO&e." : "&eEl pvp está &cDESACTIVADO&e.";
 
-        STmensajeConsolaNP("&9Whitelist: &e"+wlS);
-        STmensajeConsolaNP("&9PvP: &e"+pvpS);
-        STmensajeConsolaNP("&9No Fall: &e"+noFallS);
+        STmensajeConsolaNP(displayNoFallS);
+        STmensajeConsolaNP(displayWlS);
+        STmensajeConsolaNP(displaypvpS);
 
     }
     //---------------no fall management---------
