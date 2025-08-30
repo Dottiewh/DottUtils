@@ -1,8 +1,8 @@
-# V (1.1.7)
+# V (1.1.7b)
 
 ## Implementamos:
-- #### Soporte para consumibles con el /du item.
-- #### Minor improvements.
+- #### Hotfixes
+- #### Implementación de customizar el Max_stack_size en tus items guardados.
 ## Requisitos:
 - #### Paper _(o algun fork)_.
 - #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.8)

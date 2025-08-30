@@ -208,7 +208,7 @@ public class ItemUtils {
 
         // Builder
         Consumable consumable = Consumable.consumable()//start
-                .consumeSeconds(3)
+                .consumeSeconds(consumeSeconds)
                 .animation(realAnimation)
                 .sound(realSound)
                 .hasConsumeParticles(bConsumeParticles)

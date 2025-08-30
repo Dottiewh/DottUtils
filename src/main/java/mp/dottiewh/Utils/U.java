@@ -91,6 +91,8 @@ public class U { //Stands for utils
         if (!(event.getEntity() instanceof Player player)) return;
         if (!Config.getNoFallStatus()) return; //si esta en false el no fall se devuelve
 
+        if(!event.getCause().equals(EntityDamageEvent.DamageCause.FALL)) return;
+
         event.setCancelled(true);
     }
     public static String getMsgPath (String path){

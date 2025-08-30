@@ -68,6 +68,7 @@
     Items:
       sus:
         Material: MINECART
+        Max_stack_size: 25
         Consumable:
           seconds: 2.0
           animation: SPYGLASS
@@ -92,6 +93,7 @@
             diameter: 10.0
           PlaySound:
             sound: ENTITY.WITHER.SPAWN
+#### **Max_stack_size:** Marca el número máximo de items que puedes llevar. (Max: 99)
 ### Resumen de Consumable:
 #### **seconds:** Marca los segundos que se demora en consumir el objeto.
 #### **animation:** La animación que se va a hacer en consumir, acepta todas las de [Spigot - ConsumableAnimations](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/meta/components/consumable/ConsumableComponent.Animation.html).

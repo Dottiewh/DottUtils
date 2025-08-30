@@ -119,6 +119,11 @@ public class ItemConfig{
             if (meta.isUnbreakable()){
                 section.set("Unbreakable", true);
             }
+            //------MAXSTACKSIZE---------------
+            if (meta.hasMaxStackSize()){
+                int max = meta.getMaxStackSize();
+                section.set("Max_stack_size", max);
+            }
             //---------consumible---------
             var consumible = item.getData(DataComponentTypes.CONSUMABLE);
             if (consumible!=null){
@@ -194,7 +199,6 @@ public class ItemConfig{
                     }
                 }
             }
-
         }
         configItem.saveConfig();
     }
@@ -327,6 +331,13 @@ public class ItemConfig{
             if (unbreakStatus){
                 meta.setUnbreakable(true);
             }
+            //-----MAX STACK SIZE--------
+            int max_stack = section.getInt("Max_stack_size");
+            if(max_stack!=0){
+                meta.setMaxStackSize(max_stack);
+            }else{
+                U.STmensajeConsolaNP("&cHubo un problema intentando cargar Max_stack_size en "+name+". Value interpretado: "+max_stack);
+            }
             //---------CONSUMIBLE--------
             ConfigurationSection consumableSection = section.getConfigurationSection("Consumable");
             if (consumableSection!=null){
@@ -334,10 +345,10 @@ public class ItemConfig{
                 
                 modifyData = true;
             }
-
+            //---------------
             item.setItemMeta(meta);
             
-            if (modifyData) item.setData(DataComponentTypes.CONSUMABLE, consToAdd);
+            if (modifyData) item.setData(DataComponentTypes.CONSUMABLE, consToAdd); // cosito al final para consumible
         }
         return item;
     }
