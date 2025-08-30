@@ -2,9 +2,13 @@ package mp.dottiewh.Items;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
@@ -12,25 +16,34 @@ import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.Items.Exceptions.MissingMaterialException;
 import mp.dottiewh.Utils.ItemUtils;
 import mp.dottiewh.Utils.U;
+import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Keyed;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.Registry;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.components.FoodComponent;
-import org.bukkit.registry.RegistryAware;
-import org.checkerframework.checker.units.qual.A;
-import org.w3c.dom.Attr;
+import io.papermc.paper.datacomponent.item.Consumable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.*;
+import javax.swing.plaf.MenuItemUI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 
 public class ItemConfig{
     //private static CustomConfig configMsg;
@@ -106,10 +119,89 @@ public class ItemConfig{
             if (meta.isUnbreakable()){
                 section.set("Unbreakable", true);
             }
+            //---------consumible---------
+            var consumible = item.getData(DataComponentTypes.CONSUMABLE);
+            if (consumible!=null){
+                ConfigurationSection consumableSection = section.createSection("Consumable");
+                consumableSection.set("seconds", consumible.consumeSeconds());
+
+                if (consumible.animation()!=null){
+                    ItemUseAnimation animation = consumible.animation();
+                    consumableSection.set("animation", animation.name());
+                }
+                if (consumible.sound()!=null){
+                    Key sound =  consumible.sound();
+                    consumableSection.set("sound", sound.value().toUpperCase());
+                }
+                if (consumible.hasConsumeParticles()){
+                    consumableSection.set("consumeparticles", true);
+                }else consumableSection.set("consumeparticles", false);
+
+                if (consumible.consumeEffects()!=null){
+                    List<ConsumeEffect> efectos = consumible.consumeEffects();
+                    for (ConsumeEffect effect : efectos){
+                        String effectString = ItemUtils.consumeEffectToString(effect);
+                        ConfigurationSection cEffectSection = consumableSection.createSection(effectString);
+                        switch (effectString){
+                            case "ApplyStatusEffects"->{
+                                ConsumeEffect.ApplyStatusEffects applyStatus = (ConsumeEffect.ApplyStatusEffects) effect;
+                                cEffectSection.set("probability", applyStatus.probability());
+                                for (PotionEffect potion : applyStatus.effects()){
+
+                                    NamespacedKey key = potion.getType().getKey();
+                                    String stringPotionEffect = key.getKey().toUpperCase();
+                                    ConfigurationSection potionSection = cEffectSection.createSection(stringPotionEffect);
+
+                                    if (potion.isInfinite()){
+                                        potionSection.set("duration", "infinite");
+                                    }
+                                    else{
+                                        potionSection.set("duration", potion.getDuration());
+                                    }
+                                    potionSection.set("amplifier", potion.getAmplifier());
+                                }
+                            }
+                            case "ClearAllStatusEffects"->{
+                                cEffectSection.set("status", true);
+                            }
+                            case "PlaySound"->{
+                                ConsumeEffect.PlaySound cPlaySound = (ConsumeEffect.PlaySound) effect;
+
+                                String stringSound = cPlaySound.sound().value().toUpperCase();
+                                cEffectSection.set("sound", stringSound);
+                            }
+                            case "RemoveStatusEffects"->{
+                                List<String> effectsList = new ArrayList<>();
+                                ConsumeEffect.RemoveStatusEffects remEffect = (ConsumeEffect.RemoveStatusEffects) effect;
+                                RegistryKeySet<PotionEffectType> toRemove = remEffect.removeEffects();
+
+                                for (TypedKey<PotionEffectType> objetivo : toRemove){
+                                    String sPotion = objetivo.key().value().toUpperCase();
+                                    effectsList.add(sPotion);
+                                }
+                                cEffectSection.set("effects", effectsList);
+                            }
+                            case "TeleportRandomly"->{
+                                ConsumeEffect.TeleportRandomly cTelRandom = (ConsumeEffect.TeleportRandomly) effect;
+
+                                float diametro = cTelRandom.diameter();
+                                cEffectSection.set("diameter", diametro);
+                            }
+                            //---
+                            default->U.STmensajeConsola("&cHa ocurrido un error intentando cargar un atributo de tipo "+effectString+" | "+name);
+                        }
+
+                    }
+                }
+            }
+
         }
         configItem.saveConfig();
     }
     public static ItemStack loadItem(String name) { //path something like = Items.ItemName
+        boolean modifyData = false;
+        Consumable consToAdd = null;
+        
         String path = "Items."+name;
         ConfigurationSection section = configItem.getConfig().getConfigurationSection(path);
         if (section==null){
@@ -206,6 +298,7 @@ public class ItemConfig{
                 }
                 meta.setAttributeModifiers(allModifiers);
             }
+            //------FOODD------------
             ConfigurationSection foodSection = section.getConfigurationSection("Food");
             if (foodSection!=null){
                 FoodComponent toSend = item.getItemMeta().getFood();
@@ -234,8 +327,17 @@ public class ItemConfig{
             if (unbreakStatus){
                 meta.setUnbreakable(true);
             }
+            //---------CONSUMIBLE--------
+            ConfigurationSection consumableSection = section.getConfigurationSection("Consumable");
+            if (consumableSection!=null){
+                consToAdd = ItemUtils.consumableBuilderU(consumableSection, name);
+                
+                modifyData = true;
+            }
 
             item.setItemMeta(meta);
+            
+            if (modifyData) item.setData(DataComponentTypes.CONSUMABLE, consToAdd);
         }
         return item;
     }

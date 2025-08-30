@@ -1,14 +1,8 @@
-# V (1.1.6)
+# V (1.1.7)
 
 ## Implementamos:
-- #### /du item
-    - #### Soporta nombre custom.
-    - #### Soporta lore custom.
-    - #### Soporta encantamientos.
-    - #### Soporta atributos.
-    - #### Soporta atributos de comida.
-    - #### Soporta unbreakable.
-
+- #### Soporte para consumibles con el /du item.
+- #### Minor improvements.
 ## Requisitos:
 - #### Paper _(o algun fork)_.
 - #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.8)
