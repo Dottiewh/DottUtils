@@ -72,14 +72,21 @@ public class BackUtils {
         String worldS = section.getString("world"); if (worldS==null) return null;
         World world = Bukkit.getWorld(worldS); if(world == null) return null;
 
-        if(DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")==0) {
+        int customMode = section.getInt("encrypt_mode", -1);
+        if(DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")==0 && customMode==-1) {
             x = section.getDouble("x");
             y = section.getDouble("y");
             z = section.getDouble("z");
         }else{
-            x = Crypto.decodeForBack(section.getString("x"), uuid);
-            y = Crypto.decodeForBack(section.getString("y"), uuid);
-            z = Crypto.decodeForBack(section.getString("z"), uuid);
+            if (customMode==-1){
+                x = Crypto.decodeForBack(section.getString("x"), uuid);
+                y = Crypto.decodeForBack(section.getString("y"), uuid);
+                z = Crypto.decodeForBack(section.getString("z"), uuid);
+            }else{
+                x = Crypto.decodeForBack(section.getString("x"), uuid, customMode);
+                y = Crypto.decodeForBack(section.getString("y"), uuid, customMode);
+                z = Crypto.decodeForBack(section.getString("z"), uuid, customMode);
+            }
         }
 
         return new Location(world, x, y, z);

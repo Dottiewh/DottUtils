@@ -13,8 +13,13 @@ import java.util.UUID;
 
 public class Crypto {
     public static String encodeForBack(double value, UUID uuid) {
-
-        switch (DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")){
+        return mainEncodeForBack(value, uuid, DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode"));
+    }
+    public static String encodeForBack(double value, UUID uuid, int mode) {
+        return mainEncodeForBack(value, uuid, mode);
+    }
+    private static String mainEncodeForBack(double value, UUID uuid, int mode){
+        switch (mode){
             case 0 -> {return String.valueOf(value);}
             case 1 -> {
                 return Base64.getEncoder().encodeToString(String.valueOf(value).getBytes());
@@ -28,10 +33,15 @@ public class Crypto {
             //---------
             default -> {return null;}
         }
-
     }
     public static double decodeForBack(String encoded, UUID uuid) {
-        switch (DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")){
+        return mainDecodeForBack(encoded, uuid, DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode"));
+    }
+    public static double decodeForBack(String encoded, UUID uuid, int mode) {
+        return mainDecodeForBack(encoded, uuid, mode);
+    }
+    private static double mainDecodeForBack(String encoded, UUID uuid, int mode){
+        switch (mode){
             case 0 -> {return Double.parseDouble(encoded);}
             case 1 -> {
                 return Double.parseDouble(new String(Base64.getDecoder().decode(encoded)));
@@ -45,7 +55,6 @@ public class Crypto {
             //---------
             default -> {return 0;}
         }
-
     }
     //====================
     private static String encryptWithKey(String KEY, String value) {

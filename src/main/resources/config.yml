@@ -5,5 +5,5 @@ max_itemgive_amount: 250
 
 back_active: true
 back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode may interfer with saved backs.
-add_encrypt_mode_to_save: false
+add_encrypt_mode_to_save: true
 delay_onback: 100 #Ticks
