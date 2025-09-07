@@ -2,3 +2,4 @@ pvp: true
 whitelist_active: false
 no_fall: false
 max_itemgive_amount: 250
+delay_onback: 100 #Ticks

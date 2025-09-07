@@ -1,5 +1,5 @@
 main: mp.dottiewh.DottUtils
-version: 1.1.7b
+version: 1.1.8
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
@@ -26,3 +26,6 @@ commands:
   status:
     description: Muestra tps y otros datos
     usage: /status
+  back:
+    description: Te teletransporta a tu último punto de muerte.
+    usage: /back

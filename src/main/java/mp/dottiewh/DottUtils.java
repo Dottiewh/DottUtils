@@ -7,13 +7,17 @@ import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.noaliasCommands.backcore.BackUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -38,6 +42,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlConfig;
     public static CustomConfig ymlMessages;
     public static CustomConfig ymlItems;
+    public static CustomConfig ymlBackList;
 
     public void onEnable(){
         instance = this;
@@ -71,6 +76,16 @@ public class DottUtils extends JavaPlugin implements Listener {
         return true;
     }
 
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+
+        BackUtils.movementManagement(event, player);
+    }
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event){
+        BackUtils.backOnDeathManagement(event);
+    }
     @EventHandler
     public void onEntityAttack(EntityDamageByEntityEvent event){
         U.noPvP(event);
@@ -127,10 +142,12 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlConfig = new CustomConfig("config.yml", null, plugin, false);
         ymlMessages = new CustomConfig("messages.yml", null, plugin, false);
         ymlItems = new CustomConfig("items.yml", null, plugin, false);
+        ymlBackList = new CustomConfig("backlist.yml", "util", plugin, false);
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
         ymlLists.registerConfig();
         ymlItems.registerConfig();
+        ymlBackList.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
