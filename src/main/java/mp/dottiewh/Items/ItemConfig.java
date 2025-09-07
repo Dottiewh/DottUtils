@@ -16,11 +16,9 @@ import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.Items.Exceptions.MissingMaterialException;
 import mp.dottiewh.Utils.ItemUtils;
 import mp.dottiewh.Utils.U;
-import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -32,13 +30,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.components.FoodComponent;
 import io.papermc.paper.datacomponent.item.Consumable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.swing.plaf.MenuItemUI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +189,7 @@ public class ItemConfig{
                                 cEffectSection.set("diameter", diametro);
                             }
                             //---
-                            default->U.STmensajeConsola("&cHa ocurrido un error intentando cargar un atributo de tipo "+effectString+" | "+name);
+                            default->U.mensajeConsola("&cHa ocurrido un error intentando cargar un atributo de tipo "+effectString+" | "+name);
                         }
 
                     }
@@ -259,7 +255,7 @@ public class ItemConfig{
                             meta.addEnchant(ench, lvl, true);
                         }
                     }catch (Exception e) {
-                        U.STmensajeConsolaNP("&cError con encantamientos en '"+path+"'. &eDetails: "+e);
+                        U.mensajeConsolaNP("&cError con encantamientos en '"+path+"'. &eDetails: "+e);
                         continue;}
                 }
             }
@@ -295,7 +291,7 @@ public class ItemConfig{
                             allModifiers.put(attr, modFinal);
 
                         }catch(Exception e){
-                            U.STmensajeConsolaNP("&cHa habido algún error cargando atributos con el item: "+name+" | key: "+ attrKey);
+                            U.mensajeConsolaNP("&cHa habido algún error cargando atributos con el item: "+name+" | key: "+ attrKey);
                             continue;
                         }
                     }
@@ -309,7 +305,7 @@ public class ItemConfig{
                 try{
 
                     if (toSend==null){
-                        U.STmensajeConsolaNP("&cNo se pudo cargar datos de comida en "+name+".");
+                        U.mensajeConsolaNP("&cNo se pudo cargar datos de comida en "+name+".");
                     }
                     else {
                         boolean alwaysEat = foodSection.getBoolean("always_eatable");
@@ -322,8 +318,8 @@ public class ItemConfig{
                         meta.setFood(toSend);
                     }
                 }catch (Exception e){
-                    U.STmensajeConsolaNP("&cHubo un problema intentando cargar los atributos de comida de: "+name);
-                    U.STmensajeConsolaNP(e.toString());
+                    U.mensajeConsolaNP("&cHubo un problema intentando cargar los atributos de comida de: "+name);
+                    U.mensajeConsolaNP(e.toString());
                 }
             }
             //----UNBREAKABLE-----
@@ -336,7 +332,7 @@ public class ItemConfig{
             if(max_stack!=0){
                 meta.setMaxStackSize(max_stack);
             }else{
-                U.STmensajeConsolaNP("&cHubo un problema intentando cargar Max_stack_size en "+name+". Value interpretado: "+max_stack);
+                U.mensajeConsolaNP("&cHubo un problema intentando cargar Max_stack_size en "+name+". Value interpretado: "+max_stack);
             }
             //---------CONSUMIBLE--------
             ConfigurationSection consumableSection = section.getConfigurationSection("Consumable");

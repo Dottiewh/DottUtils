@@ -61,19 +61,19 @@ public class Gm extends Commands {
         switch (input){
             case 0 -> {
                 player.setGameMode(GameMode.SURVIVAL);
-                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Supervivencia"));
+                player.sendMessage(U.mensajeConPrefix(sucMsg+"Supervivencia"));
             }
             case 1 -> {
                 player.setGameMode(GameMode.CREATIVE);
-                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Creativo"));
+                player.sendMessage(U.mensajeConPrefix(sucMsg+"Creativo"));
             }
             case 2 -> {
                 player.setGameMode(GameMode.ADVENTURE);
-                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Aventura"));
+                player.sendMessage(U.mensajeConPrefix(sucMsg+"Aventura"));
             }
             case 3 -> {
                 player.setGameMode(GameMode.SPECTATOR);
-                player.sendMessage(U.STmensajeConPrefix(sucMsg+"Espectador"));
+                player.sendMessage(U.mensajeConPrefix(sucMsg+"Espectador"));
             }
 
             default -> {

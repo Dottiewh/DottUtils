@@ -72,7 +72,6 @@ public class DottUtils extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         //new Commands(comandosRegistrados, sender, cmd, label, args);
         Commands.commandCore(comandosRegistrados, sender, cmd, label, args);
-
         return true;
     }
 
@@ -80,11 +79,17 @@ public class DottUtils extends JavaPlugin implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
 
-        BackUtils.movementManagement(event, player);
+        if (DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
+            BackUtils.movementManagement(event, player);
+        }
+
     }
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event){
-        BackUtils.backOnDeathManagement(event);
+
+        if (DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
+            BackUtils.backOnDeathManagement(event);
+        }
     }
     @EventHandler
     public void onEntityAttack(EntityDamageByEntityEvent event){
@@ -113,25 +118,25 @@ public class DottUtils extends JavaPlugin implements Listener {
     //----------
     public static CustomConfig getRegisteredConfigLists(){
         if (ymlLists == null) {
-            U.STmensajeConsola("&eConfig aún no cargada...");
+            U.mensajeConsola("&eConfig aún no cargada...");
         }
         return ymlLists;
     }
     public static CustomConfig getRegisteredConfig(){
         if (ymlConfig == null) {
-            U.STmensajeConsola("&eConfig aún no cargada...");
+            U.mensajeConsola("&eConfig aún no cargada...");
         }
         return ymlConfig;
     }
     public static CustomConfig getRegisteredItemConfig(){
         if (ymlConfig == null) {
-            U.STmensajeConsola("&eConfig aún no cargada...");
+            U.mensajeConsola("&eConfig aún no cargada...");
         }
         return ymlItems;
     }
     public static CustomConfig getRegisteredMsgConfig(){
         if (ymlConfig == null) {
-            U.STmensajeConsola("&eConfig aún no cargada...");
+            U.mensajeConsola("&eConfig aún no cargada...");
         }
         return ymlMessages;
     }

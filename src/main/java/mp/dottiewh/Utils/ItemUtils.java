@@ -8,25 +8,17 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
-import mp.dottiewh.noaliasCommands.Gm;
-import mp.dottiewh.noaliasCommands.Jump;
-import mp.dottiewh.noaliasCommands.Status;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.key.Namespaced;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
-import org.bukkit.inventory.meta.components.consumable.effects.ConsumableEffect;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class ItemUtils {
     public static EquipmentSlotGroup getSlotFromString(String slot) {
@@ -90,7 +82,7 @@ public class ItemUtils {
                 realAnimation = ItemUseAnimation.valueOf(sAnimation);
             }catch (Exception e){
                 realAnimation = ItemUseAnimation.EAT;
-                U.STmensajeConsolaNP("Problema intentando cargar animación de consumible "+sAnimation+" | "+name);
+                U.mensajeConsolaNP("Problema intentando cargar animación de consumible "+sAnimation+" | "+name);
             }
         }else realAnimation = ItemUseAnimation.EAT;
         //SONIDO
@@ -102,7 +94,7 @@ public class ItemUtils {
                 realSound = Key.key("minecraft:"+sSound);
             }catch (Exception e){
                 realSound = Key.key("minecraft:entity.generic.eat");
-                U.STmensajeConsolaNP("Problema intentando cargar animación de consumible "+sSound+" | "+name);
+                U.mensajeConsolaNP("Problema intentando cargar animación de consumible "+sSound+" | "+name);
             }
         }else realSound = Key.key("minecraft:entity.generic.eat");
         //PARTICLES
@@ -144,9 +136,9 @@ public class ItemUtils {
                     typedKeys.add(typedKey);
                     allRight =true;
                 }catch (Exception e){
-                    U.STmensajeConsolaNP("&cProblema con efecto de poción en consumible. Efecto: "+eff+" | "+name);
-                    U.STmensajeConsolaNP("&c"+Arrays.toString(e.getStackTrace()));
-                    U.STmensajeConsolaNP("minecraft:"+eff);
+                    U.mensajeConsolaNP("&cProblema con efecto de poción en consumible. Efecto: "+eff+" | "+name);
+                    U.mensajeConsolaNP("&c"+Arrays.toString(e.getStackTrace()));
+                    U.mensajeConsolaNP("minecraft:"+eff);
                     continue;
                 }
             }
@@ -176,7 +168,7 @@ public class ItemUtils {
                      duration = valuesSection.getInt("duration");
                      amplifier = valuesSection.getInt("amplifier");
                 }else{
-                    U.STmensajeConsolaNP("&cEu, revisate el efecto de poción "+efectito+", en el item "+name+" en tu yml.");
+                    U.mensajeConsolaNP("&cEu, revisate el efecto de poción "+efectito+", en el item "+name+" en tu yml.");
                     continue;
                 }
                 PotionEffect toAdd = new PotionEffect(effectType, duration, amplifier);
@@ -201,8 +193,8 @@ public class ItemUtils {
                 ConsumeEffect pToAdd = ConsumeEffect.playSoundConsumeEffect(key);
                 effectsList.add(pToAdd);
             }catch(Exception e){
-                U.STmensajeConsolaNP("Prueba a revisar tu sonido que tienes en "+name+", está como "+soundS);
-                U.STmensajeConsolaNP("&c"+Arrays.toString(e.getStackTrace()));
+                U.mensajeConsolaNP("Prueba a revisar tu sonido que tienes en "+name+", está como "+soundS);
+                U.mensajeConsolaNP("&c"+Arrays.toString(e.getStackTrace()));
             }
         }
 

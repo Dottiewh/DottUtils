@@ -35,9 +35,10 @@ public abstract class Commands {
     public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
         String cmdString = command.getName();
         if (!comandosRegistrados.contains(cmdString)){
-            sender.sendMessage(U.STmensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
+            sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
             return;
         }
+
 
         switch (cmdString.toLowerCase()){
             case "gm"-> new Gm(comandosRegistrados, sender, command, label, args);
@@ -46,7 +47,7 @@ public abstract class Commands {
             case "back" -> new BackCommand(comandosRegistrados, sender, command, label, args);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
-            default -> sender.sendMessage(U.STmensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
+            default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
         }
 
 //
@@ -70,8 +71,8 @@ public abstract class Commands {
             case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
-                sender.sendMessage(U.STmensajeConPrefix("&c&lSub-índice no encontrado."));
-                sender.sendMessage(U.STmensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
+                sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
+                sender.sendMessage(U.mensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
             }
         }
     }
@@ -83,9 +84,9 @@ public abstract class Commands {
 
     // metodos utiles
     protected void senderMessage(String mensaje){
-        sender.sendMessage(U.STmensajeConPrefix(mensaje));
+        sender.sendMessage(U.mensajeConPrefix(mensaje));
     }
     protected void senderMessageNP(String mensaje){
-        sender.sendMessage(U.STmensajeConColor(mensaje));
+        sender.sendMessage(U.mensajeConColor(mensaje));
     }
 }

@@ -53,7 +53,7 @@ public class ItemMainCommand extends Commands {
             items = ItemConfig.getItems();
         }catch (ItemSectionEmpty e){
             senderMessageIPr("Hay un error en tu yml, consola para detalles.");
-            U.STmensajeConsola(e.toString());
+            U.mensajeConsola(e.toString());
             return;
         }
 
@@ -68,7 +68,7 @@ public class ItemMainCommand extends Commands {
             ItemConfig.removeItem(name);
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cTu item posiblemente no existe, más detalles en consola.");
-            U.STmensajeConsola(e.toString());
+            U.mensajeConsola(e.toString());
             return;
         }
 
@@ -160,16 +160,16 @@ public class ItemMainCommand extends Commands {
             item = ItemConfig.loadItem(name);
         }catch (InvalidMaterialException e){
             senderMessageIPr("&cEl material registrado de tal item es invalido. (Check console)");
-            U.STmensajeConsola(e.toString());
+            U.mensajeConsola(e.toString());
             return;
         }catch (MissingMaterialException e){
             senderMessageIPr("&cNo hay ningún material registrado en tal item. (Check console)");
-            U.STmensajeConsola(e.toString());
+            U.mensajeConsola(e.toString());
             return;
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cError en tu config. (Check console)");
             senderMessageIPr("&e&o(Posiblemente no exista tu item)");
-            U.STmensajeConsola(e.toString());
+            U.mensajeConsola(e.toString());
             return;
         }
 

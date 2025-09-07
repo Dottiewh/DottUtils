@@ -19,9 +19,22 @@ public class Help extends Commands {
 
     @Override
     protected void run(){
+        int page = 1;
+        if (args.length>1){
+            try{
+                page = Integer.parseInt(args[1]);
+            }catch(NumberFormatException e){
+                senderMessageNP("&e&oPágina inválida, usando página 1...");
+            }
+        }
 
         senderMessageNP("&8&l--------------"+prefixBellaco+"&8&l-----------------------");
-        msg1();
+        switch (page){
+            case 1-> msg1();
+            case 2-> msg2();
+
+            default-> senderMessage("&cNo has introducido un índice valido.");
+        }
 
     }
 
@@ -44,9 +57,15 @@ public class Help extends Commands {
         senderMessageNP("&8&lComando: &f/du nofall &f&o[nf]");
         senderMessageNP("&7&lUsos: &etoggle, status");
 
+        //
+        senderMessageNP("&8&l-&f&l1/2&8&l---------------------------------------");
+    }
 
+    private void msg2(){
+        senderMessageNP("&8&lComando: &f/du item");
+        senderMessageNP("&7&lUsos: &esave, get, give, delete &e&o[del]&e, list");
 
         //
-        senderMessageNP("&8&l-&f&l1/?&8&l---------------------------------------");
+        senderMessageNP("&8&l-&f&l2/2&8&l---------------------------------------");
     }
 }

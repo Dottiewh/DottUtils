@@ -120,8 +120,8 @@ public class AdminChat extends Commands {
         consoleCore(name, msg);
 
         if (Boolean.FALSE.equals(acIsJoined.get(name))){
-            player.sendMessage(U.STmensajeConColor(acPrefix+"&6&lEstás escribiendo en el canal de admin, sin estar dentro!"));
-            player.sendMessage(U.STmensajeConColor(acPrefix+"&e&lIntenta: &e/du ac join &8|&e /du ac toggle"));
+            player.sendMessage(U.mensajeConColor(acPrefix+"&6&lEstás escribiendo en el canal de admin, sin estar dentro!"));
+            player.sendMessage(U.mensajeConColor(acPrefix+"&e&lIntenta: &e/du ac join &8|&e /du ac toggle"));
         }
     }
     private static void consoleCore(String by, String msg){
@@ -129,7 +129,7 @@ public class AdminChat extends Commands {
         if (Boolean.FALSE.equals(acIsJoined.get("Console"))) return;
 
         if (Config.containsAdmin("Console")){
-               U.STmensajeConsolaNP(acPrefix+by+" &8&l> &f"+msg);
+               U.mensajeConsolaNP(acPrefix+by+" &8&l> &f"+msg);
         }
     }
 
@@ -143,7 +143,7 @@ public class AdminChat extends Commands {
 
         event.setCancelled(true);
 
-        console.sendMessage(U.STmensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
+        console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
         for (String adm : Config.getAdminList()) {
             Player target = Bukkit.getPlayer(adm);
             if (target != null && target.isOnline()) {

@@ -1,12 +1,9 @@
 package mp.dottiewh.Utils;
 
-import com.google.common.graph.AbstractNetwork;
 import mp.dottiewh.DottUtils;
-import org.bukkit.entity.Player;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
@@ -74,8 +71,8 @@ public class Crypto {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return new String(cipher.doFinal(Base64.getDecoder().decode(value)));
         } catch (Exception e) {
-            U.STmensajeConsola("&cProblema con decrypt. Details:");
-            U.STmensajeConsolaNP("&c"+ Arrays.toString(e.getStackTrace()));
+            U.mensajeConsola("&cProblema con decrypt. Details:");
+            U.mensajeConsolaNP("&c"+ Arrays.toString(e.getStackTrace()));
             return "0";
         }
     }

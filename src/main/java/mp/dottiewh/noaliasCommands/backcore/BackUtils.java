@@ -3,11 +3,11 @@ package mp.dottiewh.noaliasCommands.backcore;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.Utils.Crypto;
 import mp.dottiewh.Utils.U;
-import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -125,8 +125,8 @@ public class BackUtils {
         return DottUtils.ymlConfig;
     }
     private static void onErrorChance(){
-        U.STmensajeConsola("&cRevisa tu util>backlist.yml | Es posible que esté vacío o corrupto.");
-        U.STmensajeConsolaNP("&cIntentando regenerar...");
+        U.mensajeConsola("&cRevisa tu util>backlist.yml | Es posible que esté vacío o corrupto.");
+        U.mensajeConsolaNP("&cIntentando regenerar...");
         getBackList().getConfig().createSection("Deaths");
         getBackList().saveConfig();
     }
@@ -136,5 +136,18 @@ public class BackUtils {
     private static String keyFormat(double num, UUID uuid){
         double value = U.truncar(num, 3);
         return Crypto.encodeForBack(value, uuid);
+    }
+    //--
+    public static void backSendMsg(String msg, Player player){
+        String prefix = U.getMsgPath("back_prefix");
+        U.targetMessageNP(player, prefix+msg);
+    }
+    public static void backSendMsgConsole(String msg){
+        String prefix = U.getMsgPath("back_prefix");
+        U.mensajeConsolaNP(prefix+msg);
+    }
+    public static void backSendMsgSender(String msg,CommandSender sender){
+        String prefix = U.getMsgPath("back_prefix");
+        sender.sendMessage(U.mensajeConColor(prefix+msg));
     }
 }

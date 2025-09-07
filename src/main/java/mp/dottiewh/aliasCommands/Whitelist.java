@@ -91,6 +91,6 @@ public class Whitelist extends Commands {
         if (Config.containsAdmin(name)) return;
         if (Config.containsWhitelist(name)) return;
 
-        event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, U.STmensajeConColor("&cNo estás whitelisteado!"));
+        event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, U.mensajeConColor("&cNo estás whitelisteado!"));
     }
 }

@@ -25,7 +25,7 @@ public class BackCommand extends Commands {
     @Override
     protected void run(){
         if (!DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
-            senderMessage("&cEl back está desactivado en la config.");
+            BackUtils.backSendMsgSender("&cEl back está desactivado en la config.", sender);
             return;
         }
 
@@ -33,14 +33,14 @@ public class BackCommand extends Commands {
         long delay = DottUtils.ymlConfig.getConfig().getLong("delay_onback");
 
         if (!(sender instanceof Player player)){
-            senderMessage("&cEste comando solo lo puede usar un jugador.");
+            BackUtils.backSendMsgSender("&cEste comando solo lo puede usar un jugador.", sender);
             return;
         }
         String name = player.getName();
         UUID uuid = player.getUniqueId();
         Location loc = BackUtils.getDeathLoc(name, uuid);
         if (loc==null){
-            senderMessage("&cNo tienes ningun &6back &casociado.");
+            BackUtils.backSendMsgSender("&cNo tienes ningun &6back &casociado.", sender);
             return;
         }
 
@@ -49,7 +49,7 @@ public class BackCommand extends Commands {
             senderMessageNP("&cCancelando...");
         }
 
-        senderMessage("&aTe vas a teletransportar en &e"+(delay/20)+" (s)&a.");
+        BackUtils.backSendMsgSender("&aTe vas a teletransportar en &e"+(delay/20)+" (s)&a.", sender);
         //manejo de los 5 segundos de tp
         BukkitTask task = new BukkitRunnable() {
             @Override

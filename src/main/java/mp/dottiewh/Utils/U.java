@@ -4,9 +4,7 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -22,28 +20,29 @@ public class U { //Stands for utils
 
     //--------------------------Métodos Útiles-----------------------------------
     public static void targetMessage(Player target, String mensaje){
-        target.sendMessage(U.STmensajeConPrefix(mensaje));
+        target.sendMessage(U.mensajeConPrefix(mensaje));
     }
     public static void targetMessageNP(Player target, String mensaje){
-        target.sendMessage(U.STmensajeConColor(mensaje));
+        target.sendMessage(U.mensajeConColor(mensaje));
     }
-    public static String STmensajeConPrefix(String mensaje){
-        return ChatColor.translateAlternateColorCodes('&',prefix+"&f"+mensaje);
+    public static Component mensajeConPrefix(String mensaje){
+        return componentColor(prefix+mensaje);
     }
-    public static String STmensajeConColor(String mensaje){
-        return ChatColor.translateAlternateColorCodes('&',mensaje);
+    public static Component mensajeConColor(String mensaje){
+        return componentColor(mensaje);
+    }
+    public static void mensajeConsola(String mensaje){
+        Bukkit.getConsoleSender().sendMessage(componentColor(prefix+mensaje));
+    }
+    public static void mensajeConsolaNP(String mensaje){
+        Bukkit.getConsoleSender().sendMessage(componentColor(mensaje));
+    }
+
+    public static String componentToStringMsg(Component component){
+        return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
     public static Component componentColor(String mensaje){
         return LegacyComponentSerializer.legacy('&').deserialize(mensaje);
-    }
-    public static void STmensajeConsola(String mensaje){
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',prefix+mensaje));
-    }
-    public static void STmensajeConsolaNP(String mensaje){
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',mensaje));
-    }
-    public static String componentToStringMsg(Component component){
-        return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
     public static void showAllStatus(){
         boolean noFallS = Config.getNoFallStatus(), wlS = Config.getWhiteListStatus();
@@ -53,9 +52,9 @@ public class U { //Stands for utils
         String displayWlS = (wlS) ? "&eLa whitelist está &aACTIVADA&e." : "&eLa whitelist está &cDESACTIVADA&e.";
         String displaypvpS = (pvpS) ? "&eEl pvp está &aACTIVADO&e." : "&eEl pvp está &cDESACTIVADO&e.";
 
-        STmensajeConsolaNP(displayNoFallS);
-        STmensajeConsolaNP(displayWlS);
-        STmensajeConsolaNP(displaypvpS);
+        mensajeConsolaNP(displayNoFallS);
+        mensajeConsolaNP(displayWlS);
+        mensajeConsolaNP(displaypvpS);
 
     }
     //---------------no fall management---------
