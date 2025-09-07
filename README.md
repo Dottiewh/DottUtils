@@ -1,6 +1,8 @@
-# V (1.1.8)
+# V (1.1.8b)
 
 ## Implementamos:
+- #### _(b part)_ HotFixes
+
 - #### Small improvements
 - ### Comando /back
     - #### Guarda tu último punto de muerte.

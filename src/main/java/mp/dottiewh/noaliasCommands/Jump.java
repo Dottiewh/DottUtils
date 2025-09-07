@@ -86,6 +86,9 @@ public class Jump extends Commands {
         if (times > 50) {senderMessage("&cBro controlate &e(max 50)&c."); return;}
         Player target = player;
 
+        if(input>30){
+            input=30;
+        }
         if (delayMap.containsKey(target.getUniqueId())) delayMap.get(target.getUniqueId()).cancel(); // se cancela si hay una tarea
         //------end of checks
 
@@ -93,8 +96,9 @@ public class Jump extends Commands {
         for (int i = 0; i < times; i++) {
             int delay = 5 * i;
 
+            final double finalInput = input;
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                target.setVelocity(new Vector(0, input, 0));
+                target.setVelocity(new Vector(0, finalInput, 0));
             }, delay);
 
         }
@@ -115,7 +119,7 @@ public class Jump extends Commands {
         delayMap.put(target.getUniqueId(), task);
 
         if (toOther){
-            senderMessage("&aHas hecho saltar a: &f"+player.getName()+" &8| &e(Input: "+args[0]+") &7&i("+times+")");
+            senderMessage("&aHas hecho saltar a: &f"+player.getName()+" &8| &e(Input: "+args[0]+") &7&o("+times+")");
         }
 
 
