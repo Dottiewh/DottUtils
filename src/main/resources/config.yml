@@ -2,4 +2,8 @@ pvp: true
 whitelist_active: false
 no_fall: false
 max_itemgive_amount: 250
+
+back_active: true
+back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode may interfer with saved backs.
+add_encrypt_mode_to_save: false
 delay_onback: 100 #Ticks

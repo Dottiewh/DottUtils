@@ -1,6 +1,7 @@
 package mp.dottiewh.noaliasCommands.backcore;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.Utils.Crypto;
 import mp.dottiewh.Utils.U;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
@@ -12,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import java.util.UUID;
+
 public class BackUtils {
 
     public static void backOnDeathManagement(PlayerDeathEvent event){
@@ -19,6 +22,7 @@ public class BackUtils {
 
         Player player = event.getPlayer();
         String name = player.getName();
+        UUID uuid = player.getUniqueId();
 
         Location deathLoc = player.getLocation();
         double x = deathLoc.getX();
@@ -26,23 +30,37 @@ public class BackUtils {
         double z = deathLoc.getZ();
         World world = deathLoc.getWorld();
 
-        addDeathLoc(name, x, y, z ,world);
+        addDeathLoc(name, x, y, z ,world, uuid);
     }
-    public static void addDeathLoc(String name, double x, double y, double z, World world){
+    public static void addDeathLoc(String name, double x, double y, double z, World world, UUID uuid){
         ConfigurationSection sectionM = getMainSection();
         if (sectionM==null){
             onErrorChance();
             return;
         }
         ConfigurationSection section = sectionM.createSection(name);
-        section.set("x", format(x));
-        section.set("y", format(y));
-        section.set("z", format(z));
+        if(DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")==0){
+            section.set("x", format(x));
+            section.set("y", format(y));
+            section.set("z", format(z));
+        }else{
+            section.set("x", keyFormat(x, uuid));
+            section.set("y", keyFormat(y, uuid));
+            section.set("z", keyFormat(z, uuid));
+        }
+
         section.set("world", world.getName());
+
+        //encrypt mode
+        if(DottUtils.ymlConfig.getConfig().getBoolean("add_encrypt_mode_to_save")){
+            section.set("encrypt_mode", DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode"));
+        }
 
         getBackList().saveConfig();
     }
-    public static Location getDeathLoc(String name){
+    public static Location getDeathLoc(String name, UUID uuid){
+        double x=0, y=0, z=0;
+
         ConfigurationSection sectionM = getMainSection();
         if (sectionM==null){
             onErrorChance();
@@ -53,9 +71,16 @@ public class BackUtils {
 
         String worldS = section.getString("world"); if (worldS==null) return null;
         World world = Bukkit.getWorld(worldS); if(world == null) return null;
-        double x = section.getDouble("x");
-        double y = section.getDouble("y");
-        double z = section.getDouble("z");
+
+        if(DottUtils.ymlConfig.getConfig().getInt("back_encrypt_mode")==0) {
+            x = section.getDouble("x");
+            y = section.getDouble("y");
+            z = section.getDouble("z");
+        }else{
+            x = Crypto.decodeForBack(section.getString("x"), uuid);
+            y = Crypto.decodeForBack(section.getString("y"), uuid);
+            z = Crypto.decodeForBack(section.getString("z"), uuid);
+        }
 
         return new Location(world, x, y, z);
     }
@@ -100,5 +125,9 @@ public class BackUtils {
     }
     private static double format(double num){
         return U.truncar(num, 3);
+    }
+    private static String keyFormat(double num, UUID uuid){
+        double value = U.truncar(num, 3);
+        return Crypto.encodeForBack(value, uuid);
     }
 }

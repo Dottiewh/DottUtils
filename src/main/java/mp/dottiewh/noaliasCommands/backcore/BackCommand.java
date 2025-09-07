@@ -24,6 +24,12 @@ public class BackCommand extends Commands {
     }
     @Override
     protected void run(){
+        if (!DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
+            senderMessage("&cEl back está desactivado en la config.");
+            return;
+        }
+
+
         long delay = DottUtils.ymlConfig.getConfig().getLong("delay_onback");
 
         if (!(sender instanceof Player player)){
@@ -31,12 +37,12 @@ public class BackCommand extends Commands {
             return;
         }
         String name = player.getName();
-        Location loc = BackUtils.getDeathLoc(name);
+        UUID uuid = player.getUniqueId();
+        Location loc = BackUtils.getDeathLoc(name, uuid);
         if (loc==null){
             senderMessage("&cNo tienes ningun &6back &casociado.");
             return;
         }
-        UUID uuid = player.getUniqueId();
 
         //-------MANEJO DE TASKS------------
         if (checkAndCancelTask(player)){
