@@ -1,4 +1,4 @@
-package mp.dottiewh.Items;
+package mp.dottiewh.items;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -10,12 +10,12 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.Items.Exceptions.MissingMaterialException;
-import mp.dottiewh.Utils.ItemUtils;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
+import mp.dottiewh.items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.utils.ItemUtils;
+import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;

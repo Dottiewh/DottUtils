@@ -1,4 +1,4 @@
-package mp.dottiewh.Utils;
+package mp.dottiewh.utils;
 
 import mp.dottiewh.DottUtils;
 
@@ -24,7 +24,7 @@ public class Crypto {
             case 2->{
                 String uuidRaw = uuid.toString();
                 String key = uuidRaw.replace("-","").substring(0, 16);
-                return encryptWithKey(key, String.valueOf(value));
+                return encryptWithKey(key, String.valueOf(value*3.2));
             }
 
             //---------
@@ -46,7 +46,7 @@ public class Crypto {
             case 2->{
                 String uuidRaw = uuid.toString();
                 String key = uuidRaw.replace("-","").substring(0, 16);
-                return Double.parseDouble(decryptWithKey(key, encoded));
+                return Double.parseDouble(decryptWithKey(key, encoded)) / 3.2;
             }
 
             //---------

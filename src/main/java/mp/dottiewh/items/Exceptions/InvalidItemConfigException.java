@@ -1,4 +1,4 @@
-package mp.dottiewh.Items.Exceptions;
+package mp.dottiewh.items.Exceptions;
 
 public class InvalidItemConfigException extends  RuntimeException{
     public InvalidItemConfigException(String path){

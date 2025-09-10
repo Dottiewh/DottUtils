@@ -1,8 +1,8 @@
 package mp.dottiewh.noaliasCommands.backcore;
 
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.Utils.Crypto;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.utils.Crypto;
+import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

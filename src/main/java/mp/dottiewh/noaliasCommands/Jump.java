@@ -1,7 +1,7 @@
 package mp.dottiewh.noaliasCommands;
 
 import mp.dottiewh.Commands;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

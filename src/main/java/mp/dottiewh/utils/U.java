@@ -1,4 +1,4 @@
-package mp.dottiewh.Utils;
+package mp.dottiewh.utils;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;

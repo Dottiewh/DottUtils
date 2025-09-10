@@ -1,4 +1,4 @@
-package mp.dottiewh.Utils;
+package mp.dottiewh.utils;
 
 import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;

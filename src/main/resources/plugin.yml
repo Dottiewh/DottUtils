@@ -1,5 +1,5 @@
 main: mp.dottiewh.DottUtils
-version: 1.1.8
+version: 1.1.9
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
@@ -21,7 +21,7 @@ commands:
   jump:
     description: Te deja saltar.
     usage: /jump
-    permission: dottUtils.gamemode
+    permission: dottUtils.jump
     permission-message: No puedes usar esto.
   status:
     description: Muestra tps y otros datos
@@ -29,3 +29,10 @@ commands:
   back:
     description: Te teletransporta a tu último punto de muerte.
     usage: /back
+  coords:
+    description: Comando principal del plugin.
+    usage: /coords
+    aliases:
+      - coordenadas
+      - coord
+      - antonia

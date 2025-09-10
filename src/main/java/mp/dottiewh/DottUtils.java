@@ -1,8 +1,8 @@
 package mp.dottiewh;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
-import mp.dottiewh.Items.ItemConfig;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.utils.U;
 import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
@@ -11,6 +11,7 @@ import mp.dottiewh.noaliasCommands.backcore.BackUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -36,7 +37,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static String prefix = "&5&l[&9&lDott&6&lUtils&5&l] ";
     private final String version = getDescription().getVersion();
 
-    private Set<String> comandosRegistrados = getDescription().getCommands().keySet();
+    private final Set<String> comandosRegistrados = getDescription().getCommands().keySet();
 
     private static CustomConfig ymlLists;
     public static CustomConfig ymlConfig;
@@ -53,6 +54,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         initCustomConfig();
+        //regEvents(this);
+
 
         U.showAllStatus();
     }
@@ -159,6 +162,18 @@ public class DottUtils extends JavaPlugin implements Listener {
         Config.configInit();
         ItemConfig.itemConfigInit();
     }
+    /*private static void regEvents(JavaPlugin plugin, Set<String> comandosSet){
+        for (String cmd : comandosSet){
+            PluginCommand pc = plugin.getCommand(cmd);
+            if (pc != null) {
+                pc.setExecutor(plugin);         // tu onCommand ya maneja todo
+                pc.setTabCompleter(plugin);     // si implementas onTabComplete / TabCompleter
+            } else {
+                plugin.getLogger().warning("Comando '" + cmd + "' no encontrado en plugin.yml");
+            }
+        }
+    }*/
+
     public static DottUtils getInstance(){
         return instance;
     }

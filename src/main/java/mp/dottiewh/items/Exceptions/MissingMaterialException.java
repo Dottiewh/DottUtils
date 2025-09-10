@@ -1,4 +1,4 @@
-package mp.dottiewh.Items.Exceptions;
+package mp.dottiewh.items.Exceptions;
 
 public class MissingMaterialException extends InvalidItemConfigException {
     public MissingMaterialException(String path) {

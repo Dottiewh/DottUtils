@@ -2,7 +2,7 @@ package mp.dottiewh.aliasCommands;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.Commands;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

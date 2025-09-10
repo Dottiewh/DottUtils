@@ -1,4 +1,4 @@
-package mp.dottiewh.Items.Exceptions;
+package mp.dottiewh.items.Exceptions;
 
 public class InvalidEnchantmentException extends InvalidItemConfigException {
     public InvalidEnchantmentException(String enchString, String path) {

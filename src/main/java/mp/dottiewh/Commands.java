@@ -1,7 +1,7 @@
 package mp.dottiewh;
 
-import mp.dottiewh.Items.ItemMainCommand;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.utils.U;
 import mp.dottiewh.noaliasCommands.backcore.BackCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -45,6 +45,7 @@ public abstract class Commands {
             case "jump" -> new Jump(comandosRegistrados, sender, command, label, args);
             case "status" -> new Status(comandosRegistrados, sender, command, label, args);
             case "back" -> new BackCommand(comandosRegistrados, sender, command, label, args);
+            case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
             default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."

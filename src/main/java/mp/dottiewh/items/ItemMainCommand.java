@@ -1,11 +1,11 @@
-package mp.dottiewh.Items;
+package mp.dottiewh.items;
 
 import mp.dottiewh.Commands;
-import mp.dottiewh.Items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.Items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.Items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.Items.Exceptions.MissingMaterialException;
-import mp.dottiewh.Utils.U;
+import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
+import mp.dottiewh.items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
