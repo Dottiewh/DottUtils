@@ -55,7 +55,7 @@ public class DottUtils extends JavaPlugin implements Listener {
 
         initCustomConfig();
         //regEvents(this);
-
+        checkVersion();
 
         U.showAllStatus();
     }
@@ -176,5 +176,21 @@ public class DottUtils extends JavaPlugin implements Listener {
 
     public static DottUtils getInstance(){
         return instance;
+    }
+    private void checkVersion(){
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            String ultimaVersion = U.getLastVersionGithub();
+
+            if (ultimaVersion != null && !ultimaVersion.equalsIgnoreCase(version)) {
+                Bukkit.getScheduler().runTask(this, () -> {
+                    U.mensajeConsola("&e&lEstás usando una versión no actualizada! &cYours: &6"+version+" &8| &clastest: &6"+ultimaVersion);
+                    U.mensajeConsola("&e&lDescarga la última version en: &fhttps://github.com/Dottiewh/DottUtils/releases");
+                });
+            }else{
+                Bukkit.getScheduler().runTask(this, () -> {
+                    U.mensajeConsola("&aEstás usando la última versión! &6"+ultimaVersion);
+                });
+            }
+        });
     }
 }

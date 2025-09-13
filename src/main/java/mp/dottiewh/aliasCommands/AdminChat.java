@@ -11,6 +11,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,33 +22,23 @@ public class AdminChat extends Commands {
     private static String acPrefix = U.getMsgPath("adminchat_prefix"); //"&6&l[&e&lAdmin&9&lChat&6&l] &7";
     private static final String errorMsg = "&cHas usado un término incorrecto.\n&6Posibles usos: &etoggle, leave, join";
     String dName;
+    private static final String[] comandosProtegidos = {"du ac toggle", "du adminchat toggle", "du achat toggle",
+        "ac toggle", "achat toggle", "adminchat toggle"};
 
-    public AdminChat(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
+    //normal case (/du ac)
+    public AdminChat(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args, Boolean isNoOpCase) {
         super(comandosRegistrados, sender, command, label, args);
 
-        run();
+        if (isNoOpCase){
+            runNoOp();
+        }else{
+            run();
+        }
     }
 
     @Override
     protected void run() {
-        if (!(sender instanceof Player || sender instanceof ConsoleCommandSender)) return;
-
-        if (sender instanceof Player player){
-            if (!Config.containsAdmin(player.getName())){
-                senderMessage("&c&lNo estás registrado como admin.");
-                return;
-            }
-            this.dName = player.getName();
-        }
-        if (sender instanceof ConsoleCommandSender console){
-            if (!Config.containsAdmin("Console") || !Config.containsAdmin("console")){
-                senderMessage("&c&lNo estás registrado como admin.");
-                return;
-            }
-            this.dName = "Console";
-
-        }
-
+        if (somethingFailedOnCheck()) return;
 
         if (args.length<2){
             senderMessage(errorMsg);
@@ -62,6 +53,45 @@ public class AdminChat extends Commands {
         }
 
     }
+    protected void runNoOp() {
+        if (somethingFailedOnCheck()) return;
+
+
+        if (args.length<1){
+            senderMessage(errorMsg);
+            return;
+        }
+        switch (args[0]){
+            case "toggle"-> toggle();
+            case "leave" -> leave();
+            case "join" -> join();
+
+            default -> senderMessage(errorMsg);
+        }
+
+    }
+
+    private boolean somethingFailedOnCheck(){
+        if (!(sender instanceof Player || sender instanceof ConsoleCommandSender)) return true;
+
+        if (sender instanceof Player player){
+            if (!Config.containsAdmin(player.getName())){
+                senderMessage("&c&lNo estás registrado como admin.");
+                return true;
+            }
+            this.dName = player.getName();
+        }
+        if (sender instanceof ConsoleCommandSender console){
+            if (!Config.containsAdmin("Console") || !Config.containsAdmin("console")){
+                senderMessageNP(acPrefix+"&c&lNo estás registrado como admin.");
+                return true;
+            }
+            this.dName = "Console";
+
+        }
+        return false;
+    }
+    //-----------
     private void toggle(){
         adminchatStatus.putIfAbsent(dName, false);
 
@@ -138,8 +168,7 @@ public class AdminChat extends Commands {
         if (!Boolean.TRUE.equals(adminchatStatus.get("Console"))) return;
         String input = event.getCommand();
 
-        if (input.equalsIgnoreCase("du ac toggle")||input.equalsIgnoreCase("dottutils ac toggle")||
-                input.equalsIgnoreCase("du adminchat toggle")||input.equalsIgnoreCase("dottutils adminchat toggle")) return;
+        if (isProtectedCommand(input)) return;
 
         event.setCancelled(true);
 
@@ -153,6 +182,9 @@ public class AdminChat extends Commands {
         }
         consoleCore("Console", input);
 
+    }
+    private static boolean isProtectedCommand(String cmd){
+        return Arrays.asList(comandosProtegidos).contains(cmd.toLowerCase());
     }
 
     public static void acPrefixReload(){
