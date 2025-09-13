@@ -1,9 +1,9 @@
-# V (1.1.9)
+# V (1.2.0)
 
 ## Implementamos:
 - #### Small improvements
-- ### Comando /coords
-    - #### Te muestra en todo momento tus actuales coords.
+- #### Compatibilidad con DiscordSRV para adminchat!
+  - #### Revisar la config.yml para detalles.
 ## Requisitos:
 - #### Paper _(o algun fork)_.
 - #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.8)
@@ -18,3 +18,6 @@
 - #### /back
 - #### /status
 - #### /coords
+
+
+### _Hay compatibilidad con **[DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/)**._
