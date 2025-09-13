@@ -76,7 +76,7 @@ public class AdminChat extends Commands {
 
         if (sender instanceof Player player){
             if (!Config.containsAdmin(player.getName())){
-                senderMessage("&c&lNo estás registrado como admin.");
+                senderMessageNP(acPrefix+"&c&lNo estás registrado como admin.");
                 return true;
             }
             this.dName = player.getName();

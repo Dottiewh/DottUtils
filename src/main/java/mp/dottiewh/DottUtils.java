@@ -44,6 +44,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlMessages;
     public static CustomConfig ymlItems;
     public static CustomConfig ymlBackList;
+    public static boolean discordCase;
 
     public void onEnable(){
         instance = this;
@@ -56,6 +57,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         initCustomConfig();
         //regEvents(this);
         checkVersion();
+        checkSoftDependencys(this);
 
         U.showAllStatus();
     }
@@ -173,6 +175,14 @@ public class DottUtils extends JavaPlugin implements Listener {
             }
         }
     }*/
+    private void checkSoftDependencys(JavaPlugin plugin){
+        if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
+            U.mensajeConsola("&6&lSe ha detectado al plugin &fDiscordSRV&a&l!");
+            discordCase = true;
+        } else {
+            discordCase = false;
+        }
+    }
 
     public static DottUtils getInstance(){
         return instance;
