@@ -7,3 +7,6 @@ back_active: true
 back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode may interfer with saved backs.
 add_encrypt_mode_to_save: true
 delay_onback: 100 #Ticks
+
+# ONLY USE WHEN DISCORD SRV IMPLEMENTATION IS BRINGED
+discord_adminchat_channel: "1416413488309469275"
