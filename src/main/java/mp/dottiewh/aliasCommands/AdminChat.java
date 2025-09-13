@@ -107,6 +107,7 @@ public class AdminChat extends Commands {
             adminchatStatus.replace(dName, false, true);
             senderMessage("&9Mensajes de admin al hablar &aActivado&9!");
             senderMessage("&aHabla de manera normal por el chat!");
+
         }
     }
     private void leave(){
@@ -118,6 +119,11 @@ public class AdminChat extends Commands {
 
         acIsJoined.replace(dName, true, false);
         senderMessage("&4Te has salido del canal de Admins!");
+        // Messages to others
+        sendACMsg(dName, acPrefix+"&eSe ha salido &f"+dName+" &edel canal de admins.", false);
+        if(DottUtils.discordCase) {
+            sendMsgToAdminChatDS(dName, ":red_circle: Se ha salido **" + dName + "** del canal de admins.", false);
+        }
     }
     private void join(){
         acIsJoined.putIfAbsent(dName, true);
@@ -125,7 +131,12 @@ public class AdminChat extends Commands {
             senderMessage("&cYa estás en el canal de AdminChat.");
             return;
         }
-
+        //
+        sendACMsg(dName, acPrefix+"&eSe ha vuelto a unir &f"+dName+" &eal canal de admins.", false);
+        if(DottUtils.discordCase){
+            sendMsgToAdminChatDS(dName, ":green_circle: Se ha vuelto a unir **"+dName+"** al canal de admins.", false);
+        }
+        //
         acIsJoined.replace(dName, false, true);
         senderMessage("&eTe has unido del canal de Admins!");
     }
@@ -147,10 +158,10 @@ public class AdminChat extends Commands {
         String msg = U.componentToStringMsg(event.originalMessage());
         event.setCancelled(true);
 
-        sendACMsg(name, msg);
+        sendACMsg(name, msg, true);
         consoleCore(name, msg);
         if(DottUtils.discordCase){
-            discordChatCoreFromMinecraft(name, msg);
+            sendMsgToAdminChatDS(name, msg, true);
         }
 
         if (Boolean.FALSE.equals(acIsJoined.get(name))){
@@ -177,7 +188,7 @@ public class AdminChat extends Commands {
         event.setCancelled(true);
 
         console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
-        sendACMsg("Console", input);
+        sendACMsg("Console", input, true);
         consoleCore("Console", input);
 
     }
@@ -190,22 +201,30 @@ public class AdminChat extends Commands {
         String name = event.getAuthor().getDisplayName();
         String msg = event.getMessage().getContentRaw();
 
-        name = "&c{&4Discord&c} &7"+name;
-        sendACMsg(name, msg);
+        name = "&4{&cDiscord&4} &7"+name;
+        sendACMsg(name, msg, true);
         consoleCore(name, msg);
     }
-    public static void discordChatCoreFromMinecraft(String name, String msg){
+    public static void sendMsgToAdminChatDS(String name, String msg, boolean withPrefix){
         TextChannel textChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("adminchat");
-        textChannel.sendMessage(name+" » "+msg).queue();
+        if(withPrefix){
+            textChannel.sendMessage(name+" » "+msg).queue();
+        }else{
+            textChannel.sendMessage(msg).queue();
+        }
     }
 
     //---
-    private static void sendACMsg(String name, String msg){
+    private static void sendACMsg(String name, String msg, boolean withPrefix){
         for (String adm : Config.getAdminList()) {
             Player target = Bukkit.getPlayer(adm);
             if (target != null && target.isOnline()) {
                 if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
-                U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
+                if (withPrefix){
+                    U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
+                }else{
+                    U.targetMessageNP(target, "&f"+msg);
+                }
             }
         }
     }
