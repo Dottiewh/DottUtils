@@ -1,5 +1,6 @@
 package mp.dottiewh;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
@@ -8,6 +9,7 @@ import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.noaliasCommands.backcore.BackUtils;
+import mp.dottiewh.listeners.*;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -44,6 +46,8 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlMessages;
     public static CustomConfig ymlItems;
     public static CustomConfig ymlBackList;
+    public static boolean discordCase;
+    private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
 
     public void onEnable(){
         instance = this;
@@ -51,10 +55,11 @@ public class DottUtils extends JavaPlugin implements Listener {
         Bukkit.getConsoleSender().sendMessage(
                 ChatColor.translateAlternateColorCodes('&',prefix+"&a&lHa sido activado. &c["+version+"]")
         );
-        getServer().getPluginManager().registerEvents(this, this);
 
         initCustomConfig();
-        //regEvents(this);
+        checkSoftDependencys();
+        regEvents();
+        checkVersion();
 
 
         U.showAllStatus();
@@ -68,6 +73,10 @@ public class DottUtils extends JavaPlugin implements Listener {
         if (ymlConfig != null) {
             ymlConfig.saveConfig();
         }
+        if (discordCase){
+            DiscordSRV.api.unsubscribe(discordsrvListener);
+        }
+
         instance = null;
     }
 
@@ -78,46 +87,6 @@ public class DottUtils extends JavaPlugin implements Listener {
         return true;
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-
-        if (DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
-            BackUtils.movementManagement(event, player);
-        }
-
-    }
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event){
-
-        if (DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
-            BackUtils.backOnDeathManagement(event);
-        }
-    }
-    @EventHandler
-    public void onEntityAttack(EntityDamageByEntityEvent event){
-        U.noPvP(event);
-    }
-    @EventHandler
-    public void onFallDamage(EntityDamageEvent event){
-        U.noFall(event); //checkea /du nf
-        U.noFall_core(event); // solo sirve para cosas del tipo /jump
-    }
-
-    @EventHandler
-    public void onChat(AsyncChatEvent event){
-
-        AdminChat.acCore(event);
-    }
-
-    @EventHandler
-    public void onServerCommand(ServerCommandEvent event) {
-        AdminChat.consoleChatCore(event);
-    }
-    @EventHandler
-    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        Whitelist.checkWhitelist(event);
-    }
     //----------
     public static CustomConfig getRegisteredConfigLists(){
         if (ymlLists == null) {
@@ -162,19 +131,53 @@ public class DottUtils extends JavaPlugin implements Listener {
         Config.configInit();
         ItemConfig.itemConfigInit();
     }
-    /*private static void regEvents(JavaPlugin plugin, Set<String> comandosSet){
-        for (String cmd : comandosSet){
-            PluginCommand pc = plugin.getCommand(cmd);
-            if (pc != null) {
-                pc.setExecutor(plugin);         // tu onCommand ya maneja todo
-                pc.setTabCompleter(plugin);     // si implementas onTabComplete / TabCompleter
-            } else {
-                plugin.getLogger().warning("Comando '" + cmd + "' no encontrado en plugin.yml");
-            }
+    private void regEvents(){
+        regFormat(new ChatListener());
+        regFormat(new EntityAttackListener());
+        regFormat(new FallDamageListener());
+        regFormat(new PlayerDeathListener());
+        regFormat(new PlayerMoveListener());
+        regFormat(new PlayerPreLoginListener());
+        regFormat(new ServerCommandListener());
+
+        if (discordCase){
+            DiscordSRV.api.subscribe(discordsrvListener);
         }
-    }*/
+    }
+    private void regFormat(Listener listener){
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+    private void checkSoftDependencys(){
+        if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
+            U.mensajeConsola("&6&lSe ha detectado al plugin &fDiscordSRV&a&l!");
+            discordCase = true;
+
+            String channelID = ymlConfig.getConfig().getString("discord_adminchat_channel");
+            if(channelID!=null&&channelID.equalsIgnoreCase("CHANNELID")){
+                U.mensajeConsola("&eNo tienes especificado un canal de discord para adminchat en la config!");
+            }
+        } else {
+            discordCase = false;
+        }
+    }
 
     public static DottUtils getInstance(){
         return instance;
+    }
+    private void checkVersion(){
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            String ultimaVersion = U.getLastVersionGithub();
+
+            if (ultimaVersion != null && !ultimaVersion.equalsIgnoreCase(version)) {
+                Bukkit.getScheduler().runTask(this, () -> {
+                    U.mensajeConsola("&e&lEstás usando una versión no actualizada! &cYours: &6"+version+" &8| &clastest: &6"+ultimaVersion);
+                    U.mensajeConsola("&e&lDescarga la última version en: &fhttps://github.com/Dottiewh/DottUtils/releases");
+                });
+            }else{
+                Bukkit.getScheduler().runTask(this, () -> {
+                    U.mensajeConsola("&aEstás usando la última versión! &6"+ultimaVersion);
+                });
+            }
+        });
     }
 }

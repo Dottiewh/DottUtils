@@ -1,7 +1,11 @@
 package mp.dottiewh.aliasCommands;
 
+import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.api.events.DiscordGuildMessageReceivedEvent;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.Commands;
+import mp.dottiewh.DottUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import org.bukkit.Bukkit;
@@ -11,6 +15,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,33 +26,23 @@ public class AdminChat extends Commands {
     private static String acPrefix = U.getMsgPath("adminchat_prefix"); //"&6&l[&e&lAdmin&9&lChat&6&l] &7";
     private static final String errorMsg = "&cHas usado un término incorrecto.\n&6Posibles usos: &etoggle, leave, join";
     String dName;
+    private static final String[] comandosProtegidos = {"du ac toggle", "du adminchat toggle", "du achat toggle",
+        "ac toggle", "achat toggle", "adminchat toggle"};
 
-    public AdminChat(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
+    //normal case (/du ac)
+    public AdminChat(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args, Boolean isNoOpCase) {
         super(comandosRegistrados, sender, command, label, args);
 
-        run();
+        if (isNoOpCase){
+            runNoOp();
+        }else{
+            run();
+        }
     }
 
     @Override
     protected void run() {
-        if (!(sender instanceof Player || sender instanceof ConsoleCommandSender)) return;
-
-        if (sender instanceof Player player){
-            if (!Config.containsAdmin(player.getName())){
-                senderMessage("&c&lNo estás registrado como admin.");
-                return;
-            }
-            this.dName = player.getName();
-        }
-        if (sender instanceof ConsoleCommandSender console){
-            if (!Config.containsAdmin("Console") || !Config.containsAdmin("console")){
-                senderMessage("&c&lNo estás registrado como admin.");
-                return;
-            }
-            this.dName = "Console";
-
-        }
-
+        if (somethingFailedOnCheck()) return;
 
         if (args.length<2){
             senderMessage(errorMsg);
@@ -62,6 +57,45 @@ public class AdminChat extends Commands {
         }
 
     }
+    protected void runNoOp() {
+        if (somethingFailedOnCheck()) return;
+
+
+        if (args.length<1){
+            senderMessage(errorMsg);
+            return;
+        }
+        switch (args[0]){
+            case "toggle"-> toggle();
+            case "leave" -> leave();
+            case "join" -> join();
+
+            default -> senderMessage(errorMsg);
+        }
+
+    }
+
+    private boolean somethingFailedOnCheck(){
+        if (!(sender instanceof Player || sender instanceof ConsoleCommandSender)) return true;
+
+        if (sender instanceof Player player){
+            if (!Config.containsAdmin(player.getName())){
+                senderMessageNP(acPrefix+"&c&lNo estás registrado como admin.");
+                return true;
+            }
+            this.dName = player.getName();
+        }
+        if (sender instanceof ConsoleCommandSender console){
+            if (!Config.containsAdmin("Console") || !Config.containsAdmin("console")){
+                senderMessageNP(acPrefix+"&c&lNo estás registrado como admin.");
+                return true;
+            }
+            this.dName = "Console";
+
+        }
+        return false;
+    }
+    //-----------
     private void toggle(){
         adminchatStatus.putIfAbsent(dName, false);
 
@@ -73,6 +107,7 @@ public class AdminChat extends Commands {
             adminchatStatus.replace(dName, false, true);
             senderMessage("&9Mensajes de admin al hablar &aActivado&9!");
             senderMessage("&aHabla de manera normal por el chat!");
+
         }
     }
     private void leave(){
@@ -84,6 +119,11 @@ public class AdminChat extends Commands {
 
         acIsJoined.replace(dName, true, false);
         senderMessage("&4Te has salido del canal de Admins!");
+        // Messages to others
+        sendACMsg(dName, acPrefix+"&eSe ha salido &f"+dName+" &edel canal de admins.", false);
+        if(DottUtils.discordCase) {
+            sendMsgToAdminChatDS(dName, ":red_circle: Se ha salido **" + dName + "** del canal de admins.", false);
+        }
     }
     private void join(){
         acIsJoined.putIfAbsent(dName, true);
@@ -91,33 +131,38 @@ public class AdminChat extends Commands {
             senderMessage("&cYa estás en el canal de AdminChat.");
             return;
         }
-
+        //
+        sendACMsg(dName, acPrefix+"&eSe ha vuelto a unir &f"+dName+" &eal canal de admins.", false);
+        if(DottUtils.discordCase){
+            sendMsgToAdminChatDS(dName, ":green_circle: Se ha vuelto a unir **"+dName+"** al canal de admins.", false);
+        }
+        //
         acIsJoined.replace(dName, false, true);
         senderMessage("&eTe has unido del canal de Admins!");
     }
 
+    private static boolean isCapable(String name){
+        if (!Config.containsAdmin(name)) return false; // se devuelve si X no es admin
+        //UUID uuid = player.getUniqueId();
+        if (!adminchatStatus.containsKey(name)) return false; //se devuelve si no hay datos de tal admin
+        if (!adminchatStatus.get(name)) return false; //Se devuelve si el tipo tiene off el ac
+
+        return true;
+    }
     public static void acCore(AsyncChatEvent event) {
         Player player = event.getPlayer();
         String name = player.getName();
 
-        if (!Config.containsAdmin(name)) return; // se devuelve si X no es admin
-        //UUID uuid = player.getUniqueId();
-        if (!adminchatStatus.containsKey(name)) return; //se devuelve si no hay datos de tal admin
-        if (!adminchatStatus.get(name)) return; //Se devuelve si el tipo tiene off el ac
-
-
+        if (!isCapable(name)) return;
 
         String msg = U.componentToStringMsg(event.originalMessage());
         event.setCancelled(true);
 
-        for (String adm : Config.getAdminList()) {
-            Player target = Bukkit.getPlayer(adm);
-            if (target != null && target.isOnline()) {
-                if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
-                U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
-            }
-        }
+        sendACMsg(name, msg, true);
         consoleCore(name, msg);
+        if(DottUtils.discordCase){
+            sendMsgToAdminChatDS(name, msg, true);
+        }
 
         if (Boolean.FALSE.equals(acIsJoined.get(name))){
             player.sendMessage(U.mensajeConColor(acPrefix+"&6&lEstás escribiendo en el canal de admin, sin estar dentro!"));
@@ -138,21 +183,53 @@ public class AdminChat extends Commands {
         if (!Boolean.TRUE.equals(adminchatStatus.get("Console"))) return;
         String input = event.getCommand();
 
-        if (input.equalsIgnoreCase("du ac toggle")||input.equalsIgnoreCase("dottutils ac toggle")||
-                input.equalsIgnoreCase("du adminchat toggle")||input.equalsIgnoreCase("dottutils adminchat toggle")) return;
+        if (isProtectedCommand(input)) return;
 
         event.setCancelled(true);
 
         console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
+        sendACMsg("Console", input, true);
+        consoleCore("Console", input);
+
+    }
+    public static void discordChatCoreFromDiscord(DiscordGuildMessageReceivedEvent event){
+        TextChannel channel = event.getChannel();
+        String channelID = channel.getId();
+        String expectedChannelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
+
+        if(!channelID.equalsIgnoreCase(expectedChannelID)) return;
+        String name = event.getAuthor().getDisplayName();
+        String msg = event.getMessage().getContentRaw();
+
+        name = "&4{&cDiscord&4} &7"+name;
+        sendACMsg(name, msg, true);
+        consoleCore(name, msg);
+    }
+    public static void sendMsgToAdminChatDS(String name, String msg, boolean withPrefix){
+        TextChannel textChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("adminchat");
+        if(withPrefix){
+            textChannel.sendMessage(name+" » "+msg).queue();
+        }else{
+            textChannel.sendMessage(msg).queue();
+        }
+    }
+
+    //---
+    private static void sendACMsg(String name, String msg, boolean withPrefix){
         for (String adm : Config.getAdminList()) {
             Player target = Bukkit.getPlayer(adm);
             if (target != null && target.isOnline()) {
                 if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
-                U.targetMessageNP(target, acPrefix+"Console"+" &8&l> &f"+input);
+                if (withPrefix){
+                    U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
+                }else{
+                    U.targetMessageNP(target, "&f"+msg);
+                }
             }
         }
-        consoleCore("Console", input);
-
+    }
+    private static boolean isProtectedCommand(String cmd){
+        return Arrays.asList(comandosProtegidos).contains(cmd.toLowerCase());
     }
 
     public static void acPrefixReload(){

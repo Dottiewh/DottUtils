@@ -29,7 +29,8 @@ public class BackUtils {
         double y = deathLoc.getY();
         double z = deathLoc.getZ();
         World world = deathLoc.getWorld();
-
+        U.targetMessageNP(player, "&6Tu punto de muerte se ha guardado! Usa &e/back");
+        U.targetMessageNP(player, "&6Coords: &c"+U.truncar(x, 2)+", "+U.truncar(y, 2)+", "+U.truncar(z, 2));
         addDeathLoc(name, x, y, z ,world, uuid);
     }
     public static void addDeathLoc(String name, double x, double y, double z, World world, UUID uuid){
@@ -109,7 +110,7 @@ public class BackUtils {
 
         if (x_from!=x_to||z_from!=z_to){
            if (BackCommand.checkAndCancelTask(player)){
-               U.targetMessage(player, "&cTe has movido, así que se ha cancelado tu &6back&c!");
+               backSendMsg("&cTe has movido, así que se ha cancelado tu &6back&c!", player);
            }
         }
     }

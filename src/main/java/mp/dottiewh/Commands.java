@@ -46,6 +46,7 @@ public abstract class Commands {
             case "status" -> new Status(comandosRegistrados, sender, command, label, args);
             case "back" -> new BackCommand(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
+            case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
             default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
@@ -65,7 +66,7 @@ public abstract class Commands {
             case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
             case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
             case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
-            case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args);
+            case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args, false);
             case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
             case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
             case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);

@@ -8,13 +8,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 import static mp.dottiewh.DottUtils.prefix;
 
 public class U { //Stands for utils
     private static final Set<UUID> listaNoFall = new HashSet<>();
+    private static final String urlGithub = "https://api.github.com/repos/Dottiewh/DottUtils/releases/latest";
    // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
 
@@ -103,5 +110,31 @@ public class U { //Stands for utils
     public static double truncar(double value, int decimales){
         double factor = Math.pow(10, decimales);
         return Math.floor(value*factor) / factor;
+    }
+    public static String getLastVersionGithub(){
+        try{
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlGithub))
+                    .header("User-Agent", "DottUtils-Version-Checker")
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                String body = response.body();
+
+                int start = body.indexOf("\"name\":\"") + 8;
+                int end = body.indexOf("\"", start);
+                return body.substring(start, end);
+            } else {
+                mensajeConsola("&cError al obtener versión: " + response.statusCode());
+                return null;
+            }
+
+        }catch(Exception e){
+            mensajeConsola("&cOcurrió un problema intentando conseguir la última versión de github. Details:");
+            mensajeConsolaNP("c"+Arrays.toString(e.getStackTrace()));
+            return null;
+        }
     }
 }
