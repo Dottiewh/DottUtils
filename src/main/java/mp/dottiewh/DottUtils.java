@@ -151,6 +151,11 @@ public class DottUtils extends JavaPlugin implements Listener {
         if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
             U.mensajeConsola("&6&lSe ha detectado al plugin &fDiscordSRV&a&l!");
             discordCase = true;
+
+            String channelID = ymlConfig.getConfig().getString("discord_adminchat_channel");
+            if(channelID!=null&&channelID.equalsIgnoreCase("CHANNELID")){
+                U.mensajeConsola("&eNo tienes especificado un canal de discord para adminchat en la config!");
+            }
         } else {
             discordCase = false;
         }

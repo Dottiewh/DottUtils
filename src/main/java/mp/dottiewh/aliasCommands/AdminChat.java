@@ -1,7 +1,11 @@
 package mp.dottiewh.aliasCommands;
 
+import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.api.events.DiscordGuildMessageReceivedEvent;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.Commands;
+import mp.dottiewh.DottUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import org.bukkit.Bukkit;
@@ -126,28 +130,28 @@ public class AdminChat extends Commands {
         senderMessage("&eTe has unido del canal de Admins!");
     }
 
+    private static boolean isCapable(String name){
+        if (!Config.containsAdmin(name)) return false; // se devuelve si X no es admin
+        //UUID uuid = player.getUniqueId();
+        if (!adminchatStatus.containsKey(name)) return false; //se devuelve si no hay datos de tal admin
+        if (!adminchatStatus.get(name)) return false; //Se devuelve si el tipo tiene off el ac
+
+        return true;
+    }
     public static void acCore(AsyncChatEvent event) {
         Player player = event.getPlayer();
         String name = player.getName();
 
-        if (!Config.containsAdmin(name)) return; // se devuelve si X no es admin
-        //UUID uuid = player.getUniqueId();
-        if (!adminchatStatus.containsKey(name)) return; //se devuelve si no hay datos de tal admin
-        if (!adminchatStatus.get(name)) return; //Se devuelve si el tipo tiene off el ac
-
-
+        if (!isCapable(name)) return;
 
         String msg = U.componentToStringMsg(event.originalMessage());
         event.setCancelled(true);
 
-        for (String adm : Config.getAdminList()) {
-            Player target = Bukkit.getPlayer(adm);
-            if (target != null && target.isOnline()) {
-                if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
-                U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
-            }
-        }
+        sendACMsg(name, msg);
         consoleCore(name, msg);
+        if(DottUtils.discordCase){
+            discordChatCoreFromMinecraft(name, msg);
+        }
 
         if (Boolean.FALSE.equals(acIsJoined.get(name))){
             player.sendMessage(U.mensajeConColor(acPrefix+"&6&lEstás escribiendo en el canal de admin, sin estar dentro!"));
@@ -173,15 +177,37 @@ public class AdminChat extends Commands {
         event.setCancelled(true);
 
         console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
+        sendACMsg("Console", input);
+        consoleCore("Console", input);
+
+    }
+    public static void discordChatCoreFromDiscord(DiscordGuildMessageReceivedEvent event){
+        TextChannel channel = event.getChannel();
+        String channelID = channel.getId();
+        String expectedChannelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
+
+        if(!channelID.equalsIgnoreCase(expectedChannelID)) return;
+        String name = event.getAuthor().getDisplayName();
+        String msg = event.getMessage().getContentRaw();
+
+        name = "&c{&4Discord&c} &7"+name;
+        sendACMsg(name, msg);
+        consoleCore(name, msg);
+    }
+    public static void discordChatCoreFromMinecraft(String name, String msg){
+        TextChannel textChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("adminchat");
+        textChannel.sendMessage(name+" » "+msg).queue();
+    }
+
+    //---
+    private static void sendACMsg(String name, String msg){
         for (String adm : Config.getAdminList()) {
             Player target = Bukkit.getPlayer(adm);
             if (target != null && target.isOnline()) {
                 if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
-                U.targetMessageNP(target, acPrefix+"Console"+" &8&l> &f"+input);
+                U.targetMessageNP(target, acPrefix+name+" &8&l> &f"+msg);
             }
         }
-        consoleCore("Console", input);
-
     }
     private static boolean isProtectedCommand(String cmd){
         return Arrays.asList(comandosProtegidos).contains(cmd.toLowerCase());

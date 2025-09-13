@@ -7,8 +7,7 @@ import github.scarsz.discordsrv.api.events.*;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.util.DiscordUtil;
-import mp.dottiewh.DottUtils;
-import mp.dottiewh.utils.U;
+import mp.dottiewh.aliasCommands.AdminChat;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -34,14 +33,7 @@ public class DiscordSRVListener {
     @Subscribe(priority = ListenerPriority.MONITOR)
     public void discordMessageReceived(DiscordGuildMessageReceivedEvent event) {
         //MENSAJE DEL DISCORD
-        TextChannel channel = event.getChannel();
-        String channelID = channel.getId();
-        String expectedChannelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
-
-        U.mensajeConsola("test");
-        if(channelID.equalsIgnoreCase(expectedChannelID)){
-            U.mensajeConsolaNP("HOLA!");
-        }
+        AdminChat.discordChatCoreFromDiscord(event);
     }
 
     @Subscribe(priority = ListenerPriority.MONITOR)

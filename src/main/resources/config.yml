@@ -8,5 +8,9 @@ back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode m
 add_encrypt_mode_to_save: true
 delay_onback: 100 #Ticks
 
-# ONLY USE WHEN DISCORD SRV IMPLEMENTATION IS BRINGED
-discord_adminchat_channel: "1416413488309469275"
+# only for discordSRV compability
+# on discord srv you may also config this. Example: (Around line 30 config.yml on DiscordSRV)
+# Channels: {"global": "YOURGLOBALCHANNELID", "adminchat": "CHANNELID"}
+# Also you need to turn true this option there:
+# UseModernPaperChatEvent: true
+discord_adminchat_channel: "CHANNELID"
