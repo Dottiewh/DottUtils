@@ -189,6 +189,7 @@ public class AdminChat extends Commands {
 
         console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
         sendACMsg("Console", input, true);
+        sendMsgToAdminChatDS("Console", input, true);
         consoleCore("Console", input);
 
     }
@@ -206,7 +207,19 @@ public class AdminChat extends Commands {
         consoleCore(name, msg);
     }
     public static void sendMsgToAdminChatDS(String name, String msg, boolean withPrefix){
-        TextChannel textChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("adminchat");
+        String channelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
+        if (channelID==null){
+            U.mensajeConsolaNP("No hay channel id");
+            return;
+        }
+
+        TextChannel textChannel = DiscordSRV.getPlugin().getJda().getTextChannelById(channelID);
+        if (textChannel==null){
+            U.mensajeConsolaNP("&cTu id &e"+channelID+" &ces invalida!");
+            return;
+        }
+
+
         if(withPrefix){
             textChannel.sendMessage(name+" » "+msg).queue();
         }else{
