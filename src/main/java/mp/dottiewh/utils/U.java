@@ -101,8 +101,17 @@ public class U { //Stands for utils
 
         event.setCancelled(true);
     }
-    public static String getMsgPath (String path){
-        return DottUtils.ymlMessages.getConfig().getString(path);
+    public static String getMsgPath(String path){
+        return DottUtils.ymlConfig.getConfig().getString(path,  null);
+    }
+    public static String getMsgPath(String path, String def){
+        String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
+        if (toGive==null){
+            DottUtils.ymlConfig.getConfig().set(path, def);
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            return def;
+        }
+        return toGive;
     }
     public static int getIntConfigPath (String path){
         return DottUtils.ymlConfig.getConfig().getInt(path);

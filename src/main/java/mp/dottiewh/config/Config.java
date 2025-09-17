@@ -2,6 +2,7 @@ package mp.dottiewh.config;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.aliasCommands.AdminChat;
+import mp.dottiewh.utils.U;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,35 @@ public class Config {
     public static void configReload(){
         DottUtils.initCustomConfig();
     }
+    //--getters--
+    public static int getInt(String path){
+        return DottUtils.ymlConfig.getConfig().getInt(path, -1);
+    }
+    public static int getInt(String path, int def){
+        int toGive = DottUtils.ymlConfig.getConfig().getInt(path, -1);
+        if (toGive==-1){
+            DottUtils.ymlConfig.getConfig().set(path, def);
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            return def;
+        }
+        return toGive;
+    }
+    public static String getString(String path){
+        return DottUtils.ymlConfig.getConfig().getString(path,  null);
+    }
+    public static String getString(String path, String def){
+        String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
+        if (toGive==null){
+            DottUtils.ymlConfig.getConfig().set(path, def);
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            return def;
+        }
+        return toGive;
+    }
+    public static boolean getBoolean(String path){
+        return DottUtils.ymlConfig.getConfig().getBoolean(path,  false);
+    }
+
     //------ADMINS--------
     public static boolean addAdmin(String newAdmin){ // boolean = Was successful?
         if (admins.contains(newAdmin)) return false;
