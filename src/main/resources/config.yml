@@ -4,6 +4,8 @@ no_fall: false
 max_itemgive_amount: 250
 
 tpa_active: true
+petition_active_for: 60 # in seconds
+save_back_when_tpa: true
 
 back_active: true
 back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode may interfer with saved backs.

@@ -46,6 +46,18 @@ public class Config {
         }
         return toGive;
     }
+    public static long getLong(String path){
+        return DottUtils.ymlConfig.getConfig().getLong(path, -1);
+    }
+    public static long getLong(String path, long def){
+        long toGive = DottUtils.ymlConfig.getConfig().getLong(path, -1);
+        if (toGive==-1){
+            DottUtils.ymlConfig.getConfig().set(path, def);
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            return def;
+        }
+        return toGive;
+    }
     public static String getString(String path){
         return DottUtils.ymlConfig.getConfig().getString(path,  null);
     }
