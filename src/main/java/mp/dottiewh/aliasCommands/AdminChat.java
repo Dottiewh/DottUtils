@@ -230,7 +230,7 @@ public class AdminChat extends Commands {
     //---
     private static void sendACMsg(String name, String msg, boolean withPrefix){
         for (String adm : Config.getAdminList()) {
-            Player target = Bukkit.getPlayer(adm);
+            Player target = Bukkit.getPlayerExact(adm);
             if (target != null && target.isOnline()) {
                 if (Boolean.FALSE.equals(acIsJoined.get(target.getName()))) continue;// null o true pasa
                 if (withPrefix){

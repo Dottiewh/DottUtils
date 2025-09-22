@@ -41,7 +41,8 @@ public class Config {
         int toGive = DottUtils.ymlConfig.getConfig().getInt(path, -1);
         if (toGive==-1){
             DottUtils.ymlConfig.getConfig().set(path, def);
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            DottUtils.ymlConfig.saveConfig();
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
             return def;
         }
         return toGive;
@@ -53,7 +54,8 @@ public class Config {
         long toGive = DottUtils.ymlConfig.getConfig().getLong(path, -1);
         if (toGive==-1){
             DottUtils.ymlConfig.getConfig().set(path, def);
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            DottUtils.ymlConfig.saveConfig();
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
             return def;
         }
         return toGive;
@@ -65,7 +67,8 @@ public class Config {
         String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
         if (toGive==null){
             DottUtils.ymlConfig.getConfig().set(path, def);
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            DottUtils.ymlConfig.saveConfig();
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
             return def;
         }
         return toGive;

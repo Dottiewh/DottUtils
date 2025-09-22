@@ -108,7 +108,8 @@ public class U { //Stands for utils
         String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
         if (toGive==null){
             DottUtils.ymlConfig.getConfig().set(path, def);
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c. Regenerando con "+def+"...");
+            DottUtils.ymlMessages.saveConfig();
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en messages.yml. Regenerando con "+def+"...");
             return def;
         }
         return toGive;
