@@ -15,10 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TpaCore {
     private static final Map<String, BukkitRunnable> hashMap = new HashMap<>();
@@ -52,16 +49,23 @@ public class TpaCore {
     private static void putAndCooldown(Player playerFrom, String bothNames, BukkitRunnable task, Plugin plugin){
         long cooldown = Config.getLong("petition_active_for", 60)*20;
         hashMap.put(bothNames, task);
-
+        String from = bothNames.split(";")[0];
         String to = bothNames.split(";")[1];
         BukkitRunnable removing = new BukkitRunnable() {
             @Override
             public void run() {
+                hashMap.remove(bothNames);
                 hashMapOfRemoving.remove(bothNames);
-                senderMsgPr("&cTu petición hacia &f"+to+" &cha expirado.", playerFrom);
+                checkAndCancelTask(from);
+                if(from!=null){
+                    senderMsgPr("&cTodas tus peticiones hacia &f"+to+" &chan expirado.", playerFrom);
+                }
             }
         };
         removing.runTaskLater(plugin, cooldown);
+        if(hashMapOfRemoving.containsKey(bothNames)){
+            hashMapOfRemoving.get(bothNames).cancel();
+        }
         hashMapOfRemoving.put(bothNames, removing);
     }
     //cancel
@@ -88,19 +92,21 @@ public class TpaCore {
         }
         //
         if(success){
-            for(Map.Entry<String, BukkitRunnable> mapa : hashMap.entrySet()){
+            Iterator<Map.Entry<String, BukkitRunnable>> iterator = hashMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, BukkitRunnable> mapa = iterator.next();
                 String bothNames = mapa.getKey();
                 String from = bothNames.split(";")[0];
                 String to = bothNames.split(";")[1];
-                if(to.equals(whoIsCancelling)){
-                    hashMap.remove(bothNames);
+                if (from.equals(whoIsCancelling)) {
+                    iterator.remove();
                     hashMapOfRemoving.get(bothNames).cancel();
                     hashMapOfRemoving.remove(bothNames);
-                    senderMsgPr("&eLe has cancelado el tpa a &f"+to+" &ecorrectamente!", player);
+                    senderMsgPr("&eLe has cancelado el tpa a &f" + to + " &ecorrectamente!", player);
 
                     Player pTo = Bukkit.getPlayerExact(to);
-                    if(pTo!=null){
-                        senderMsgPr("&cEl jugador &4"+from+" &cte ha cancelado la solicitud.", pTo);
+                    if (pTo != null) {
+                        senderMsgPr("&cEl jugador &4" + from + " &cte ha cancelado la solicitud.", pTo);
                     }
                 }
             }
@@ -145,7 +151,9 @@ public class TpaCore {
         }
         //
         if(checkForInHashMap(whoIsAccepting)){
-            for(Map.Entry<String, BukkitRunnable> mapa : hashMap.entrySet()){
+            Iterator<Map.Entry<String, BukkitRunnable>> iterator = hashMap.entrySet().iterator();
+            while(iterator.hasNext()){
+                Map.Entry<String, BukkitRunnable> mapa = iterator.next();
                 String bothNames = mapa.getKey();
                 String from = bothNames.split(";")[0];
                 String to = bothNames.split(";")[1];
@@ -155,7 +163,7 @@ public class TpaCore {
                         senderMsgPr("&eLe has rechazado el tpa a &f"+from+" &ePor los pelos!", player);
                         continue;
                     }
-                    hashMap.remove(bothNames);
+                    iterator.remove();
                     hashMapOfRemoving.get(bothNames).cancel();
                     hashMapOfRemoving.remove(bothNames);
                     senderMsgPr("&eLe has rechazado el tpa a &f"+from+" &ecorrectamente!", player);
@@ -217,10 +225,13 @@ public class TpaCore {
 
         hashMapOfFinalStep.get(name).cancel();
         hashMapOfFinalStep.remove(name);
-        for (String bothNames : hashMap.keySet()){
+
+        Iterator<String> iterator = hashMap.keySet().iterator();
+        while(iterator.hasNext()){
+            String bothNames = iterator.next();
             String from = bothNames.split(";")[0];
             if (from.equals(name)) {
-                hashMap.remove(bothNames);
+                iterator.remove();
             }
         }
         return true;
@@ -256,13 +267,17 @@ public class TpaCore {
             senderMsgPr("&cEl jugador &f"+input+" &cno está conectado actualmente.", sender);
             return true;
         }
+        if(sender.getName().equals(input)){
+            senderMsgPr("&cNo puedes enviarte un tpa a ti mismo.", sender);
+            return true;
+        }
 
         return false;
     }
 
     private static boolean mainCheck(CommandSender sender){
         if (!Config.getBoolean("tpa_active")){
-            senderMsgPr("El tpa está desactivado en la config.", sender);
+            senderMsgPr("&cEl tpa está desactivado en la config.", sender);
             return true;
         }
         if (!(sender instanceof Player)){

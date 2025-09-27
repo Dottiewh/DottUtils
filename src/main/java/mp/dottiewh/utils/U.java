@@ -102,7 +102,7 @@ public class U { //Stands for utils
         event.setCancelled(true);
     }
     public static String getMsgPath(String path){
-        return DottUtils.ymlConfig.getConfig().getString(path,  null);
+        return DottUtils.ymlMessages.getConfig().getString(path,  null);
     }
     public static String getMsgPath(String path, String def){
         String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
