@@ -48,6 +48,9 @@ commands:
   tpacancel:
     description: Cancela solicitudes de tpa.
     usage: /tpacancel
+  playtime:
+    description: Puedes ver tu tiempo de juego o el de otros.
+    usage: /playtime
   coords:
     description: Comando principal del plugin.
     usage: /coords

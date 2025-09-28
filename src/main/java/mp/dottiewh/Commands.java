@@ -1,6 +1,7 @@
 package mp.dottiewh;
 
 import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.noaliasCommands.playtimecore.PlayTime;
 import mp.dottiewh.noaliasCommands.tpacore.Tpa;
 import mp.dottiewh.noaliasCommands.tpacore.TpaAccept;
 import mp.dottiewh.noaliasCommands.tpacore.TpaCancel;
@@ -53,6 +54,7 @@ public abstract class Commands {
             case "tpaaccept" -> new TpaAccept(comandosRegistrados, sender, command, label, args);
             case "tpacancel" -> new TpaCancel(comandosRegistrados, sender, command, label, args);
             case "tpadeny" -> new TpaDeny(comandosRegistrados, sender, command, label, args);
+            case "playtime" -> new PlayTime(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);

@@ -3,6 +3,7 @@ package mp.dottiewh;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.aliasCommands.Whitelist;
@@ -48,6 +49,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlMessages;
     public static CustomConfig ymlItems;
     public static CustomConfig ymlBackList;
+    public static CustomConfig ymlPlayTime;
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
 
@@ -64,7 +66,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         regEvents();
         checkVersion();
 
-
+        //Other things
+        PlayTimeManagement.onEnableManagement(); // para cosas del playtime
         U.showAllStatus();
     }
     public void onDisable(){
@@ -123,11 +126,13 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlMessages = new CustomConfig("messages.yml", null, plugin, false);
         ymlItems = new CustomConfig("items.yml", null, plugin, false);
         ymlBackList = new CustomConfig("backlist.yml", "util", plugin, false);
+        ymlPlayTime = new CustomConfig("playtimes.yml", "util", plugin, false);
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
         ymlLists.registerConfig();
         ymlItems.registerConfig();
         ymlBackList.registerConfig();
+        ymlPlayTime.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
@@ -142,6 +147,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new PlayerMoveListener());
         regFormat(new PlayerPreLoginListener());
         regFormat(new ServerCommandListener());
+        regFormat(new PlayerJoinListener());
+        regFormat(new PlayerQuitListener());
 
         if (discordCase){
             DiscordSRV.api.subscribe(discordsrvListener);
