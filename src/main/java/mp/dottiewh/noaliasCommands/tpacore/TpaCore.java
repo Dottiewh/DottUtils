@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 
 public class TpaCore {
-    private static final Map<String, BukkitRunnable> hashMap = new HashMap<>();
+    public static final Map<String, BukkitRunnable> hashMap = new HashMap<>();
     private static final Map<String, BukkitRunnable> hashMapOfRemoving = new HashMap<>();
     private static final Map<String, BukkitRunnable> hashMapOfFinalStep = new HashMap<>();
 
