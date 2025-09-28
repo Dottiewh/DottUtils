@@ -1,9 +1,9 @@
-# V (1.2.0)
+# V (1.2.1)
 
 ## Implementamos:
-- #### Small improvements
-- #### Compatibilidad con DiscordSRV para adminchat!
-  - #### Revisar la config.yml para detalles.
+- #### Bug fixes.
+- #### /tpa !
+- #### /playtime
 ## Requisitos:
 - #### Paper _(o algun fork)_.
 - #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.8)

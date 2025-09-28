@@ -22,6 +22,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 
@@ -32,6 +33,7 @@ import java.io.File;
 
 public class DottUtils extends JavaPlugin implements Listener {
     private static DottUtils instance;
+    private static Plugin plugin;
     private File adminFile;
     //private FileConfiguration adminConfig;
     //private BukkitTask repetitivo;
@@ -51,6 +53,7 @@ public class DottUtils extends JavaPlugin implements Listener {
 
     public void onEnable(){
         instance = this;
+        plugin = this;
 
         Bukkit.getConsoleSender().sendMessage(
                 ChatColor.translateAlternateColorCodes('&',prefix+"&a&lHa sido activado. &c["+version+"]")
@@ -163,6 +166,9 @@ public class DottUtils extends JavaPlugin implements Listener {
 
     public static DottUtils getInstance(){
         return instance;
+    }
+    public static Plugin getPlugin(){
+        return plugin;
     }
     private void checkVersion(){
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {

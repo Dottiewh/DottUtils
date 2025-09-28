@@ -36,6 +36,18 @@ commands:
   back:
     description: Te teletransporta a tu último punto de muerte.
     usage: /back
+  tpa:
+    description: Manda solicitudes de tpa.
+    usage: /tpa
+  tpaaccept:
+    description: Acepta solicitudes de tpa.
+    usage: /tpaacept
+  tpadeny:
+    description: Rechaza solicitudes de tpa.
+    usage: /tpadeny
+  tpacancel:
+    description: Cancela solicitudes de tpa.
+    usage: /tpacancel
   coords:
     description: Comando principal del plugin.
     usage: /coords

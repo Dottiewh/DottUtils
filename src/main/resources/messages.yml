@@ -1,6 +1,7 @@
 prefix: "&5&l[&9&lDott&6&lUtils&5&l] &f"
 adminchat_prefix: "&6&l[&e&lAdmin&9&lChat&6&l] &7"
 back_prefix: "&6&l[&e&lBack&6&l] &f"
+tpa_prefix: "&6&l[&e&lTpa&6&l] &f"
 item_prefix: "&6&l[&f&lItems&6&l] &f"
 not_right_command: "&c&lNo se ha encontrado tu comando."
 non_registered_command: "&c&lComando no registrado."

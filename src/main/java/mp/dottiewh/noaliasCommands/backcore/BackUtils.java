@@ -33,6 +33,22 @@ public class BackUtils {
         U.targetMessageNP(player, "&6Coords: &c"+U.truncar(x, 2)+", "+U.truncar(y, 2)+", "+U.truncar(z, 2));
         addDeathLoc(name, x, y, z ,world, uuid);
     }
+    public static void addDeathLoc(Player player){
+        Location location = player.getLocation();
+        addDeathLoc(player, location);
+    }
+    public static void addDeathLoc(Player player, Location location){
+        String name = player.getName();
+        UUID uuid = player.getUniqueId();
+        addDeathLoc(name, uuid, location);
+    }
+    public static void addDeathLoc(String name, UUID uuid, Location location){
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
+        World world = location.getWorld();
+        addDeathLoc(name, x, y, z, world, uuid);
+    }
     public static void addDeathLoc(String name, double x, double y, double z, World world, UUID uuid){
         ConfigurationSection sectionM = getMainSection();
         if (sectionM==null){

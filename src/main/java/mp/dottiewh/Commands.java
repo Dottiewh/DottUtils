@@ -1,6 +1,10 @@
 package mp.dottiewh;
 
 import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.noaliasCommands.tpacore.Tpa;
+import mp.dottiewh.noaliasCommands.tpacore.TpaAccept;
+import mp.dottiewh.noaliasCommands.tpacore.TpaCancel;
+import mp.dottiewh.noaliasCommands.tpacore.TpaDeny;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.noaliasCommands.backcore.BackCommand;
 import org.bukkit.ChatColor;
@@ -45,6 +49,10 @@ public abstract class Commands {
             case "jump" -> new Jump(comandosRegistrados, sender, command, label, args);
             case "status" -> new Status(comandosRegistrados, sender, command, label, args);
             case "back" -> new BackCommand(comandosRegistrados, sender, command, label, args);
+            case "tpa" -> new Tpa(comandosRegistrados, sender, command, label, args);
+            case "tpaaccept" -> new TpaAccept(comandosRegistrados, sender, command, label, args);
+            case "tpacancel" -> new TpaCancel(comandosRegistrados, sender, command, label, args);
+            case "tpadeny" -> new TpaDeny(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
