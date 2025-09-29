@@ -1,6 +1,7 @@
 package mp.dottiewh.noaliasCommands.playtimecore;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -16,18 +17,14 @@ import java.util.stream.Collectors;
 public class PlayTimeManagement {
     private static final int minutesToSave = 1;
     private static final long finalCooldown = 20L*(minutesToSave*60);
+    static final String serverName = "Server";
 
     private static final Map<String, Integer> playtimeMap = new ConcurrentHashMap<>();
 
     //-----------
     public static void onJoinManagement(PlayerJoinEvent event){
         String name = event.getPlayer().getName();
-        if(isNameInConfig(name)){
-            int hisValue = getNameValue(name);
-            playtimeMap.put(name, hisValue);
-        }else{
-            playtimeMap.put(name, 0);
-        }
+        putOnMap(name);
     }
     public static void onLeaveManagement(PlayerQuitEvent event){
         String name = event.getPlayer().getName();
@@ -35,17 +32,33 @@ public class PlayTimeManagement {
         playtimeMap.remove(name);
     }
     public static void onEnableManagement(){
+
         Bukkit.getScheduler().runTaskTimer(DottUtils.getPlugin(), ()->{
             playtimeMap.replaceAll((name, val) -> val + 1);
         }, finalCooldown, finalCooldown); //final cooldown = cada 1 minuto
         //
+         // AUTO GUARDADO CADA 5M
         Bukkit.getScheduler().runTaskTimer(DottUtils.getPlugin(), () -> {
             playtimeMap.forEach(PlayTimeManagement::setValue);
         }, 20L*60*5, 20L*60*5);
+        //
+        putOnMap(serverName);
+    }
+    public static void onDisableManagement(){
+        playtimeMap.forEach(PlayTimeManagement::setValue);
     }
     //
     //
     //some other things getters setters checks
+    private static void putOnMap(String name){
+        if(isNameInConfig(name)){
+            int hisValue = getNameValueFromConfig(name);
+            playtimeMap.put(name, hisValue);
+        }else{
+            playtimeMap.put(name, 0);
+        }
+    }
+
     private static void setValue(String name, int value){
         DottUtils.ymlPlayTime.getConfig().set(name, value);
         DottUtils.ymlPlayTime.saveConfig();
@@ -56,6 +69,11 @@ public class PlayTimeManagement {
         return minutes != -1;
     }
     public static int getNameValue(String name){
+        int value = playtimeMap.get(name);
+        assert value != -1;
+        return value;
+    }
+    public static int getNameValueFromConfig(String name){
         int value = DottUtils.ymlPlayTime.getConfig().getInt(name, -1);
         assert value != -1;
         return value;

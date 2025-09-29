@@ -42,23 +42,45 @@ public class PlayTime extends Commands {
 
     @Override
     protected void run() {
-        senderMessageNP("&8-----&6~&9Top&6~&8-----");
-        List<Map.Entry<String, Integer>> lista = PlayTimeManagement.getTop(limit);
-        for (Map.Entry<String, Integer> entry : lista) {
-            senderMessageNP("&9" + entry.getKey() + "&6: &e" + format(entry.getValue()));
-        }
-        if(askingFor==null) return;
+        try{
+            List<Map.Entry<String, Integer>> lista = PlayTimeManagement.getTop(limit);
+            if(lista.isEmpty()) throw new NoPlaytimesException();
 
-        senderMessageNP("&8----&7(&f"+askingFor+"&7)&8----");
-        senderMessageNP("&9Tiempo de juego: &6"+format(PlayTimeManagement.getNameValue(askingFor)));
+            senderMessageNP("&8-----&6~&c&lTop&6~&8-----");
+            for (Map.Entry<String, Integer> entry : lista) {
+                String dKey = entry.getKey();
+                if(dKey.equals(PlayTimeManagement.serverName)) dKey="&6"+dKey;
+
+                senderMessageNP("&b" + dKey + "&7: &e" + format(entry.getValue()));
+            }
+
+            if (askingFor == null) return;
+            senderMessageNP("&8--");
+            senderMessageNP("&8( &a" + askingFor + "&8 )");
+            senderMessageNP("&8&lTiempo de juego: &7~&e" + format(PlayTimeManagement.getNameValue(askingFor))+"&7~");
+        }catch(NoPlaytimesException e) {
+            senderMessageNP("&cNo hay ningún tiempo de juego guardado.");
+        }
     }
     //
     private String format(int v){
-        boolean hours = false, days = false;
+        boolean hours = false, days = false, months=false, years=false;
         if(v>=60) hours=true;
         if(v>=1440) days=true;
+        if(v>=43800) months=true;
+        if(v>=525600) years=true;
         int localCount = v;
-        int lDays=0, lHours=0, lMinutes=0;
+        int lYears=0, lMonths=0, lDays=0, lHours=0, lMinutes=0;
+
+
+        while(localCount>=525600){
+            localCount=localCount-525600;
+            lYears++;
+        }
+        while(localCount>=43800){
+            localCount=localCount-43800;
+            lMonths++;
+        }
         while(localCount>=1440){
             localCount=localCount-1440;
             lDays++;
@@ -69,13 +91,18 @@ public class PlayTime extends Commands {
         }
         lMinutes=localCount;
 
-
+        if(years){
+            return(lYears+"y, "+lMonths+"M, "+lDays+"d, "+lHours+"h, "+lMinutes+"m.");
+        }
+        if(months){
+            return(lMonths+"M, "+lDays+"d, "+lHours+"h, "+lMinutes+"m.");
+        }
         if(days){
-            return(lDays+"D, "+lHours+"H, "+lMinutes+"M.");
+            return(lDays+"d, "+lHours+"h, "+lMinutes+"m.");
         }
         if(hours){
-            return(lHours+"H, "+lMinutes+"M.");
+            return(lHours+"h, "+lMinutes+"m.");
         }
-        return(lMinutes+"M.");
+        return(lMinutes+"m.");
     }
 }

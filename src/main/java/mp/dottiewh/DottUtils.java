@@ -71,10 +71,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         U.showAllStatus();
     }
     public void onDisable(){
-        Bukkit.getConsoleSender().sendMessage(
-                ChatColor.translateAlternateColorCodes('&',prefix+"&c&lHa sido desactivado. &c["+version+"]")
-        );
-
+        PlayTimeManagement.onDisableManagement();
 
         if (ymlConfig != null) {
             ymlConfig.saveConfig();
@@ -83,6 +80,9 @@ public class DottUtils extends JavaPlugin implements Listener {
             DiscordSRV.api.unsubscribe(discordsrvListener);
         }
 
+        Bukkit.getConsoleSender().sendMessage(
+                ChatColor.translateAlternateColorCodes('&',prefix+"&c&lHa sido desactivado. &c["+version+"]")
+        );
         instance = null;
     }
 

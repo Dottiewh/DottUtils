@@ -1,4 +1,6 @@
 # Everything here is in minutes
 # DECIMALS aren't a recommendation.
-# An example of how it works:
+# An example of how it may look:
 # Dottiewh: 219
+#
+# To don't lose any data, saves occur every 5 minutes or when they leave.
