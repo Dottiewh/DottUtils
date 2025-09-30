@@ -64,15 +64,13 @@ public class PlayTime extends Commands {
     }
     //
     private String format(int v){
-        boolean hours = false, days = false, months=false, years=false;
-        if(v>=60) hours=true;
-        if(v>=1440) days=true;
-        if(v>=43800) months=true;
-        if(v>=525600) years=true;
+        boolean hours = (v>=60);
+        boolean days = (v>=1440);
+        boolean months = (v>=43800);
+        boolean years = (v>=525600);
+
         int localCount = v;
-        int lYears=0, lMonths=0, lDays=0, lHours=0, lMinutes=0;
-
-
+        int lYears=0, lMonths=0, lDays=0, lHours=0;
         while(localCount>=525600){
             localCount=localCount-525600;
             lYears++;
@@ -89,7 +87,7 @@ public class PlayTime extends Commands {
             localCount=localCount-60;
             lHours++;
         }
-        lMinutes=localCount;
+        int lMinutes=localCount;
 
         if(years){
             return(lYears+"y, "+lMonths+"M, "+lDays+"d, "+lHours+"h, "+lMinutes+"m.");

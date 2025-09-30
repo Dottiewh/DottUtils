@@ -1,7 +1,7 @@
 # V (1.2.1)
 
 ## Implementamos:
-- #### Bug fixes.
+- #### Bug fixes and improves.
 - #### /tpa !
 - #### /playtime
 ## Requisitos:
