@@ -1,6 +1,6 @@
 package mp.dottiewh;
 
-import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.features.items.ItemMainCommand;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTime;
 import mp.dottiewh.noaliasCommands.tpacore.Tpa;
 import mp.dottiewh.noaliasCommands.tpacore.TpaAccept;

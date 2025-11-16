@@ -1,10 +1,10 @@
-package mp.dottiewh.items;
+package mp.dottiewh.features.items;
 
 import mp.dottiewh.Commands;
-import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.features.items.Exceptions.InvalidItemConfigException;
+import mp.dottiewh.features.items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.features.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.features.items.Exceptions.MissingMaterialException;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

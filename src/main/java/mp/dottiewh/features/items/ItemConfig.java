@@ -1,4 +1,4 @@
-package mp.dottiewh.items;
+package mp.dottiewh.features.items;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -10,10 +10,10 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.features.items.Exceptions.InvalidItemConfigException;
+import mp.dottiewh.features.items.Exceptions.InvalidMaterialException;
+import mp.dottiewh.features.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.features.items.Exceptions.MissingMaterialException;
 import mp.dottiewh.utils.ItemUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
@@ -328,7 +328,7 @@ public class ItemConfig{
                 meta.setUnbreakable(true);
             }
             //-----MAX STACK SIZE--------
-            int max_stack = section.getInt("Max_stack_size");
+            int max_stack = section.getInt("Max_stack_size", 0);
             if(max_stack!=0){
                 meta.setMaxStackSize(max_stack);
             }else{

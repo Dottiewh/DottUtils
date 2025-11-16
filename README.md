@@ -10,7 +10,7 @@
 - #### Se conoce incompatibilidad con algunas funciones a partir de la 1.21 para abajo.
 
 ## Guía de /du item
-- ### [Ir a la guía](src/main/java/mp/dottiewh/items/README.MD)
+- ### [Ir a la guía](src/main/java/mp/dottiewh/features/items/README.MD)
 
 ### Lista de comandos no incluídos en /du help
 - #### /jump

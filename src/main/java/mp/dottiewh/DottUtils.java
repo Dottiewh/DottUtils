@@ -1,28 +1,16 @@
 package mp.dottiewh;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.features.crafts.Craft;
+import mp.dottiewh.features.items.ItemConfig;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
 import mp.dottiewh.utils.U;
-import mp.dottiewh.aliasCommands.AdminChat;
-import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.noaliasCommands.backcore.BackUtils;
 import mp.dottiewh.listeners.*;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -50,6 +38,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlItems;
     public static CustomConfig ymlBackList;
     public static CustomConfig ymlPlayTime;
+    public static CustomConfig ymlCrafts;
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
 
@@ -127,17 +116,20 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlItems = new CustomConfig("items.yml", null, plugin, false);
         ymlBackList = new CustomConfig("backlist.yml", "util", plugin, false);
         ymlPlayTime = new CustomConfig("playtimes.yml", "util", plugin, false);
+        ymlCrafts = new CustomConfig("crafts.yml", null, plugin, false);
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
         ymlLists.registerConfig();
         ymlItems.registerConfig();
         ymlBackList.registerConfig();
         ymlPlayTime.registerConfig();
+        ymlCrafts.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
         Config.configInit();
         ItemConfig.itemConfigInit();
+        Craft.init();
     }
     private void regEvents(){
         regFormat(new ChatListener());

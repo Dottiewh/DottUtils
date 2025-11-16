@@ -1,0 +1,13 @@
+Crafts:
+  Test:
+    To_Give: test
+    Amount_To_Give: 1
+    Slot1: AIR
+    Slot2: AIR
+    Slot3: AIR
+    Slot4: DIAMOND_BLOCK;2
+    Slot5: DIAMOND_BLOCK;4
+    Slot6: DIAMOND_BLOCK;2
+    Slot7: AIR
+    Slot8: AIR
+    Slot9: AIR
