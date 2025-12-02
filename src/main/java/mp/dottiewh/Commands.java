@@ -8,9 +8,11 @@ import mp.dottiewh.noaliasCommands.tpacore.TpaCancel;
 import mp.dottiewh.noaliasCommands.tpacore.TpaDeny;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.noaliasCommands.backcore.BackCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import  mp.dottiewh.noaliasCommands.*;
@@ -55,6 +57,9 @@ public abstract class Commands {
             case "tpacancel" -> new TpaCancel(comandosRegistrados, sender, command, label, args);
             case "tpadeny" -> new TpaDeny(comandosRegistrados, sender, command, label, args);
             case "playtime" -> new PlayTime(comandosRegistrados, sender, command, label, args);
+            case "repair" -> new Repair(comandosRegistrados, sender, command, label, args);
+            case "heal" -> new Heal(comandosRegistrados, sender, command, label, args);
+            case "feed" -> new Feed(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
@@ -95,6 +100,22 @@ public abstract class Commands {
 
 
     // metodos utiles
+    protected Player checkIfForOtherPlayerP(String name){
+        boolean b = checkIfForOtherPlayer(name);
+        if (b) return Bukkit.getPlayerExact(name);
+        else return null;
+    }
+    protected boolean checkIfForOtherPlayer(String name){
+        if(name==null) return false;
+
+        Player player = Bukkit.getPlayerExact(name);
+        if(player==null){
+            senderMessageNP("&8&l> &cEl jugador &e"+name+"&c no está conectado.");
+            return false;
+        }
+
+        return true;
+    }
     protected void senderMessage(String mensaje){
         sender.sendMessage(U.mensajeConPrefix(mensaje));
     }

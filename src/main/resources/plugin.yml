@@ -1,5 +1,5 @@
 main: mp.dottiewh.DottUtils
-version: 1.2.1
+version: 1.2.2
 name: DottUtils
 author: Dottiewh
 api-version: 1.13
@@ -20,11 +20,28 @@ commands:
     permission: dottUtils.gamemode
     permission-message: No puedes usar esto.
   adminchat:
-    description: Abreviaciones del gamemode.
+    description: Adminchat
     usage: /adminchat
     aliases:
       - ac
       - achat
+  repair:
+    description: Te repara la herramienta en mano al màximo
+    usage: /repair
+    aliases:
+      - fix
+    permission: dottUtils.repair
+    permission-message: No puedes usar esto.
+  heal:
+    description: Te cura la vida completa.
+    usage: /heal
+    permission: dottUtils.heal
+    permission-message: No puedes usar esto.
+  feed:
+    description: Te pone el hambre totalmente satisfecha.
+    usage: /feed
+    permission: dottUtils.feed
+    permission-message: No puedes usar esto.
   jump:
     description: Te deja saltar.
     usage: /jump
