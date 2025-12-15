@@ -3,6 +3,7 @@ package mp.dottiewh.config;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,18 @@ public class Config {
     public static boolean getBoolean(String path){
         return DottUtils.ymlConfig.getConfig().getBoolean(path,  false);
     }
+    public static boolean getBoolean(String path, boolean def){
+        Object got = DottUtils.ymlConfig.getConfig().get(path);
+        boolean success = (got instanceof Boolean);
 
+        if (!success){
+            DottUtils.ymlConfig.getConfig().set(path, def);
+            DottUtils.ymlConfig.saveConfig();
+            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
+            return def;
+        }
+        return (Boolean) got;
+    }
     //------ADMINS--------
     public static boolean addAdmin(String newAdmin){ // boolean = Was successful?
         if (admins.contains(newAdmin)) return false;

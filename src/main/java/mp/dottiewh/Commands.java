@@ -100,13 +100,16 @@ public abstract class Commands {
 
 
     // metodos utiles
-    protected Player checkIfForOtherPlayerP(String name){
+    protected Player checkIfForOtherPlayerP(String name, Player defaultP){
         boolean b = checkIfForOtherPlayer(name);
         if (b) return Bukkit.getPlayerExact(name);
-        else return null;
+        else return defaultP;
     }
     protected boolean checkIfForOtherPlayer(String name){
-        if(name==null) return false;
+        if(name==null){
+            senderMessageNP("&4No se ha reconocido al jugador.");
+            return false;
+        }
 
         Player player = Bukkit.getPlayerExact(name);
         if(player==null){

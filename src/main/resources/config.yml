@@ -1,4 +1,5 @@
 pvp: true
+pvp_bypass: false # If true, admins can attack other victims even with pvp turned off
 whitelist_active: false
 no_fall: false
 max_itemgive_amount: 250

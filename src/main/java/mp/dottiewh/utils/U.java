@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.json.JSONObject;
 
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -87,9 +86,14 @@ public class U { //Stands for utils
     //-------------other-------------------
     public static void noPvP(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return; //victim
-        if (!(event.getDamager() instanceof Player)) return; //damager
+        if (!(event.getDamager() instanceof Player damager)) return; //damager
 
         if (Config.getPvPStatus()) return; // si pvp en true, se devuelve
+
+        if(Config.getBoolean("pvp_bypass", false)){
+            String dmgerName = damager.getName();
+            if(Config.containsAdmin(dmgerName)) return;
+        }
 
         event.setCancelled(true);
     }
