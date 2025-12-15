@@ -42,6 +42,11 @@ commands:
     usage: /feed
     permission: dottUtils.feed
     permission-message: No puedes usar esto.
+  countdown:
+    description: Hace una cuenta atrás.
+    usage: /countdown
+    permission: dottUtils.countdown
+    permission-message: No puedes usar esto.
   jump:
     description: Te deja saltar.
     usage: /jump

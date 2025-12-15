@@ -1,11 +1,17 @@
 package mp.dottiewh.api;
 
+import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.List;
 
 public class DuApiManager {
@@ -15,6 +21,8 @@ public class DuApiManager {
     public DuApiManager(Plugin plugin, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
+
+        U.mensajeConsolaNP(prefix+"se ha suscrito correctamente a la api de "+ DottUtils.prefix);
     }
     //---
 
@@ -47,5 +55,42 @@ public class DuApiManager {
     }
     public Component componentFromString(String msg){
         return U.componentColor(msg);
+    }
+
+    public double truncar(double value, int decimales){
+        return U.truncar(value, decimales);
+    }
+    public String getLastVersionGithub(String urlGithub){
+        try{
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlGithub))
+                    .header("User-Agent", "DottUtils-Version-Checker")
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                String body = response.body();
+
+                int start = body.indexOf("\"name\":\"") + 8;
+                int end = body.indexOf("\"", start);
+                return body.substring(start, end);
+            } else {
+                mensajeConsola("&cError al obtener versión: " + response.statusCode());
+                return null;
+            }
+
+        }catch(Exception e){
+            mensajeConsola("&cOcurrió un problema intentando conseguir la última versión de github. Details:");
+            mensajeConsolaNP("c"+ Arrays.toString(e.getStackTrace()));
+            return null;
+        }
+    }
+
+    public void startCountdownForAll(int segundos, String format){
+        U.countdownForAll(plugin, segundos, format);
+    }
+    public void stopCountdowns(){
+        U.stopAllCountdowns();
     }
 }

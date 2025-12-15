@@ -61,6 +61,7 @@ public abstract class Commands {
             case "heal" -> new Heal(comandosRegistrados, sender, command, label, args);
             case "feed" -> new Feed(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
+            case "countdown" -> new Countdown(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 

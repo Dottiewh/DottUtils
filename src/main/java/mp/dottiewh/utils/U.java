@@ -5,9 +5,14 @@ import mp.dottiewh.config.Config;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -22,6 +27,7 @@ public class U { //Stands for utils
     private static final Set<UUID> listaNoFall = new HashSet<>();
     private static final String urlGithub = "https://api.github.com/repos/Dottiewh/DottUtils/releases/latest";
    // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private static final Set<BukkitRunnable> listaCountdowns = new HashSet<>();
 
 
     //--------------------------Métodos Útiles-----------------------------------
@@ -149,6 +155,49 @@ public class U { //Stands for utils
             mensajeConsola("&cOcurrió un problema intentando conseguir la última versión de github. Details:");
             mensajeConsolaNP("c"+Arrays.toString(e.getStackTrace()));
             return null;
+        }
+    }
+    //util long methods
+    public static void countdownForAll(Plugin pl, int segundos, String format){ // Segundos restantes: 77
+        stopAllCountdowns();
+
+        int segundosRestantes = segundos;
+        for(int i=0;i<segundos;i++){
+            int finalSegundosRestantes = segundosRestantes;
+
+            BukkitRunnable task = new BukkitRunnable() {
+                @Override
+                public void run(){
+                    Component msg = componentColor(format+ finalSegundosRestantes+" &8(s)");
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.sendActionBar(msg);
+                    }
+                }
+            };
+            listaCountdowns.add(task);
+            task.runTaskLater(pl, i*20L);
+
+            segundosRestantes--;
+        }
+        // final
+        int finalSegundosRestantes1 = segundosRestantes;
+        BukkitRunnable taskEnd = new BukkitRunnable() {
+            @Override
+            public void run(){
+                Component msg = componentColor("&cCuenta atrás acabada.");
+
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendActionBar(msg);
+                }
+                stopAllCountdowns();
+            }
+        };
+        listaCountdowns.add(taskEnd);
+        taskEnd.runTaskLater(pl, segundos*20L);
+    }
+    public static void stopAllCountdowns(){
+        for(BukkitRunnable task : listaCountdowns){
+            task.cancel();
         }
     }
 }

@@ -27,7 +27,9 @@ public class Heal extends Commands {
         }
 
         if(args.length == 0){
+            this.forOther=false;
             core(player);
+            return;
         }
 
         Player rP = checkIfForOtherPlayerP(args[0], null);
