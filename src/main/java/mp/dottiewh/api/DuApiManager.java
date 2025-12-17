@@ -2,6 +2,7 @@ package mp.dottiewh.api;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
+import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class DuApiManager {
     Plugin plugin;
@@ -92,5 +94,15 @@ public class DuApiManager {
     }
     public void stopCountdowns(){
         U.stopAllCountdowns();
+    }
+
+    public void playSong(String song, Player player, boolean loop){
+        MusicConfig.reproduceTo(song, player, loop);
+    }
+    public void stopSong(){
+        MusicConfig.stopMusicTasks();
+    }
+    public void stopSong(UUID uuid){
+        MusicConfig.stopMusicTasks(uuid);
     }
 }

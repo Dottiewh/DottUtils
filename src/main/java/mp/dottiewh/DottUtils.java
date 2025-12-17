@@ -3,6 +3,7 @@ package mp.dottiewh;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.aliasCommands.AdminChat;
@@ -50,6 +51,8 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlItems;
     public static CustomConfig ymlBackList;
     public static CustomConfig ymlPlayTime;
+    public static CustomConfig ymlMusic;
+
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
 
@@ -127,17 +130,21 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlItems = new CustomConfig("items.yml", null, plugin, false);
         ymlBackList = new CustomConfig("backlist.yml", "util", plugin, false);
         ymlPlayTime = new CustomConfig("playtimes.yml", "util", plugin, false);
+        ymlMusic = new CustomConfig("musics.yml", null, plugin, false);
+
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
         ymlLists.registerConfig();
         ymlItems.registerConfig();
         ymlBackList.registerConfig();
         ymlPlayTime.registerConfig();
+        ymlMusic.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
         Config.configInit();
         ItemConfig.itemConfigInit();
+        MusicConfig.initMusicConfig();
     }
     private void regEvents(){
         regFormat(new ChatListener());

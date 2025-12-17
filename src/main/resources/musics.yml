@@ -1,0 +1,95 @@
+demo:
+    Structure:
+        Part1:
+            ticks_to_continue: 120 #ticks before part "ends"
+            section_list:
+                - "bass"
+                - "drums"
+        Part2:
+            ticks_to_continue: 240 #then it'll continue with next part.
+            section_list:
+                - "bass"
+                - "drums"
+                - "chords"
+        Part3:
+            ticks_to_continue: 400 # IN CASE IT DOESN'T MATCH CORRECTLY
+            section_list:
+                - "bass"
+                - "drums"
+                - "chords"
+                - "solo"
+        Part4:
+            ticks_to_continue: 80 # It'll stop some sections little before part ends.
+            section_list:
+                - "bass"
+    Sections:
+        bass:
+            - "wait;2" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.189207"
+            - "wait;4" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.781797"
+            - "wait;6" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.059463"
+            - "wait;4" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.587401"
+            - "wait;6" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;0.943874"
+            - "wait;4" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.414214"
+            - "wait;6" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;0.890899"
+            - "wait;4" # in ticks
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.334840"
+            - "wait;4"
+        drums:
+            - "wait;2"
+            - "BLOCK.NOTE_BLOCK.BASEDRUM;10;0.5"
+            - "wait;6"
+            - "BLOCK.NOTE_BLOCK.SNARE;10;0.5"
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.BASEDRUM;10;0.5"
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.SNARE;10;0.5"
+            - "wait;4"
+        chords:
+            - "wait;2"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.189207"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.498307"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.781797"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.059463"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.334840"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.587401"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.PLING;10;0.943874"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.189207"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.414214"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.PLING;10;0.890899"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.059463"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.334840"
+            - "BLOCK.NOTE_BLOCK.PLING;10;1.587401"
+            - "wait;8"
+        solo:
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.781797"
+            - "wait;4"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "wait;2"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
+            - "wait;14"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.189207"
+            - "wait;10"
+            #
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.781797"
+            - "wait;10"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "wait;8"

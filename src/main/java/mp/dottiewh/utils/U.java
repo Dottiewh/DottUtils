@@ -115,9 +115,9 @@ public class U { //Stands for utils
         return DottUtils.ymlMessages.getConfig().getString(path,  null);
     }
     public static String getMsgPath(String path, String def){
-        String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
+        String toGive = DottUtils.ymlMessages.getConfig().getString(path, null);
         if (toGive==null){
-            DottUtils.ymlConfig.getConfig().set(path, def);
+            DottUtils.ymlMessages.getConfig().set(path, def);
             DottUtils.ymlMessages.saveConfig();
             U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en messages.yml. Regenerando con "+def+"...");
             return def;
@@ -130,6 +130,10 @@ public class U { //Stands for utils
     public static double truncar(double value, int decimales){
         double factor = Math.pow(10, decimales);
         return Math.floor(value*factor) / factor;
+    }
+    public static int removeDecimals(double value){
+        double dToGive = truncar(value,0);
+        return (int) dToGive;
     }
     public static String getLastVersionGithub(){
         try{

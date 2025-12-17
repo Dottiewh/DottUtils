@@ -1,6 +1,7 @@
 package mp.dottiewh;
 
 import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTime;
 import mp.dottiewh.noaliasCommands.tpacore.Tpa;
 import mp.dottiewh.noaliasCommands.tpacore.TpaAccept;
@@ -87,6 +88,7 @@ public abstract class Commands {
             case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
             case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
             case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
+            case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
                 sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));

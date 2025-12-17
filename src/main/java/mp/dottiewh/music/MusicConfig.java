@@ -1,0 +1,201 @@
+package mp.dottiewh.music;
+
+import mp.dottiewh.DottUtils;
+import mp.dottiewh.config.Config;
+import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.music.Exceptions.MusicNullKeyException;
+import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
+import mp.dottiewh.music.Exceptions.MusicSoundException;
+import mp.dottiewh.utils.U;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.*;
+
+public class MusicConfig {
+    private static Plugin pl;
+    private static CustomConfig configMusic;
+    private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
+
+    public static void initMusicConfig(){
+        configMusic = DottUtils.ymlMusic;
+        pl=DottUtils.getPlugin();
+        MusicMainCommand.setMusicPrefix(U.getMsgPath("music_prefix", "&d&l[&9&lMusica&d&l] "));
+    }
+    private static void addRunnable(UUID uuid, BukkitRunnable runnable, int delay){
+        mRunnableList.computeIfAbsent(uuid, k -> new ArrayList<>()).add(runnable);
+
+        runnable.runTaskLater(pl, delay);
+    }
+    public static void stopMusicTasks(){
+        Iterator<Map.Entry<UUID, List<BukkitRunnable>>> it =
+                mRunnableList.entrySet().iterator();
+
+        while (it.hasNext()) {
+            Map.Entry<UUID, List<BukkitRunnable>> entry = it.next();
+            for (BukkitRunnable runnable : entry.getValue()) {
+                runnable.cancel();
+            }
+            it.remove();
+        }
+    }
+
+    public static void stopMusicTasks(UUID uuid){
+        List<BukkitRunnable> list = mRunnableList.remove(uuid);
+        if (list == null) return;
+
+        for (BukkitRunnable runnable : list) {
+            runnable.cancel();
+        }
+    }
+
+    public static void reproduceTo(String song, Player player, boolean loop){
+        ConfigurationSection section = configMusic.getConfig().getConfigurationSection(song);
+        if(section==null){
+            throw new MusicSectionEmpty(song, "No se ha identificado la canción.");
+        }
+
+        ConfigurationSection strSection = section.getConfigurationSection("Structure");
+        if(strSection==null){
+            throw new MusicSectionEmpty(song+".Structure", "Structure no existe en el yml?");
+        }
+
+        coreReproduce(song, strSection, player, loop);
+    }
+    private static void coreReproduce(String songName, ConfigurationSection strSection, Player player, boolean loop){
+        int partDuration = 0, i=1;
+        int totalParts = strSection.getKeys(false).size();
+
+        BukkitRunnable taskIfLast = new BukkitRunnable() {
+            @Override
+            public void run() {
+                stopMusicTasks(player.getUniqueId());
+            }
+        };
+        BukkitRunnable taskIfLastAndLoop = new BukkitRunnable() {
+            @Override
+            public void run() {
+                stopMusicTasks(player.getUniqueId());
+                coreReproduce(songName, strSection, player, loop);
+            }
+        };
+
+
+        for(String sPart : strSection.getKeys(false)){
+            boolean isLast = (i==totalParts);
+            ConfigurationSection partSection = strSection.getConfigurationSection(sPart);
+            if(partSection==null){
+                throw new MusicSectionEmpty(strSection.getCurrentPath()+sPart, "No se ha identificado la sección parte de: "+sPart);
+            }
+
+            int duration = partSection.getInt("ticks_to_continue", 0);
+
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    for(String sSection : partSection.getStringList("section_list")){
+                        sectionLoad(songName, sSection, duration, player);
+                    }
+
+                }
+            };
+            addRunnable(player.getUniqueId(), runnable, partDuration);
+            partDuration = partDuration + duration;
+            if(isLast){
+                if(loop){
+                    addRunnable(player.getUniqueId(), taskIfLastAndLoop, partDuration);
+                }else{
+                    addRunnable(player.getUniqueId(), taskIfLast, partDuration);
+                }
+            }
+
+            i++;
+        }
+    }
+
+    private static void sectionLoad(String songName, String sectionName, int totalTicks, Player player){
+        if(totalTicks<=0) totalTicks=1;
+
+        ConfigurationSection section = configMusic.getConfig().getConfigurationSection(songName+".Sections");
+        if(section==null){
+            throw new MusicSectionEmpty(songName+".Sections", "No se ha podido entrar en Sections, no existe Sections en tu canción?");
+        }
+
+        int ticksDuration=0;
+        for(String input : section.getStringList(sectionName)){
+            String[] aInput = input.split(";", 3);
+
+            //U.mensajeConsolaNP(input+" | "+ Arrays.toString(aInput));
+
+            if(aInput.length<2) {
+                //U.mensajeConsolaNP("continue args -2");
+                continue;
+            }
+            if(!(aInput[0].equalsIgnoreCase("wait"))){
+                //U.mensajeConsolaNP("continue no es wait");
+                continue;
+            }
+            int localTicks = Integer.parseInt(aInput[1]);
+
+            //U.mensajeConsolaNP(input+" | "+ Arrays.toString(aInput)+" | "+localTicks);
+
+            ticksDuration = ticksDuration+localTicks;
+        }
+        if(ticksDuration==0){
+            throw new ArithmeticException("Comprueba si tienes algún wait en tu canción.");
+        }
+
+        int repeatTimes = (int) totalTicks/ticksDuration;
+
+        int accumuledDelay = 0; // in ticks
+
+        for(int i=0;i<repeatTimes;i++){
+
+            for(String input : section.getStringList(sectionName)){
+
+                String[] aInput = input.split(";", 3);
+                if(aInput.length<2) continue;
+                if(aInput[0].equalsIgnoreCase("wait")){
+                    accumuledDelay = accumuledDelay+Integer.parseInt(aInput[1]);
+                    continue;
+                }
+                if(aInput.length<3) continue;
+                //end of "checks"?
+
+                String sID = aInput[0];
+                String sVol = aInput[1];
+                String sPitch = aInput[2];
+
+                NamespacedKey key = NamespacedKey.fromString(sID.toLowerCase());
+                if(key==null){
+                    throw new MusicNullKeyException(songName, "No se ha podido obtener el NamespacedKey tras un input de: "+sID.toLowerCase());
+                }
+
+                Sound sound = Registry.SOUNDS.get(key);
+                if(sound==null){
+                    throw new MusicSoundException(songName, "No se ha podido transformar a Sound el key de: "+key.toString());
+                }
+
+
+                float vol = Float.parseFloat(sVol);
+                float pitch = Float.parseFloat(sPitch);
+
+                BukkitRunnable runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.playSound(player, sound, vol, pitch);
+
+                    }
+                };
+
+                addRunnable(player.getUniqueId(), runnable, accumuledDelay);
+            }
+        }
+    }
+}
