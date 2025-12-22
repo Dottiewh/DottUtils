@@ -55,6 +55,11 @@ public class MusicConfig {
         }
     }
 
+    public static void reproduceToAll(String song, boolean loop){
+        for(Player player : Bukkit.getOnlinePlayers()){
+            reproduceTo(song, player, loop);
+        }
+    }
     public static void reproduceTo(String song, Player player, boolean loop){
         ConfigurationSection section = configMusic.getConfig().getConfigurationSection(song);
         if(section==null){
@@ -66,6 +71,7 @@ public class MusicConfig {
             throw new MusicSectionEmpty(song+".Structure", "Structure no existe en el yml?");
         }
 
+        stopMusicTasks(player.getUniqueId());
         coreReproduce(song, strSection, player, loop);
     }
     private static void coreReproduce(String songName, ConfigurationSection strSection, Player player, boolean loop){

@@ -3,6 +3,8 @@ package mp.dottiewh.config;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -121,6 +123,14 @@ public class Config {
     }
     public static List<String> getAdminList(){
         return admins;
+    }
+    public static int getAdminsOnline() {
+        int contador = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (containsAdmin(p.getName())) contador++;
+        }
+
+        return contador;
     }
 
     //-------WHITELIST---------

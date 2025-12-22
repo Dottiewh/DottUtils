@@ -4,16 +4,17 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.block.BlockFace;
+import net.kyori.adventure.title.Title;
+import org.bukkit.*;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import org.bukkit.util.Transformation;
+import org.joml.Vector3f;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,6 +30,8 @@ public class U { //Stands for utils
    // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
     private static final Set<BukkitRunnable> listaCountdowns = new HashSet<>();
 
+    private static final Map<UUID, BukkitRunnable> mapaRepetitivos = new HashMap<>();
+
 
     //--------------------------Métodos Útiles-----------------------------------
     public static void targetMessage(Player target, String mensaje){
@@ -37,6 +40,41 @@ public class U { //Stands for utils
     public static void targetMessageNP(Player target, String mensaje){
         target.sendMessage(U.mensajeConColor(mensaje));
     }
+    // all in ticks
+    public static void sendTitleTarget(Player p, String title, String subtitle, int fadeIn, int stay, int fadeOut){
+        Component cTitle = componentColor(title);
+        if(subtitle==null) subtitle="";
+        Component cSubTitle = componentColor(subtitle);
+
+        Title titulo = Title.title(cTitle, cSubTitle, fadeIn, stay, fadeOut);
+        p.showTitle(titulo);
+    }
+    public static void sendTitleToAll(String title, String subtitle, int fadeIn, int stay, int fadeOut){
+        for(Player player : Bukkit.getOnlinePlayers()){
+            sendTitleTarget(player, title, subtitle, fadeIn, stay, fadeOut);
+        }
+    }
+
+    public static void playsoundTarget(Player p, Sound sound, float vol, float pitch){
+        p.playSound(p, sound, vol, pitch);
+    }
+    public static void playsoundForAll(Sound sound, float vol, float pitch){
+        for(Player player : Bukkit.getOnlinePlayers()){
+            playsoundTarget(player, sound, vol, pitch);
+        }
+    }
+
+    // INCLUYENDO MIN Y MAX
+    public static int getRandomInt(int min, int max){
+        Random random = new Random();
+        return random.nextInt((max-min)+1)+min;
+    }
+    // NO INCLUYE MAX, se queda en max-0,00...001
+    public static double getRandomDouble(double min, double max){
+        Random random = new Random();
+        return random.nextDouble(max-min)+min;
+    }
+
     public static Component mensajeConPrefix(String mensaje){
         return componentColor(prefix+mensaje);
     }
@@ -172,7 +210,7 @@ public class U { //Stands for utils
             BukkitRunnable task = new BukkitRunnable() {
                 @Override
                 public void run(){
-                    Component msg = componentColor(format+ finalSegundosRestantes+" &8(s)");
+                    Component msg = componentColor(format+ finalSegundosRestantes); //+" &8(s)"
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendActionBar(msg);
                     }
@@ -203,5 +241,112 @@ public class U { //Stands for utils
         for(BukkitRunnable task : listaCountdowns){
             task.cancel();
         }
+    }
+
+    public static void blackScreenForAll(Plugin plugin, boolean forceIt){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            blackScreen(plugin, p, forceIt);
+        }
+    }
+    public static void blackScreen(Plugin plugin, Player player, boolean forceIt){
+        sendTitleTarget(player, "\uE123", null, 20, 9999999, 20);
+        if(forceIt){
+            Bukkit.getScheduler().runTaskLater(plugin, task->{
+                forceBlackOut(plugin, player);
+            }, 20L);
+        }
+    }
+    public static void stopBlackScreen(Player p){
+        sendTitleTarget(p, "", null, 0, 5, 0);
+        stopForceBlackScreen(p.getUniqueId()); // just to be sure
+    }
+    public static void stopBlackScreenForAll(){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            stopBlackScreen(p);
+        }
+    }
+
+
+    private static void forceBlackOut(Plugin plugin, Player player){
+        List<ItemDisplay> displays = new ArrayList<>();
+
+        World world = player.getWorld();
+        Location base = player.getEyeLocation();
+
+        float scale =4f;
+        for (int i = 0; i < 6; i++) {
+            float sX=scale, sY=scale, sZ=scale;
+
+            ItemDisplay iD = world.spawn(base, ItemDisplay.class, t -> {
+
+            });
+            Transformation old = iD.getTransformation();
+
+            switch(i){
+                // X
+                case 0, 1->{
+                    sX=0.1f;
+                } //Y
+                case 2, 3->{
+                    sY=0.1f;
+                }// Z
+                default->{
+                    sZ=0.1f;
+                }
+            }
+
+            Transformation modified = new Transformation(
+                    old.getTranslation(),
+                    old.getLeftRotation(),
+                    new Vector3f(sX, sY, sZ),
+                    old.getRightRotation()
+            );
+
+            iD.setTransformation(modified);
+
+
+            iD.setItemStack(ItemStack.of(Material.PUMPKIN));
+            iD.setVisibleByDefault(false);
+
+            iD.setInterpolationDuration(3);
+            iD.setTeleportDuration(1);
+
+            player.showEntity(plugin, iD);
+            displays.add(iD);
+        }
+
+        // Distancia desde la cámara
+        double d = 1.1;
+        double dF = 1.9;
+
+        BukkitRunnable repetitive = new BukkitRunnable() {
+            @Override
+            public void run() {
+                Location pLoc = player.getLocation().add(0, 1.4, 0);
+                pLoc.setYaw(0f); pLoc.setPitch(0f);
+
+                Location x = pLoc.clone().add(dF, 0, 0);
+                Location y = pLoc.clone().add(0, d, 0);
+                Location z = pLoc.clone().add(0, 0, dF);
+                //
+                Location x2 = pLoc.clone().subtract(dF, 0, 0);
+                Location y2 = pLoc.clone().subtract(0, d, 0);
+                Location z2 = pLoc.clone().subtract(0, 0, dF);
+
+                displays.get(0).teleport(x);
+                displays.get(1).teleport(x2);
+                displays.get(2).teleport(y);
+                displays.get(3).teleport(y2);
+                displays.get(4).teleport(z);
+                displays.get(5).teleport(z2);
+            }
+        };
+        mapaRepetitivos.put(player.getUniqueId(), repetitive);
+        repetitive.runTaskTimer(plugin, 1L, 1L);
+    }
+    public static void stopForceBlackScreen(UUID uuid){
+        if(!(mapaRepetitivos.containsKey(uuid))) return;
+        mapaRepetitivos.get(uuid).cancel();
+        mapaRepetitivos.remove(uuid);
     }
 }

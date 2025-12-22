@@ -5,6 +5,8 @@ import mp.dottiewh.config.Config;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -30,6 +32,9 @@ public class DuApiManager {
 
     public List<String> getAdminList(){return Config.getAdminList();}
     public boolean containsAdmin(String adm){return Config.containsAdmin(adm);}
+    public int onlineAdmins(){
+        return Config.getAdminsOnline();
+    }
 
     public boolean enablePvP(){return Config.onPvP();}
     public boolean disablePvP(){return Config.offPvP();}
@@ -58,9 +63,33 @@ public class DuApiManager {
     public Component componentFromString(String msg){
         return U.componentColor(msg);
     }
+    public void mensajeForAllNP(String msg){
+        for(Player player : Bukkit.getOnlinePlayers()){
+            targetMsgNP(player, msg);
+        }
+    }
+    public void sendTitleTarget(Player p, String title, String subtitle, int fadeIn, int stay, int fadeOut){
+        U.sendTitleTarget(p, title, subtitle, fadeIn, stay, fadeOut);
+    }
+    public void sendTitleToAll(String title, String subtitle, int fadeIn, int stay, int fadeOut){
+        U.sendTitleToAll(title, subtitle, fadeIn, stay, fadeOut);
+    }
+    public void playSoundTarget(Player p, Sound sound, float vol, float pitch){
+        U.playsoundTarget(p, sound, vol, pitch);
+    }
+    public void playSoundToAll(Sound sound, float vol, float pitch){
+        U.playsoundForAll(sound, vol, pitch);
+    }
+
 
     public double truncar(double value, int decimales){
         return U.truncar(value, decimales);
+    }
+    public int randomInt(int min, int max){
+        return U.getRandomInt(min, max);
+    }
+    public double randomDouble(double min, double max){
+        return U.getRandomDouble(min, max);
     }
     public String getLastVersionGithub(String urlGithub){
         try{
@@ -99,10 +128,30 @@ public class DuApiManager {
     public void playSong(String song, Player player, boolean loop){
         MusicConfig.reproduceTo(song, player, loop);
     }
+    public void playSongForAll(String song, boolean loop){
+        MusicConfig.reproduceToAll(song, loop);
+    }
+
     public void stopSong(){
         MusicConfig.stopMusicTasks();
     }
     public void stopSong(UUID uuid){
         MusicConfig.stopMusicTasks(uuid);
     }
+
+    public void blackScreen(Player p, boolean forceIt){
+        U.blackScreen(plugin, p, forceIt);
+    }
+    public void blackScreenForAll(boolean forceIt){
+        U.blackScreenForAll(plugin, forceIt);
+    }
+    public void stopBlackScreen(Player p){
+        U.stopBlackScreen(p);
+    }
+    public void stopBlackScreenForAll(){
+        U.stopBlackScreenForAll();
+    }
+
+    //
+    public String getPrefix(){return prefix;}
 }
