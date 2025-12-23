@@ -1,5 +1,6 @@
 package mp.dottiewh;
 
+import mp.dottiewh.cinematics.CinematicMainCommand;
 import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTime;
@@ -89,6 +90,7 @@ public abstract class Commands {
             case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
             case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
             case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
+            case "cinematic" -> new CinematicMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
                 sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));

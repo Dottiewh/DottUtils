@@ -6,6 +6,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -22,16 +24,18 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+import static mp.dottiewh.DottUtils.getPlugin;
 import static mp.dottiewh.DottUtils.prefix;
 
 public class U { //Stands for utils
     private static final Set<UUID> listaNoFall = new HashSet<>();
     private static final String urlGithub = "https://api.github.com/repos/Dottiewh/DottUtils/releases/latest";
    // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
-    private static final Set<BukkitRunnable> listaCountdowns = new HashSet<>();
+    private static final Map<UUID, List<BukkitRunnable>> mapaCountdowns = new HashMap<>();
 
-    private static final Map<UUID, BukkitRunnable> mapaRepetitivos = new HashMap<>();
-
+    private static final Map<UUID, BukkitRunnable> mapaRepetitivoScreen = new HashMap<>();
+    private static final Map<UUID, BukkitRunnable> mapaRepetitivoActionBar = new HashMap<>();
+    private static final Map<UUID, List<ItemDisplay>> mapaEntityScreen = new HashMap<>();
 
     //--------------------------Métodos Útiles-----------------------------------
     public static void targetMessage(Player target, String mensaje){
@@ -199,9 +203,52 @@ public class U { //Stands for utils
             return null;
         }
     }
+
+    public static void hidePlayerForAll(Player p){
+        for(Player pOthers : Bukkit.getOnlinePlayers()){
+            pOthers.hidePlayer(DottUtils.getPlugin(), p);
+        }
+    }
+    public static void unHidePlayerForAll(Player p){
+        for(Player pOthers : Bukkit.getOnlinePlayers()){
+            pOthers.showPlayer(DottUtils.getPlugin(), p);
+        }
+    }
+
     //util long methods
+    public static void staticActionBar(Player p, String msg){
+        UUID uuid = p.getUniqueId();
+        stopStaticActionBar(uuid);
+        stopCountdownTarget(uuid);
+
+        Component cMsg = componentColor(msg);
+        BukkitRunnable repetitive = new BukkitRunnable() {
+            @Override
+            public void run() {
+                p.sendActionBar(cMsg);
+            }
+        };
+        repetitive.runTaskTimer(DottUtils.getPlugin(), 0L, 20L);
+        mapaRepetitivoActionBar.put(uuid, repetitive);
+    }
+    public static void stopStaticActionBar(UUID uuid){
+        if(!(mapaRepetitivoActionBar.containsKey(uuid))) return;
+        BukkitRunnable runnable = mapaRepetitivoActionBar.remove(uuid);
+        runnable.cancel();
+    }
+
     public static void countdownForAll(Plugin pl, int segundos, String format){ // Segundos restantes: 77
         stopAllCountdowns();
+        for(Player p : Bukkit.getOnlinePlayers()){
+            countdownForTarget(p, pl, segundos, format);
+        }
+    }
+    public static void countdownForTarget(Player p, Plugin pl, int segundos, String format){ // Segundos restantes: 77
+        UUID uuid = p.getUniqueId();
+        stopCountdownTarget(uuid);
+        stopStaticActionBar(uuid);
+
+        List<BukkitRunnable> listaCountdowns = new LinkedList<>();
 
         int segundosRestantes = segundos;
         for(int i=0;i<segundos;i++){
@@ -211,9 +258,7 @@ public class U { //Stands for utils
                 @Override
                 public void run(){
                     Component msg = componentColor(format+ finalSegundosRestantes); //+" &8(s)"
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendActionBar(msg);
-                    }
+                    p.sendActionBar(msg);
                 }
             };
             listaCountdowns.add(task);
@@ -222,24 +267,37 @@ public class U { //Stands for utils
             segundosRestantes--;
         }
         // final
-        int finalSegundosRestantes1 = segundosRestantes;
         BukkitRunnable taskEnd = new BukkitRunnable() {
             @Override
             public void run(){
                 Component msg = componentColor("&cCuenta atrás acabada.");
 
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendActionBar(msg);
-                }
-                stopAllCountdowns();
+                p.sendActionBar(msg);
+                stopCountdownTarget(uuid);
             }
         };
         listaCountdowns.add(taskEnd);
         taskEnd.runTaskLater(pl, segundos*20L);
+        //
+        mapaCountdowns.put(uuid, listaCountdowns);
     }
+
+    public static void stopCountdownTarget(UUID uuid){
+        if(!(mapaCountdowns.containsKey(uuid))) return;
+
+        //List<BukkitRunnable> runnables = mapaCountdowns.remove(uuid);
+        Iterator<BukkitRunnable> it = mapaCountdowns.remove(uuid).iterator();
+
+        while(it.hasNext()){
+            BukkitRunnable runnable = it.next();
+            runnable.cancel();
+            it.remove();
+        }
+    }
+
     public static void stopAllCountdowns(){
-        for(BukkitRunnable task : listaCountdowns){
-            task.cancel();
+        for(Player p : Bukkit.getOnlinePlayers()){
+            stopCountdownTarget(p.getUniqueId());
         }
     }
 
@@ -250,6 +308,7 @@ public class U { //Stands for utils
     }
     public static void blackScreen(Plugin plugin, Player player, boolean forceIt){
         sendTitleTarget(player, "\uE123", null, 20, 9999999, 20);
+        stopForceBlackScreen(player.getUniqueId()); //just in case
         if(forceIt){
             Bukkit.getScheduler().runTaskLater(plugin, task->{
                 forceBlackOut(plugin, player);
@@ -259,6 +318,10 @@ public class U { //Stands for utils
     public static void stopBlackScreen(Player p){
         sendTitleTarget(p, "", null, 0, 5, 0);
         stopForceBlackScreen(p.getUniqueId()); // just to be sure
+        AttributeInstance attr = p.getAttribute(Attribute.CAMERA_DISTANCE);
+        if(attr==null) return;
+        if(attr.getValue()!=1) return;
+        attr.setBaseValue(4);
     }
     public static void stopBlackScreenForAll(){
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -268,6 +331,11 @@ public class U { //Stands for utils
 
 
     private static void forceBlackOut(Plugin plugin, Player player){
+        AttributeInstance attr = player.getAttribute(Attribute.CAMERA_DISTANCE);
+        if(attr!=null){
+            attr.setBaseValue(1);
+        }
+
         List<ItemDisplay> displays = new ArrayList<>();
 
         World world = player.getWorld();
@@ -305,7 +373,7 @@ public class U { //Stands for utils
             iD.setTransformation(modified);
 
 
-            iD.setItemStack(ItemStack.of(Material.PUMPKIN));
+            iD.setItemStack(ItemStack.of(Material.BLACK_CONCRETE));
             iD.setVisibleByDefault(false);
 
             iD.setInterpolationDuration(3);
@@ -314,6 +382,7 @@ public class U { //Stands for utils
             player.showEntity(plugin, iD);
             displays.add(iD);
         }
+        mapaEntityScreen.put(player.getUniqueId(), displays);
 
         // Distancia desde la cámara
         double d = 1.1;
@@ -341,12 +410,28 @@ public class U { //Stands for utils
                 displays.get(5).teleport(z2);
             }
         };
-        mapaRepetitivos.put(player.getUniqueId(), repetitive);
+        mapaRepetitivoScreen.put(player.getUniqueId(), repetitive);
         repetitive.runTaskTimer(plugin, 1L, 1L);
     }
     public static void stopForceBlackScreen(UUID uuid){
-        if(!(mapaRepetitivos.containsKey(uuid))) return;
-        mapaRepetitivos.get(uuid).cancel();
-        mapaRepetitivos.remove(uuid);
+        if(!(mapaRepetitivoScreen.containsKey(uuid))) return;
+        mapaRepetitivoScreen.get(uuid).cancel();
+        mapaRepetitivoScreen.remove(uuid);
+
+        //remove of entitys
+        List<ItemDisplay> displays = mapaEntityScreen.remove(uuid);
+        if (displays != null) {
+            for (ItemDisplay item : displays) {
+                if (!item.isDead()) {
+                    item.remove();
+                }
+            }
+        }
+    }
+
+    public static void cleanOnDisable(){
+        for (UUID uuid : mapaEntityScreen.keySet()) {
+            stopForceBlackScreen(uuid);
+        }
     }
 }

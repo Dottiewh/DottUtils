@@ -52,6 +52,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlBackList;
     public static CustomConfig ymlPlayTime;
     public static CustomConfig ymlMusic;
+    public static File folderCinematic;
 
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
@@ -75,6 +76,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     }
     public void onDisable(){
         PlayTimeManagement.onDisableManagement();
+        U.cleanOnDisable();
 
         if (ymlConfig != null) {
             ymlConfig.saveConfig();
@@ -122,15 +124,15 @@ public class DottUtils extends JavaPlugin implements Listener {
         return ymlMessages;
     }
     public static void initCustomConfig(){
-        DottUtils plugin = getInstance();
+        DottUtils instance = getInstance();
 
-        ymlLists = new CustomConfig("lists.yml", null, plugin, false);
-        ymlConfig = new CustomConfig("config.yml", null, plugin, false);
-        ymlMessages = new CustomConfig("messages.yml", null, plugin, false);
-        ymlItems = new CustomConfig("items.yml", null, plugin, false);
-        ymlBackList = new CustomConfig("backlist.yml", "util", plugin, false);
-        ymlPlayTime = new CustomConfig("playtimes.yml", "util", plugin, false);
-        ymlMusic = new CustomConfig("musics.yml", null, plugin, false);
+        ymlLists = new CustomConfig("lists.yml", null, instance, false);
+        ymlConfig = new CustomConfig("config.yml", null, instance, false);
+        ymlMessages = new CustomConfig("messages.yml", null, instance, false);
+        ymlItems = new CustomConfig("items.yml", null, instance, false);
+        ymlBackList = new CustomConfig("backlist.yml", "util", instance, false);
+        ymlPlayTime = new CustomConfig("playtimes.yml", "util", instance, false);
+        ymlMusic = new CustomConfig("musics.yml", null, instance, false);
 
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
@@ -145,6 +147,12 @@ public class DottUtils extends JavaPlugin implements Listener {
         Config.configInit();
         ItemConfig.itemConfigInit();
         MusicConfig.initMusicConfig();
+
+        //cinematics related
+        folderCinematic = new File(instance.getDataFolder(), "cinematics");
+        if(!folderCinematic.exists()){
+            folderCinematic.mkdirs();
+        }
     }
     private void regEvents(){
         regFormat(new ChatListener());
