@@ -62,7 +62,7 @@ public class CinematicMainCommand extends Commands {
             senderMessageNP("&cPor favor introduce el nombre de la cinemática");
             return;
         }
-        long period = 1L;
+        long period = 15L;
 
         if(!(args.length<5)){
             try{
@@ -86,7 +86,7 @@ public class CinematicMainCommand extends Commands {
         }
         // /du cinematic play test
         if(args.length<4){
-            if(CinematicsConfig.reproduceCinematic(player, args[2], true)){
+            if(CinematicsConfig.reproduceCinematic(player, args[2], true, true)){
                 CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+args[2]+" &acorrectamente.", player);
             }else{
                 CinematicsConfig.cineMsg("&cLa cinemática &f&l"+args[2]+" &cno existe.", player);
@@ -95,7 +95,7 @@ public class CinematicMainCommand extends Commands {
         }
         boolean clone = (Boolean.parseBoolean(args[3]));
 
-        if(CinematicsConfig.reproduceCinematic(player, args[2], clone)){
+        if(CinematicsConfig.reproduceCinematic(player, args[2], clone, true)){
             CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+args[2]+" &acorrectamente.", player);
         }else{
             CinematicsConfig.cineMsg("&cLa cinemática &f&l"+args[2]+" &cno existe.", player);
@@ -105,5 +105,6 @@ public class CinematicMainCommand extends Commands {
     private void stop(){
 
     }
+
 
 }

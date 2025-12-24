@@ -7,16 +7,12 @@ import mp.dottiewh.cinematics.exceptions.CinematicFileNull;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -29,11 +25,13 @@ public class CinematicsConfig {
     private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
     private static final HashMap<UUID, String> mapaOnGoingRecords = new HashMap<>();
 
-    private static final HashMap<UUID, Map.Entry<GameMode, Mannequin>> mapaPlayerData = new HashMap<>();
-    private static final HashMap<UUID, Location> mapaPlayerDataTwo = new HashMap<>();
+    private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPlayerData = new HashMap<>();
+    private static final HashMap<UUID, Map.Entry<Mannequin, TextDisplay>> mapaPlayerDataTwo = new HashMap<>();
     private static final HashMap<UUID, List<BukkitRunnable>> mapaPlayerReproduce = new HashMap<>();
 
-    private static final HashMap<UUID, Location> mapaPendingTP = new HashMap<>();
+    private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPending = new HashMap<>();
+
+    private static Chunk test;
 
     public static void startRecording(Player p, String fileName, long period){
         UUID uuid = p.getUniqueId();
@@ -49,7 +47,7 @@ public class CinematicsConfig {
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                Location loc = p.getLocation();
+                Location loc = p.getEyeLocation();
                 registerLocation(loc, fileName, period);
                 U.staticActionBar(p, "&c&l● &cGrabando...");
             }
@@ -114,14 +112,32 @@ public class CinematicsConfig {
         removeCountdownMap(uuid);
         if(!(mapaRunnables.containsKey(uuid))) return;
 
-        mapaRunnables.get(uuid).cancel();
-        mapaRunnables.remove(uuid);
+        boolean badRecord=false;
+
+        BukkitRunnable mainRun = mapaRunnables.remove(uuid);
+        if(mainRun!=null){
+            try {
+                mainRun.cancel();
+            } catch (IllegalStateException ignored) {badRecord=true;}
+        }
+        //caso de que se grabó mal
+        else badRecord=true;
+
         // destacar END en record
         if(!(mapaOnGoingRecords.containsKey(uuid))) return;
         String fileName = mapaOnGoingRecords.remove(uuid);
 
         CustomConfig file = getFile(fileName, false);
+
         if(file==null) return;
+        if(badRecord){
+            File rawFile = getFileRaw(fileName, false);
+            if(rawFile==null) return;
+            U.mensajeConsolaNP("&eSe ha detectado una cinemática vacia/corrompida! borrando a &6"+fileName);
+            rawFile.delete();
+            return;
+        }
+
         List<String> sList = file.getConfig().getStringList("Locations");
         sList.add("end");
         file.getConfig().set("Locations", sList);
@@ -172,18 +188,33 @@ public class CinematicsConfig {
         config.registerConfig();
         return config;
     }
+    @Nullable
+    private static File getFileRaw(String name, boolean forceCreate){
+        File archivo = new File(DottUtils.folderCinematic, name+".yml");
+        boolean success = archivo.exists();
+        if(!success){
+            if(forceCreate){
+                createNewFile(name);
+                return new File(DottUtils.folderCinematic, name+".yml");
+
+            }else{return null;}
+        }
+        return archivo;
+    }
+
     private static boolean checkFileExists(String name){
         CustomConfig config = getFile(name, false);
         return !(config==null);
     }
 
     //------------REPRODUCE THINSG---------------------
-    public static boolean reproduceCinematic(Player p, String fileName, boolean clonePlayer) {
+    public static boolean reproduceCinematic(Player p, String fileName, boolean clonePlayer, boolean natural) {
         CustomConfig config = getFile(fileName, false);
         if (!(checkFileExists(fileName)) || config == null) return false;
 
         UUID uuid = p.getUniqueId();
-        stopReproducing(uuid);
+        checkAndStop(uuid);
+        if(natural) stopReproducing(uuid);
         GameMode gmToDeliver = p.getGameMode();
         Mannequin npcToDeliver = null;
 
@@ -212,23 +243,55 @@ public class CinematicsConfig {
             npc.customName(cName);
             npc.setCustomNameVisible(true);
             npc.setGravity(false);
+            npc.setPersistent(true);
 
             npcToDeliver = npc;
         }
-        Map.Entry<GameMode, Mannequin> entryToDeliver = new AbstractMap.SimpleEntry<>(gmToDeliver, npcToDeliver);
 
-        mapaPlayerData.put(uuid, entryToDeliver);
         Location playerLoc = p.getLocation();
-        mapaPlayerDataTwo.put(uuid, playerLoc);
+        Map.Entry<GameMode, Location> entryToDeliver = new AbstractMap.SimpleEntry<>(gmToDeliver, playerLoc);
+
+        if(natural) mapaPlayerData.put(uuid, entryToDeliver); // DATA IMPORTANTE
 
         U.hidePlayerForAll(p);
         p.setGameMode(GameMode.SPECTATOR);
 
+        // textDisplay
+        TextDisplay textDisplay = (TextDisplay) playerLoc.getWorld().spawnEntity(playerLoc, EntityType.TEXT_DISPLAY);
+        textDisplay.setVisibleByDefault(true);
+        textDisplay.setPersistent(true);
+        textDisplay.setInvulnerable(true);
+
+        if(!natural){
+            npcToDeliver = mapaPlayerDataTwo.get(uuid).getKey();
+            notNaturalClean(uuid);
+        }
+
+        Map.Entry<Mannequin, TextDisplay> entryToDeliverTwo = new AbstractMap.SimpleEntry<>(npcToDeliver, textDisplay);
+        mapaPlayerDataTwo.put(uuid, entryToDeliverTwo); //DATADOS
+
         long period = config.getConfig().getLong("Period");
         int count = 0;
+        textDisplay.setInterpolationDelay(0);
+        textDisplay.setInterpolationDuration((int) period);
+        textDisplay.setTeleportDuration((int) period);
+
         List<BukkitRunnable> lRunnables = new ArrayList<>();
 
         for(String input : config.getConfig().getStringList("Locations")){
+            if(checkFileExists(input)){
+                BukkitRunnable bringToAnotherRunnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        reproduceCinematic(p, input, false, false);
+                    }
+                };
+
+                bringToAnotherRunnable.runTaskLater(plugin, count*period);
+                lRunnables.add(bringToAnotherRunnable);
+                break;
+            }
+
             if(input.equalsIgnoreCase("end")){
                 BukkitRunnable finalTask = new BukkitRunnable() {
                     @Override
@@ -249,22 +312,41 @@ public class CinematicsConfig {
 
             Location loc = new Location(world, x, y, z, yaw, pitch);
 
+            if(count==0){
+                p.setSpectatorTarget(null);
+                textDisplay.teleport(loc);
 
+                if(npcToDeliver!=null){
+                    if(!(npcToDeliver.getWorld().equals(world))){
+                        npcToDeliver.remove();
+                    }
+                }
+
+                p.teleport(loc);
+                count++;
+                continue;
+            }
             BukkitRunnable task = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    p.teleportAsync(loc);
+                    textDisplay.teleport(loc);
+                    p.setSpectatorTarget(textDisplay);
                 }
             };
+
             task.runTaskLater(plugin, count*period);
             lRunnables.add(task);
-
             count++;
         }
 
         mapaPlayerReproduce.put(uuid, lRunnables);
         return true;
     }
+    private static void notNaturalClean(UUID uuid){
+        Map.Entry<Mannequin, TextDisplay> entry = mapaPlayerDataTwo.remove(uuid);
+        entry.getValue().remove();
+    }
+
     public static void stopReproducing(UUID uuid){
         if(!(mapaPlayerData.containsKey(uuid))) return;
 
@@ -272,16 +354,40 @@ public class CinematicsConfig {
         boolean online = !(player==null);
 
         //DATA
-        Map.Entry<GameMode, Mannequin> eData = mapaPlayerData.remove(uuid);
-        if(online) player.setGameMode(eData.getKey());
+        Map.Entry<GameMode, Location> eData = mapaPlayerData.remove(uuid);
+        Map.Entry<Mannequin, TextDisplay> eDataTwo = mapaPlayerDataTwo.remove(uuid);
 
-        Mannequin npc = eData.getValue();
-        npc.remove();
-        //DATA 2
-        Location oldLoc = mapaPlayerDataTwo.remove(uuid);
+        Location oldLoc = eData.getValue();
 
+        TextDisplay textDisplay = eDataTwo.getValue();
+        textDisplay.remove();
+
+
+        //DATA2
+
+
+        Mannequin npc = eDataTwo.getKey();
+
+        //ups
         if(online)player.teleport(oldLoc);
-        else mapaPendingTP.put(uuid, oldLoc);
+        else{
+            Map.Entry<GameMode, Location> hmToDeliver = new AbstractMap.SimpleEntry<GameMode, Location>(eData.getKey(), oldLoc);
+            mapaPending.put(uuid, hmToDeliver);
+        }
+
+        if(npc!=null&&online){
+            player.setSpectatorTarget(npc);
+            if(npc.isInWorld()){
+                npc.remove();
+            }else{
+                Location spawnLoaded = new Location(Bukkit.getWorlds().getFirst(), 0,0,0);
+                npc.spawnAt(spawnLoaded);
+                Bukkit.getScheduler().runTaskLater(plugin, npc::remove, 10L);
+            }
+        }
+
+        if(online) player.setGameMode(eData.getKey());
+        if(online&&eData.getKey().equals(GameMode.SPECTATOR)) player.setSpectatorTarget(player);
 
         // STOP TASK AND REMOVE
         List<BukkitRunnable> lRunnables = mapaPlayerReproduce.remove(uuid);
@@ -297,12 +403,23 @@ public class CinematicsConfig {
     //
     public static void onJoinCheck(Player player){
         UUID uuid = player.getUniqueId();
-        if(!(mapaPendingTP.containsKey(uuid))) return;
-        Location locToTp = mapaPendingTP.remove(uuid);
+        if(!(mapaPending.containsKey(uuid))) return;
+
+        Map.Entry<GameMode, Location> entry = mapaPending.remove(uuid);
+        Location locToTp = entry.getValue();
         player.teleport(locToTp);
+        player.setGameMode(entry.getKey());
     }
+    public static void onDisableCheck(){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            UUID uuid = p.getUniqueId();
+            CinematicsConfig.checkAndStop(uuid);
+            CinematicsConfig.stopReproducing(uuid);
+        }
+    }
+
     //
-    public static void cineMsg(String msg, Player p){
+    static void cineMsg(String msg, Player p){
         String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
         U.targetMessageNP(p, prefix+msg);
     }

@@ -2,6 +2,7 @@ package mp.dottiewh;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
@@ -76,6 +77,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     }
     public void onDisable(){
         PlayTimeManagement.onDisableManagement();
+        CinematicsConfig.onDisableCheck();
         U.cleanOnDisable();
 
         if (ymlConfig != null) {
