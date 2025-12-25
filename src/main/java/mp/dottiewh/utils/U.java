@@ -231,6 +231,17 @@ public class U { //Stands for utils
         repetitive.runTaskTimer(DottUtils.getPlugin(), 0L, 20L);
         mapaRepetitivoActionBar.put(uuid, repetitive);
     }
+    public static void staticActionBarForAll(String msg){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            staticActionBar(p, msg);
+        }
+    }
+
+    public static void stopStaticActionBarForAll(){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            stopStaticActionBar(p.getUniqueId());
+        }
+    }
     public static void stopStaticActionBar(UUID uuid){
         if(!(mapaRepetitivoActionBar.containsKey(uuid))) return;
         BukkitRunnable runnable = mapaRepetitivoActionBar.remove(uuid);

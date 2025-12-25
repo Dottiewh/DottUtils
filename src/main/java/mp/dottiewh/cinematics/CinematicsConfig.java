@@ -3,7 +3,9 @@ package mp.dottiewh.cinematics;
 import com.destroystokyo.paper.SkinParts;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
 import mp.dottiewh.cinematics.exceptions.CinematicFileNull;
+import mp.dottiewh.cinematics.exceptions.CinematicRecordingHasNotStarted;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
@@ -12,18 +14,20 @@ import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
+// TO DO, cinematics that are in a chunk not loaded, are going to be weird
 public class CinematicsConfig {
     private static final DottUtils instance = DottUtils.getInstance();
     private static final Plugin plugin = DottUtils.getPlugin();
     private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
     private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
-    private static final HashMap<UUID, String> mapaOnGoingRecords = new HashMap<>();
+    private static final HashMap<UUID, Map.Entry<String, Long>> mapaOnGoingRecords = new HashMap<>();
 
     private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPlayerData = new HashMap<>();
     private static final HashMap<UUID, Map.Entry<Mannequin, TextDisplay>> mapaPlayerDataTwo = new HashMap<>();
@@ -31,8 +35,15 @@ public class CinematicsConfig {
 
     private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPending = new HashMap<>();
 
-    private static Chunk test;
-
+    private static BukkitRunnable getMainRun(Player p, String fileName, long period){
+        return new BukkitRunnable() {
+            @Override
+            public void run() {
+                Location loc = p.getEyeLocation();
+                registerLocation(loc, fileName, period);
+            }
+        };
+    }
     public static void startRecording(Player p, String fileName, long period){
         UUID uuid = p.getUniqueId();
         if(mapaRunnables.containsKey(uuid)){
@@ -44,25 +55,23 @@ public class CinematicsConfig {
             return;
         }
 
-        BukkitRunnable runnable = new BukkitRunnable() {
-            @Override
-            public void run() {
-                Location loc = p.getEyeLocation();
-                registerLocation(loc, fileName, period);
-                U.staticActionBar(p, "&c&l● &cGrabando...");
-            }
-        };
+        BukkitRunnable runnable = getMainRun(p, fileName, period);
         mapaRunnables.put(uuid, runnable);
-        mapaOnGoingRecords.put(uuid, fileName);
+
+        Map.Entry<String, Long> entryRecordToDeliver = new AbstractMap.SimpleEntry<>(fileName, period);
+        mapaOnGoingRecords.put(uuid, entryRecordToDeliver);
 
         cineMsg("&aEmpezaras a grabar la cinemática &f"+fileName+" &aen 5 segundos. &e("+period+")", p);
         U.countdownForTarget(p, plugin, 5, "&6Tiempo restante: ");
+        U.playsoundTarget(p, Sound.BLOCK_NOTE_BLOCK_BASS,10,1);
 
         BukkitRunnable countdown = new BukkitRunnable() {
             @Override
             public void run() {
                 cineMsg("&eEstás grabando! Puedes usar &6/du cinematic record stop&e, para parar la grabación.", p);
+                U.playsoundTarget(p, Sound.BLOCK_NOTE_BLOCK_BELL,10,1);
                 runnable.runTaskTimer(plugin, 0, period);
+                U.staticActionBar(p, "&c&l● &cGrabando...");
                 removeCountdownMap(uuid);
             }
         };
@@ -79,6 +88,41 @@ public class CinematicsConfig {
         config.getConfig().set("Locations", stringList);
         config.saveConfig();
     }
+
+    public static void pauseRecord(Player p) throws CinematicRecordingHasNotStarted{
+        UUID uuid = p.getUniqueId();
+        if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+        BukkitRunnable mainRun = mapaRunnables.remove(uuid);
+        String fileName = mapaOnGoingRecords.get(uuid).getKey();
+        long period = mapaOnGoingRecords.get(uuid).getValue();
+
+        if(mainRun!=null){
+            try {
+                mainRun.cancel();
+                mapaRunnables.put(uuid, getMainRun(p, fileName, period));
+                U.staticActionBar(p, "&6&l● &eEn pausa...");
+            } catch (IllegalStateException e){
+                throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación que no ha comenzado");
+            }
+        }
+    }
+    public static void resumeRecord(Player p) throws CinematicRecordingHasNotStarted{
+        UUID uuid = p.getUniqueId();
+        if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+        BukkitRunnable mainRun = mapaRunnables.get(uuid);
+        if(mainRun!=null){
+            try {
+                String fileName = mapaOnGoingRecords.get(uuid).getKey();
+                Long period = mapaOnGoingRecords.get(uuid).getValue();
+                mainRun.runTaskTimer(plugin, 5L, period);
+                cineMsg("&aResumiste correctamente la grabación de "+fileName, p);
+                U.staticActionBar(p, "&c&l● &cGrabando...");
+            } catch (IllegalStateException e){
+                throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación que no ha comenzado");
+            }
+        }
+    }
+
 
 
     private static void registerLocation(Location loc, String fileName, long period){
@@ -114,10 +158,13 @@ public class CinematicsConfig {
 
         boolean badRecord=false;
 
+        Player tryPlayer = Bukkit.getPlayer(uuid);
+        if(tryPlayer!=null) U.playsoundTarget(tryPlayer, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
+
         BukkitRunnable mainRun = mapaRunnables.remove(uuid);
         if(mainRun!=null){
             try {
-                mainRun.cancel();
+                if(!mainRun.isCancelled()) mainRun.cancel();
             } catch (IllegalStateException ignored) {badRecord=true;}
         }
         //caso de que se grabó mal
@@ -125,7 +172,7 @@ public class CinematicsConfig {
 
         // destacar END en record
         if(!(mapaOnGoingRecords.containsKey(uuid))) return;
-        String fileName = mapaOnGoingRecords.remove(uuid);
+        String fileName = mapaOnGoingRecords.remove(uuid).getKey();
 
         CustomConfig file = getFile(fileName, false);
 
@@ -208,9 +255,29 @@ public class CinematicsConfig {
     }
 
     //------------REPRODUCE THINSG---------------------
-    public static boolean reproduceCinematic(Player p, String fileName, boolean clonePlayer, boolean natural) {
+
+    public static void reproduceCinematicForAll(String fileName, boolean clonePlayer) throws CinematicFileDontExist{
+        for(Player p : Bukkit.getOnlinePlayers()){
+            reproduceCinematic(p, fileName, clonePlayer, true);
+        }
+    }
+
+    // returns if success
+    public static boolean reproduceCinematicBoolean(Player p, String fileName, boolean clonePlayer){
+        boolean result = true;
+        try{
+            reproduceCinematic(p, fileName, clonePlayer, true);
+        } catch (CinematicFileDontExist e) {
+            result=false;
+        }
+        return result;
+    }
+    //natural=false -> ONLY INTERNAL
+    public static void reproduceCinematic(Player p, String fileName, boolean clonePlayer, boolean natural) throws CinematicFileDontExist{
         CustomConfig config = getFile(fileName, false);
-        if (!(checkFileExists(fileName)) || config == null) return false;
+        if (!(checkFileExists(fileName)) || config == null){
+            throw new CinematicFileDontExist("No se puede reproducir animación, pues posiblemente no existe.", "Cinematics/"+fileName);
+        }
 
         UUID uuid = p.getUniqueId();
         checkAndStop(uuid);
@@ -326,9 +393,11 @@ public class CinematicsConfig {
                 count++;
                 continue;
             }
+            // MAINNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
             BukkitRunnable task = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    p.setSpectatorTarget(null);
                     textDisplay.teleport(loc);
                     p.setSpectatorTarget(textDisplay);
                 }
@@ -340,13 +409,17 @@ public class CinematicsConfig {
         }
 
         mapaPlayerReproduce.put(uuid, lRunnables);
-        return true;
     }
     private static void notNaturalClean(UUID uuid){
         Map.Entry<Mannequin, TextDisplay> entry = mapaPlayerDataTwo.remove(uuid);
         entry.getValue().remove();
     }
 
+    public static void stopReproducingForAll(){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            stopReproducing(p.getUniqueId());
+        }
+    }
     public static void stopReproducing(UUID uuid){
         if(!(mapaPlayerData.containsKey(uuid))) return;
 

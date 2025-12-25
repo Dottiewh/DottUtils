@@ -1,6 +1,7 @@
 package mp.dottiewh.api;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
@@ -81,6 +82,18 @@ public class DuApiManager {
         U.playsoundForAll(sound, vol, pitch);
     }
 
+    public void staticActionBar(Player p, String msg){
+        U.staticActionBar(p, msg);
+    }
+    public void staticActionBarForAll(String msg){
+        U.staticActionBarForAll(msg);
+    }
+    public void stopActionBar(UUID uuid){
+        U.stopStaticActionBar(uuid);
+    }
+    public void stopActionBarForAll(){
+        U.stopStaticActionBarForAll();
+    }
 
     public double truncar(double value, int decimales){
         return U.truncar(value, decimales);
@@ -121,6 +134,13 @@ public class DuApiManager {
     public void startCountdownForAll(int segundos, String format){
         U.countdownForAll(plugin, segundos, format);
     }
+    public void startCountdownTarget(Player p, int s, String format){
+        U.countdownForTarget(p, plugin, s, format);
+    }
+
+    public void stopCountdownTarget(UUID uuid){
+        U.stopCountdownTarget(uuid);
+    }
     public void stopCountdowns(){
         U.stopAllCountdowns();
     }
@@ -137,6 +157,19 @@ public class DuApiManager {
     }
     public void stopSong(UUID uuid){
         MusicConfig.stopMusicTasks(uuid);
+    }
+
+    public void playCinematic(Player p, String fileName, boolean clonePlayer){
+        CinematicsConfig.reproduceCinematic(p, fileName, clonePlayer, true);
+    }
+    public void playCinematicForAll(String fileName, boolean clonePlayer){
+        CinematicsConfig.reproduceCinematicForAll(fileName, clonePlayer);
+    }
+    public void stopCinematic(UUID uuid){
+        CinematicsConfig.stopReproducing(uuid);
+    }
+    public void stopCinematicForAll(){
+        CinematicsConfig.stopReproducingForAll();
     }
 
     public void blackScreen(Player p, boolean forceIt){
