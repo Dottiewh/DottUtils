@@ -1,8 +1,11 @@
 package mp.dottiewh;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import mp.dottiewh.cinematics.CinematicMainCommand;
 import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.music.MusicMainCommand;
@@ -30,13 +33,16 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public abstract class Commands {
     protected Set<String> comandosRegistrados;
-    protected CommandSender sender;
     protected Command command;
     protected String label;
     protected String[] args;
+    //
+    protected CommandSender sender;
+    protected String input;
     protected Plugin plugin;
+    protected Player target;
 
-
+    @Deprecated
     protected Commands (Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
         this.sender = sender;
         this.command = command;
@@ -44,7 +50,25 @@ public abstract class Commands {
         this.args = args;
         this.comandosRegistrados = comandosRegistrados;
         this.plugin = JavaPlugin.getProvidingPlugin(getClass());
+    }
+    protected Commands(CommandSender sender, String input){
+        this.sender=sender;
+        this.input=input;
+        this.plugin=DottUtils.getPlugin();
+    }
+    protected Commands(CommandContext<CommandSourceStack> ctx, boolean target){
+        this.sender=ctx.getSource().getSender();
+        this.input=ctx.getInput();
+        this.plugin=DottUtils.getPlugin();
+        if(target){
+            Player p = getPlayerFromCtx(ctx);
+            if(p==null){
+                senderMessageNP("&cNo has introducido un jugador online!");
+                return;
+            }
+        }
 
+        run();
     }
 
     public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
@@ -87,7 +111,7 @@ public abstract class Commands {
         }
         String input = args[0].toLowerCase();
         switch (input){
-            case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
+            //case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
             case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
             case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
             case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args, false);
@@ -106,19 +130,50 @@ public abstract class Commands {
     }
     public static LiteralArgumentBuilder<CommandSourceStack> createAlias(Plugin pl, String name){
         return literal(name)
-                .requires(source -> source.getSender().hasPermission("DottUtils.dottutils"))
+                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
                 .then(literal("admin")
                         .then(literal("add")
-                                .then(argument("player", ArgumentTypes.player())
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("player", ArgumentTypes.player())
+                                        .executes(ctx -> {
+                                            new Admin(ctx, "add", true);
+                                            return 1;
+                                        })
                                 )
                         )
                         .then(literal("remove")
-                                .then(argument("player", ArgumentTypes.player())
-                            )
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("player", ArgumentTypes.player())
+                                        .executes(ctx -> {
+                                            new Admin(ctx, "remove", true);
+                                            return 1;
+                                        })
+                                )
                         )
                         .then(literal("list")
+                                .executes(ctx->{
+                                    new Admin(ctx, "list", false);
+                                    return 1;
+                                })
                         )
                 );
+    }
+
+    protected static Player getPlayerFromCtx(CommandContext<CommandSourceStack> ctx){
+        PlayerSelectorArgumentResolver resolver =
+                ctx.getArgument("player", PlayerSelectorArgumentResolver.class);
+        List<Player> players;
+        try{
+            players = resolver.resolve(ctx.getSource());
+        }catch(CommandSyntaxException e){
+            U.mensajeConsolaNP("&cExcepción de syntax. Track: &4"+ Arrays.toString(e.getStackTrace()));
+            return null;
+        }
+
+        if (players.isEmpty()) {
+            ctx.getSource().getSender().sendMessage("Jugador no encontrado.");
+            return null;
+        }
+
+        return players.getFirst();
     }
 
 

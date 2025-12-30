@@ -70,7 +70,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         initCustomConfig();
         checkSoftDependencys();
         regEvents();
-        //registrarComandos();
+        registrarComandos();
         checkVersion();
 
         //Other things

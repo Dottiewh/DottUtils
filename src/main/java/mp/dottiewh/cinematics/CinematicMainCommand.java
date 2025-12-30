@@ -132,8 +132,8 @@ public class CinematicMainCommand extends Commands {
             return;
         }
 
-        Player target = Bukkit.getPlayerExact(args[4]);
-        if(args[4].equalsIgnoreCase("all")){
+        Player target = Bukkit.getPlayerExact(args[3]);
+        if(args[3].equalsIgnoreCase("all")){
             try{
                 CinematicsConfig.reproduceCinematicForAll(args[2], clone);
                 CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+args[2]+" &acorrectamente a todos.", player);
