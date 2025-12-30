@@ -14,6 +14,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
@@ -216,6 +218,32 @@ public class U { //Stands for utils
     }
 
     //util long methods
+    public static boolean isPar(long n){
+        return (n%2 == 0);
+    }
+    public static boolean isPar(int n){
+        return (n%2 == 0);
+    }
+
+    public static void addPotionEffect(PotionEffectType effect, Player p, int ticks, int amplifier, boolean ambient, boolean particles, boolean icon){
+        PotionEffect potionEffect = new PotionEffect(effect, ticks, amplifier, ambient, particles, icon);
+        p.addPotionEffect(potionEffect);
+    }
+    public static void addPotionEffectForAll(PotionEffectType effect, int ticks, int amplifier, boolean ambient, boolean particles, boolean icon){
+        PotionEffect potionEffect = new PotionEffect(effect, ticks, amplifier, ambient, particles, icon);
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.addPotionEffect(potionEffect);
+        }
+    }
+
+    public static void actionBarForAll(String msg){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            actionBar(p, msg);
+        }
+    }
+    public static void actionBar(Player p, String msg){
+        p.sendActionBar(componentColor(msg));
+    }
     public static void staticActionBar(Player p, String msg){
         UUID uuid = p.getUniqueId();
         stopStaticActionBar(uuid);
@@ -317,17 +345,37 @@ public class U { //Stands for utils
             blackScreen(plugin, p, forceIt);
         }
     }
+    public static void blackScreenForAll(Plugin plugin, boolean forceIt, int time){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            blackScreen(plugin, p, forceIt, time);
+        }
+    }
     public static void blackScreen(Plugin plugin, Player player, boolean forceIt){
         sendTitleTarget(player, "\uE123", null, 20, 9999999, 20);
+        coreBlackScreen(plugin, player, forceIt);
+    }
+    public static void blackScreen(Plugin plugin, Player player, boolean forceIt, int time){
+        time = time*20;
+        sendTitleTarget(player, "\uE123", null, 20, time, 20);
+        coreBlackScreen(plugin, player, forceIt);
+        Bukkit.getScheduler().runTaskLater(plugin, ()->{
+            stopBlackScreen(player);
+        }, time);
+    }
+    //
+    private static void coreBlackScreen(Plugin plugin, Player player, boolean forceIt){
         stopForceBlackScreen(player.getUniqueId()); //just in case
+        addPotionEffect(PotionEffectType.DARKNESS, player, PotionEffect.INFINITE_DURATION, 0, true, false, false);
         if(forceIt){
             Bukkit.getScheduler().runTaskLater(plugin, task->{
                 forceBlackOut(plugin, player);
             }, 20L);
         }
     }
+
     public static void stopBlackScreen(Player p){
         sendTitleTarget(p, "", null, 0, 5, 0);
+        p.removePotionEffect(PotionEffectType.DARKNESS);
         stopForceBlackScreen(p.getUniqueId()); // just to be sure
         AttributeInstance attr = p.getAttribute(Attribute.CAMERA_DISTANCE);
         if(attr==null) return;

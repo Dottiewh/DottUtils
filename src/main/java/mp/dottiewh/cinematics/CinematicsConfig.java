@@ -372,6 +372,20 @@ public class CinematicsConfig {
             }
             //
             String[] aI = input.split(";"); // stands for arrayInput
+            if(aI[0].equalsIgnoreCase("title")){ // title0;mensaje1;submensaje2;10;20;10
+                BukkitRunnable task = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
+                        int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
+
+                        U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);
+                    }
+                };
+                task.runTaskLater(plugin, count*period);
+                lRunnables.add(task);
+                continue;
+            }
 
             World world = Bukkit.getWorld(aI[0]);
             double x = Double.parseDouble(aI[1]), y = Double.parseDouble(aI[2]), z = Double.parseDouble(aI[3]);

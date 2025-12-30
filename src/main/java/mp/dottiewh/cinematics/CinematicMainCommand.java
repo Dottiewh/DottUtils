@@ -129,6 +129,7 @@ public class CinematicMainCommand extends Commands {
             }else{
                 CinematicsConfig.cineMsg("&cLa cinemática &f&l"+args[2]+" &cno existe.", player);
             }
+            return;
         }
 
         Player target = Bukkit.getPlayerExact(args[4]);
@@ -159,7 +160,7 @@ public class CinematicMainCommand extends Commands {
 
     // /du cinematic[0] stop[1] player[2]
     private void stop(){
-        if(args.length<2){
+        if(args.length<3){
             CinematicsConfig.stopReproducing(player.getUniqueId());
             CinematicsConfig.cineMsg("&aSe ha mandado la orden de parar cualquier cinemática.", player);
             return;

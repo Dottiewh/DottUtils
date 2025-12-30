@@ -2,6 +2,7 @@ package mp.dottiewh;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.music.MusicConfig;
@@ -69,6 +70,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         initCustomConfig();
         checkSoftDependencys();
         regEvents();
+        //registrarComandos();
         checkVersion();
 
         //Other things
@@ -209,5 +211,20 @@ public class DottUtils extends JavaPlugin implements Listener {
                 });
             }
         });
+    }
+    private void registrarComandos(){
+        this.getLifecycleManager().registerEventHandler(
+                LifecycleEvents.COMMANDS,
+                event->{
+                    event.registrar().register(
+                        Commands.createAlias(this, "du").build(),
+                            "main command alias"
+                    );
+                    event.registrar().register(
+                            Commands.createAlias(this, "dottutils").build(),
+                            "main command"
+                    );
+                }
+        );
     }
 }

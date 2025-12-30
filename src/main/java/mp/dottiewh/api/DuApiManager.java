@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffectType;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -39,6 +40,7 @@ public class DuApiManager {
 
     public boolean enablePvP(){return Config.onPvP();}
     public boolean disablePvP(){return Config.offPvP();}
+    public boolean isPvPenabled(){return Config.getPvPStatus();}
     //
     public void targetMsg(Player player, String msg){
         targetMsgNP(player, prefix+msg);
@@ -82,6 +84,12 @@ public class DuApiManager {
         U.playsoundForAll(sound, vol, pitch);
     }
 
+    public void actionBar(Player p, String msg){
+       U.actionBar(p, msg);
+    }
+    public void actionBarForAll(String msg){
+        U.actionBarForAll(msg);
+    }
     public void staticActionBar(Player p, String msg){
         U.staticActionBar(p, msg);
     }
@@ -95,6 +103,18 @@ public class DuApiManager {
         U.stopStaticActionBarForAll();
     }
 
+    public void addPotionEffect(PotionEffectType effect, Player p, int duration, int amplifier, boolean ambient, boolean particles, boolean icon){
+        U.addPotionEffect(effect, p, duration, amplifier, ambient, particles, icon);
+    }
+    public void addPotionEffectForAll(PotionEffectType effect, int duration, int amplifier, boolean ambient, boolean particles, boolean icon){
+        U.addPotionEffectForAll(effect, duration, amplifier, ambient, particles, icon);
+    }
+    public void removePotionEffectForAll(PotionEffectType effect){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.removePotionEffect(effect);
+        }
+    }
+
     public double truncar(double value, int decimales){
         return U.truncar(value, decimales);
     }
@@ -104,6 +124,13 @@ public class DuApiManager {
     public double randomDouble(double min, double max){
         return U.getRandomDouble(min, max);
     }
+    public boolean isPar(int n){
+        return U.isPar(n);
+    }
+    public boolean isPar(long n){
+        return U.isPar(n);
+    }
+
     public String getLastVersionGithub(String urlGithub){
         try{
             HttpClient client = HttpClient.newHttpClient();
@@ -178,12 +205,19 @@ public class DuApiManager {
     public void blackScreenForAll(boolean forceIt){
         U.blackScreenForAll(plugin, forceIt);
     }
+    public void blackScreen(Player p, boolean forceIt, int time){
+        U.blackScreen(plugin, p, forceIt, time);
+    }
+    public void blackScreenForAll(boolean forceIt, int time){
+        U.blackScreenForAll(plugin, forceIt, time);
+    }
     public void stopBlackScreen(Player p){
         U.stopBlackScreen(p);
     }
     public void stopBlackScreenForAll(){
         U.stopBlackScreenForAll();
     }
+
 
     //
     public String getPrefix(){return prefix;}

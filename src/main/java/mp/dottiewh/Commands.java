@@ -1,5 +1,8 @@
 package mp.dottiewh;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import mp.dottiewh.cinematics.CinematicMainCommand;
 import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.music.MusicMainCommand;
@@ -21,6 +24,9 @@ import  mp.dottiewh.noaliasCommands.*;
 import mp.dottiewh.aliasCommands.*;
 
 import java.util.*;
+
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public abstract class Commands {
     protected Set<String> comandosRegistrados;
@@ -97,6 +103,22 @@ public abstract class Commands {
                 sender.sendMessage(U.mensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
             }
         }
+    }
+    public static LiteralArgumentBuilder<CommandSourceStack> createAlias(Plugin pl, String name){
+        return literal(name)
+                .requires(source -> source.getSender().hasPermission("DottUtils.dottutils"))
+                .then(literal("admin")
+                        .then(literal("add")
+                                .then(argument("player", ArgumentTypes.player())
+                                )
+                        )
+                        .then(literal("remove")
+                                .then(argument("player", ArgumentTypes.player())
+                            )
+                        )
+                        .then(literal("list")
+                        )
+                );
     }
 
 
