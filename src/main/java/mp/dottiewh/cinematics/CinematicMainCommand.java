@@ -112,7 +112,7 @@ public class CinematicMainCommand extends Commands {
             senderMessageNP("&cPor favor introduce el nombre de una cinemática");
             return;
         }
-        // /du cinematic play test
+        // /du cinematic play test true dott
         if(args.length<4){
             if(CinematicsConfig.reproduceCinematicBoolean(player, args[2], true)){
                 CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+args[2]+" &acorrectamente.", player);
@@ -132,8 +132,8 @@ public class CinematicMainCommand extends Commands {
             return;
         }
 
-        Player target = Bukkit.getPlayerExact(args[3]);
-        if(args[3].equalsIgnoreCase("all")){
+        Player target = Bukkit.getPlayerExact(args[4]);
+        if(args[4].equalsIgnoreCase("all")){
             try{
                 CinematicsConfig.reproduceCinematicForAll(args[2], clone);
                 CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+args[2]+" &acorrectamente a todos.", player);

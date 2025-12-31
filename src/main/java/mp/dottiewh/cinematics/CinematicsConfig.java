@@ -406,6 +406,7 @@ public class CinematicsConfig {
                     }
                 }
 
+                loc.subtract(0, 1.6, 1);
                 p.teleport(loc);
                 count++;
                 continue;
