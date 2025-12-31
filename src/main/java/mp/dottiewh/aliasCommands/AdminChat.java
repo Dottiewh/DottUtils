@@ -1,8 +1,10 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.context.CommandContext;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.events.DiscordGuildMessageReceivedEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.Commands;
 import mp.dottiewh.DottUtils;
@@ -26,29 +28,30 @@ public class AdminChat extends Commands {
     private static String acPrefix = U.getMsgPath("adminchat_prefix"); //"&6&l[&e&lAdmin&9&lChat&6&l] &7";
     private static final String errorMsg = "&cHas usado un término incorrecto.\n&6Posibles usos: &etoggle, leave, join";
     String dName;
+    String input;
     private static final String[] comandosProtegidos = {"du ac toggle", "du adminchat toggle", "du achat toggle",
         "ac toggle", "achat toggle", "adminchat toggle"};
 
     //normal case (/du ac)
-    public AdminChat(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args, Boolean isNoOpCase) {
-        super(comandosRegistrados, sender, command, label, args);
+    public AdminChat(CommandContext<CommandSourceStack> ctx, String input, Boolean isNoOpCase) {
+        super(ctx);
 
+        this.input=input;
         if (isNoOpCase){
             runNoOp();
         }else{
             run();
         }
+
     }
 
     @Override
     protected void run() {
-        if (somethingFailedOnCheck()) return;
-
-        if (args.length<2){
-            senderMessage(errorMsg);
+        if (somethingFailedOnCheck()){
             return;
         }
-        switch (args[1]){
+
+        switch (input){
             case "toggle"-> toggle();
             case "leave" -> leave();
             case "join" -> join();
@@ -61,11 +64,7 @@ public class AdminChat extends Commands {
         if (somethingFailedOnCheck()) return;
 
 
-        if (args.length<1){
-            senderMessage(errorMsg);
-            return;
-        }
-        switch (args[0]){
+        switch (input){
             case "toggle"-> toggle();
             case "leave" -> leave();
             case "join" -> join();

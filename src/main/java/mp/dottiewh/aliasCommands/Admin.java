@@ -17,6 +17,8 @@ public class Admin extends Commands {
 
     public Admin(CommandContext<CommandSourceStack> ctx, String type, boolean forTarget) {
         super(ctx, forTarget);
+        this.type=type;
+        if(allGood)run();
     }
 
     @Override

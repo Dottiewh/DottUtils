@@ -1,5 +1,7 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.config.Config;
 import org.bukkit.command.Command;
@@ -8,9 +10,8 @@ import org.bukkit.command.CommandSender;
 import java.util.Set;
 
 public class Reload extends Commands {
-    public Reload(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
-
+    public Reload(CommandContext<CommandSourceStack> ctx) {
+        super(ctx);
         run();
     }
 

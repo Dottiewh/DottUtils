@@ -1,5 +1,7 @@
 package mp.dottiewh.items;
 
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.items.Exceptions.InvalidMaterialException;
@@ -18,26 +20,43 @@ import java.util.Map;
 import java.util.Set;
 
 public class ItemMainCommand extends Commands {
-    private static String prefix;
-    private static int max;
+    String prefix = U.getMsgPath("item_prefix");
+    int max = U.getIntConfigPath("max_itemgive_amount");
+    String type;
+    int amount;
+    String iName;
 
-    public ItemMainCommand(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
-        prefix = U.getMsgPath("item_prefix");
-        max = U.getIntConfigPath("max_itemgive_amount");
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther) {
+        super(ctx, forOther);
+        this.type=type;
         run();
+        if(this.allGood){
+            run();
+        }
+    }
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount) {
+        super(ctx, forOther);
+        this.type=type;
+        this.amount=amount;
+        if(this.allGood){
+            run();
+        }
+    }
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount, String iName) {
+        super(ctx, forOther);
+        this.type=type;
+        this.amount=amount;
+        this.iName=iName;
+        if(this.allGood){
+            run();
+        }
     }
 
     @Override
     protected void run() {
         String errorMsg = "&cNo has usado bien el comando.\n&6Posibles usos: &esave, get, give, delete &e&o[del]&e, list";
-        //Check
-        if (args.length<2){
-            senderMessageIPr(errorMsg);
-            return;
-        }
 
-        switch (args[1]){
+        switch (type){
             case "save" -> save();
             case "get" -> get();
             case "delete", "del", "remove" -> del();
@@ -61,8 +80,7 @@ public class ItemMainCommand extends Commands {
         senderMessageIPr("&aLista de items registrados: &f"+itemList);
     }
     private void del(){
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
         try {
             ItemConfig.removeItem(name);
@@ -75,8 +93,7 @@ public class ItemMainCommand extends Commands {
         senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
     }
     private void save(){
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
         if (!(sender instanceof Player player)){
             senderMessageIPr("&cEste comando solo lo puede usar un jugador.");
@@ -89,20 +106,13 @@ public class ItemMainCommand extends Commands {
     private void get() {
         int amount = 1;
 
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name =getItemName();
 
-
-        if (argNombreCheck()) return;
-        boolean amountMode = checkArgL4();
-
-        if (amountMode){
-            try{
-                amount = Integer.parseInt(args[3]);
-            }catch (Exception e){
-                senderMessageIPr("&cNo has añadido una cantidad correcta.");
-                return;
-            }
+        try{
+            amount=this.amount;
+        } catch (Exception e) {
+            senderMessage("&cCantidad incorrecta!");
+            return;
         }
 
         if (!(sender instanceof Player player)) {
@@ -115,35 +125,18 @@ public class ItemMainCommand extends Commands {
     private void give() {
         int amount = 1;
 
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
-
-        if (argNombreCheck()) return;
-        boolean toOther = checkArgL4();
         Player player;
 
-        boolean amountMode = checkArgL5();
-        if (amountMode){
-            try{
-                amount = Integer.parseInt(args[4]);
-            }catch (Exception e){
-                senderMessageIPr("&cNo has añadido una cantidad correcta.");
-                return;
-            }
-        }
-
-        if (!toOther) {
-            senderMessageIPr("&cAñade el nombre de un jugador!");
+        try{
+            amount = this.amount;
+        }catch (Exception e){
+            senderMessageIPr("&cNo has añadido una cantidad correcta.");
             return;
         }
-        else{
-            player = Bukkit.getPlayer(args[3]);
-            if (player == null) {
-                senderMessageIPr("&cEl jugador &f" + args[3] + "&c no está conectado.");
-                return;
-            }
-        }
+
+        player=this.target;
 
         coreGet(player, name, amount, true);
     }
@@ -218,6 +211,10 @@ public class ItemMainCommand extends Commands {
             return true;
         }
         else return false;
+    }
+    // /du[0] item[1] get[2] nombre[3]
+    private String getItemName(){
+        return iName;
     }
     private boolean checkArgL4(){
         return args.length >= 4;

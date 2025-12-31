@@ -1,5 +1,7 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.DottUtils;
 import org.bukkit.command.Command;
@@ -10,24 +12,16 @@ import java.util.Set;
 public class Help extends Commands {
     // prefix sin corchetes ni espacios
     private static final String prefixBellaco = DottUtils.prefix.replace("[", "").replace("]", "").replace(" ", "");
+    int page;
 
-    public Help(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
-
+    public Help(CommandContext<CommandSourceStack> ctx, int page) {
+        super(ctx);
+        this.page=page;
         run();
     }
 
     @Override
     protected void run(){
-        int page = 1;
-        if (args.length>1){
-            try{
-                page = Integer.parseInt(args[1]);
-            }catch(NumberFormatException e){
-                senderMessageNP("&e&oPágina inválida, usando página 1...");
-            }
-        }
-
         senderMessageNP("&8&l--------------"+prefixBellaco+"&8&l-----------------------");
         switch (page){
             case 1-> msg1();

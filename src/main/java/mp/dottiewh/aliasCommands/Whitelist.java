@@ -1,5 +1,7 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
@@ -13,20 +15,25 @@ import java.util.Set;
 public class Whitelist extends Commands {
     private static String errorMsg = "&cNo has usado un término correcto.\n&6Posibles usos: &eadd, remove, list, toggle, status";
     String nameInput;
+    String type;
 
-    public Whitelist(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+    public Whitelist(CommandContext<CommandSourceStack> ctx, String type, String name) {
+        super(ctx);
+        this.nameInput=name;
 
+        this.type=type;
+        run();
+    }
+    public Whitelist(CommandContext<CommandSourceStack> ctx, String type) {
+        super(ctx);
+
+        this.type=type;
         run();
     }
 
     @Override
     protected void run(){ //check of what its meaning
-        if (args.length<2){
-            senderMessage(errorMsg);
-            return;
-        }
-        switch (args[1]){
+        switch (type){
             case "add"-> add();
             case "remove" -> remove();
             case "list" -> list();
@@ -39,8 +46,8 @@ public class Whitelist extends Commands {
     }
 
     private void status(){
-        boolean status = Config.getWhiteListStatus();
-        senderMessage("&9La whitelist está en: &e"+status);
+        String format = (Config.getWhiteListStatus()) ? "&aACTIVADA" : "&cDESACTIVADA";
+        senderMessage("&9La whitelist está: "+format);
     }
     private void toggle(){
         boolean status = Config.getWhiteListStatus();

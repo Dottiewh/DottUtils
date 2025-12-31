@@ -1,5 +1,7 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.config.Config;
 import org.bukkit.command.Command;
@@ -9,20 +11,18 @@ import java.util.Set;
 
 public class NoFall extends Commands {
     String errorMsg = "&cNo has usado un término correcto.\n&6Posibles usos: &etoggle, status";
+    String input;
 
-    public NoFall(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+    public NoFall(CommandContext<CommandSourceStack> ctx, String input) {
+        super(ctx);
+        this.input=input;
 
         run();
     }
 
     @Override
     protected void run(){ //check of what its meaning
-        if (args.length<2){
-            senderMessage(errorMsg);
-            return;
-        }
-        switch (args[1]){
+        switch (input){
             case "toggle"-> toggle();
             case "status" -> status();
 

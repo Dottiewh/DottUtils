@@ -1,5 +1,8 @@
 package mp.dottiewh;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -25,6 +28,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import  mp.dottiewh.noaliasCommands.*;
 import mp.dottiewh.aliasCommands.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,6 +37,7 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public abstract class Commands {
+    private static final Logger log = LoggerFactory.getLogger(Commands.class);
     protected Set<String> comandosRegistrados;
     protected Command command;
     protected String label;
@@ -41,6 +47,7 @@ public abstract class Commands {
     protected String input;
     protected Plugin plugin;
     protected Player target;
+    protected boolean allGood;
 
     @Deprecated
     protected Commands (Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
@@ -60,15 +67,21 @@ public abstract class Commands {
         this.sender=ctx.getSource().getSender();
         this.input=ctx.getInput();
         this.plugin=DottUtils.getPlugin();
+        this.allGood=true;
         if(target){
             Player p = getPlayerFromCtx(ctx);
             if(p==null){
                 senderMessageNP("&cNo has introducido un jugador online!");
-                return;
+                this.allGood=false;
             }
+            this.target=p;
         }
 
-        run();
+    }
+    protected Commands(CommandContext<CommandSourceStack> ctx){
+        this.sender=ctx.getSource().getSender();
+        this.input=ctx.getInput();
+        this.plugin=DottUtils.getPlugin();
     }
 
     public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
@@ -94,7 +107,7 @@ public abstract class Commands {
             case "feed" -> new Feed(comandosRegistrados, sender, command, label, args);
             case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
             case "countdown" -> new Countdown(comandosRegistrados, sender, command, label, args);
-            case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
+            //case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
             case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
 
             default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
@@ -106,20 +119,19 @@ public abstract class Commands {
 
         if (args.length<1){
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',U.getMsgPath("non_registered_command")));
-            new Help(comandosRegistrados, sender, command, label, args);
             return;
         }
         String input = args[0].toLowerCase();
         switch (input){
             //case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
-            case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
-            case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
-            case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args, false);
-            case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
-            case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
-            case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
-            case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
-            case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
+            //case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
+            //case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
+            //case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args, false);
+            //case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
+            //case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
+            //case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
+            //case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
+            //case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
             case "cinematic" -> new CinematicMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
@@ -154,7 +166,216 @@ public abstract class Commands {
                                     return 1;
                                 })
                         )
-                );
+                )
+                .then(literal("reload")
+                        .executes(ctx->{
+                            new Reload(ctx);
+                            return 1;
+                        })
+                )
+                .then(literal("help")
+                        .executes(ctx->{
+                            new Help(ctx, 1);
+                            return 1;
+                        })
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("pagina", IntegerArgumentType.integer(0))
+                                .executes(ctx -> {
+                                    int page = ctx.getArgument("pagina", Integer.class);
+                                    new Help(ctx, page);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("adminchat")
+                        .then(literal("toggle")
+                                .executes(ctx->{
+                                    new AdminChat(ctx, "toggle", false);
+                                    return 1;
+                                })
+                        )
+                        .then(literal("leave")
+                                .executes(ctx->{
+                                    new AdminChat(ctx, "leave", false);
+                                    return 1;
+                                })
+                        )
+                        .then(literal("join")
+                                .executes(ctx->{
+                                    new AdminChat(ctx, "join", false);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("whitelist")
+                        .then(literal("add")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            String to = ctx.getArgument("itemnombre", String.class);
+                                            new Whitelist(ctx, "add", to);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("remove")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            String to = ctx.getArgument("itemnombre", String.class);
+                                            new Whitelist(ctx, "remove", to);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        //
+                        .then(literal("list")
+                                .executes(ctx -> {
+                                    new Whitelist(ctx, "list");
+                                    return 1;
+                                })
+                        )
+                        .then(literal("toggle")
+                                .executes(ctx -> {
+                                    new Whitelist(ctx, "toggle");
+                                    return 1;
+                                })
+                        )
+                        .then(literal("status")
+                                .executes(ctx -> {
+                                    new Whitelist(ctx, "status");
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("pvp")
+                        .then(literal("toggle")
+                                .executes(ctx->{
+                                    new Pvp(ctx, "toggle");
+                                    return 1;
+                                })
+                        )
+                        .then(literal("status")
+                                .executes(ctx->{
+                                    new Pvp(ctx, "status");
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("nofall")
+                        .then(literal("toggle")
+                                .executes(ctx->{
+                                    new NoFall(ctx, "toggle");
+                                    return 1;
+                                })
+                        )
+                        .then(literal("status")
+                                .executes(ctx->{
+                                    new NoFall(ctx, "status");
+                                    return 1;
+                                })
+                        )
+                )
+                //
+                .then(literal("item")
+                        .then(literal("save")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx,"save", false,0 ,item);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("get")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx,"get", false, 1, item);
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                .executes(ctx -> {
+                                                    int amount = ctx.getArgument("amount", Integer.class);
+                                                    String item = ctx.getArgument("itemName", String.class);
+                                                    new ItemMainCommand(ctx, "get", false, amount, item);
+                                                    return 1;
+                                                })
+                                )
+                            )
+                        )
+                        .then(literal("remove")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx, "remove", false, 0, item);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("list")
+                                .executes(ctx -> {
+                                    new ItemMainCommand(ctx, "list", false);
+                                    return 1;
+                                })
+                        )
+                        .then(literal("give")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("player", ArgumentTypes.player())
+                                                .executes(ctx->{
+                                                    String item = ctx.getArgument("itemName", String.class);
+                                                    new ItemMainCommand(ctx, "give", true, 1, item);
+                                                    return 1;
+                                                })
+                                                .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                        .executes(ctx -> {
+                                                            String item = ctx.getArgument("itemName", String.class);
+                                                            int amount = ctx.getArgument("amount", Integer.class);
+                                                            new ItemMainCommand(ctx, "give", true, amount, item);
+                                                            return 1;
+                                                        })
+                                                )
+                                        )
+                                )
+                    )
+                )
+                //
+                .then(literal("music")
+                        .then(literal("play")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("song", StringArgumentType.word())
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                                .executes(ctx->{
+                                                    String song = ctx.getArgument("song", String.class);
+                                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                                    MusicMainCommand.buildCommand(ctx, "play", players, song, false);
+                                                    return 1;
+                                                })
+                                                .then(io.papermc.paper.command.brigadier.Commands.argument("loop", BoolArgumentType.bool())
+                                                        .executes(ctx -> {
+                                                            String song = ctx.getArgument("song", String.class);
+                                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                                            boolean loop = ctx.getArgument("loop", Boolean.class);
+                                                            MusicMainCommand.buildCommand(ctx, "play", players, song, loop);
+                                                            return 1;
+                                                        })
+                                                )
+                                        )
+                                )
+                        )
+                        .then(literal("stop")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                            MusicMainCommand.buildCommand(ctx, "stop", players, null, false);
+                                            return 1;
+                                        })
+                                )
+                        )
+                )
+                //
+
+                //-------
+                ;
     }
 
     protected static Player getPlayerFromCtx(CommandContext<CommandSourceStack> ctx){
