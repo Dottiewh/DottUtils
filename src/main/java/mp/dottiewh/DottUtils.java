@@ -213,6 +213,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         });
     }
     private void registrarComandos(){
+        // reg alias
         this.getLifecycleManager().registerEventHandler(
                 LifecycleEvents.COMMANDS,
                 event->{

@@ -3,31 +3,33 @@ package mp.dottiewh.music;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
+import mp.dottiewh.ReferibleCommand;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class MusicMainCommand extends Commands {
+public class MusicMainCommand extends ReferibleCommand {
     private static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
     String type, songName;
     boolean loop;
 
-    Player player;
-    public static void buildCommand(CommandContext<CommandSourceStack> ctx, String type, List<Player> pCollection, String song, boolean loop) {
-        for(Player p : pCollection){
-            new MusicMainCommand(ctx, type, p, song, loop);
+    public static void BuildForSolo(CommandContext<CommandSourceStack> ctx, String type, String song, boolean loop){
+        CommandSender sender = ctx.getSource().getSender();
+        if(!(sender instanceof Player p)){
+            U.targetMessageNP(sender, musicPrefix+"&cEsta referenciación solo la puede usar un jugador!");
+            U.targetMessageNP(sender, musicPrefix+"&6Prueba a usar un @a o jugador!");
+            return;
         }
+        List<Player> pList  = new ArrayList<>();
+        pList.add(p);
+        new MusicMainCommand(ctx, type, pList, song, loop);
     }
-    private MusicMainCommand(CommandContext<CommandSourceStack> ctx, String type, Player p, String song, boolean loop) {
-        super(ctx);
-        this.player=p;
+    public MusicMainCommand(CommandContext<CommandSourceStack> ctx, String type, List<Player> pList, String song, boolean loop) {
+        super(ctx, pList);
         this.type=type;
         this.songName=song;
         this.loop=loop;
@@ -37,6 +39,7 @@ public class MusicMainCommand extends Commands {
     @Override
     protected void run() {
         String errorMsg = "&cNo has usado bien el comando.\n&6Posibles usos: &eplay, stop";
+        if(!isListEmpty) return;
 
         switch (type){
             case "play" -> play();
@@ -46,13 +49,19 @@ public class MusicMainCommand extends Commands {
         }
     }
     private void play(){
-        try{
-            deliverSongCore(songName, player, loop);
-            senderMessageMPr("&aHas reproducido la canción &f"+songName+"&a a "+player.getName()+".");
-        } catch (Exception e) {
-            senderMessageMPr("&cHa ocurrido un error intentando reproducir "+songName+" (Posiblemente no exista la canción)");
-
-            U.mensajeConsolaNP("&c"+ Arrays.toString(e.getStackTrace()));
+        boolean success=true;
+        for(Player p : playerList){
+            try{
+                deliverSongCore(songName, p, loop);
+            } catch (Exception e) {
+                senderMessageMPr("&cHa ocurrido un error intentando reproducir "+songName+" (Posiblemente no exista la canción)");
+                U.mensajeConsolaNP("&c"+e);
+                success=false;
+                break;
+            }
+        }
+        if(success){
+            senderMessageMPr("&aHas reproducido la canción &f"+songName+"&a a &f"+getOutput("&f")+"&a.");
         }
     }
     //
@@ -61,8 +70,8 @@ public class MusicMainCommand extends Commands {
     }
 
     private void stop(){
-        MusicConfig.stopMusicTasks(player.getUniqueId());
-        senderMessageMPr("Has parado todas las reproducciones a "+player.getName());
+        playerList.forEach(p->MusicConfig.stopMusicTasks(p.getUniqueId()));
+        senderMessageMPr("Has parado todas las reproducciones a &f"+getOutput("&f"));
     }
 
     //---

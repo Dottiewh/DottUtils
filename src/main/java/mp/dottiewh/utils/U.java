@@ -2,12 +2,14 @@ package mp.dottiewh.utils;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -44,6 +46,9 @@ public class U { //Stands for utils
         target.sendMessage(U.mensajeConPrefix(mensaje));
     }
     public static void targetMessageNP(Player target, String mensaje){
+        target.sendMessage(U.mensajeConColor(mensaje));
+    }
+    public static void targetMessageNP(CommandSender target, String mensaje){
         target.sendMessage(U.mensajeConColor(mensaje));
     }
     // all in ticks

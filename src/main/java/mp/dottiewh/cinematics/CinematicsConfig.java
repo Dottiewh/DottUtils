@@ -10,6 +10,7 @@ import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
@@ -311,6 +312,7 @@ public class CinematicsConfig {
             npc.setCustomNameVisible(true);
             npc.setGravity(false);
             npc.setPersistent(true);
+            npc.setInvulnerable(true);
 
             npcToDeliver = npc;
         }
@@ -509,5 +511,24 @@ public class CinematicsConfig {
     static void cineMsg(String msg, Player p){
         String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
         U.targetMessageNP(p, prefix+msg);
+    }
+    static void cineMsg(String msg, CommandSender sender){
+        String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
+        U.targetMessageNP(sender, prefix+msg);
+    }
+    //
+    public static List<String> getCinematicsName(){
+       File folder = DottUtils.folderCinematic;
+       List<String> aList = new ArrayList<>();
+
+       String[] names = folder.list();
+       if(names==null) return aList;
+
+        aList.addAll(Arrays.asList(names));
+
+        aList.replaceAll(name ->
+                name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name
+        );
+        return aList;
     }
 }

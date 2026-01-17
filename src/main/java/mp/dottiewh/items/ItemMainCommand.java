@@ -3,6 +3,7 @@ package mp.dottiewh.items;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
+import mp.dottiewh.ReferibleCommand;
 import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.items.Exceptions.InvalidMaterialException;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
@@ -16,10 +17,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ItemMainCommand extends Commands {
+public class ItemMainCommand extends ReferibleCommand {
     String prefix = U.getMsgPath("item_prefix");
     int max = U.getIntConfigPath("max_itemgive_amount");
     String type;
@@ -34,14 +36,6 @@ public class ItemMainCommand extends Commands {
             run();
         }
     }
-    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount) {
-        super(ctx, forOther);
-        this.type=type;
-        this.amount=amount;
-        if(this.allGood){
-            run();
-        }
-    }
     public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount, String iName) {
         super(ctx, forOther);
         this.type=type;
@@ -50,6 +44,13 @@ public class ItemMainCommand extends Commands {
         if(this.allGood){
             run();
         }
+    }
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, int amount, String iName, List<Player> pList) {
+        super(ctx, pList);
+        this.type=type;
+        this.amount=amount;
+        this.iName=iName;
+        run();
     }
 
     @Override
@@ -123,11 +124,10 @@ public class ItemMainCommand extends Commands {
         coreGet(player, name, amount, false);
     }
     private void give() {
+        if(!isListEmpty) return;
         int amount = 1;
 
         String name = getItemName();
-
-        Player player;
 
         try{
             amount = this.amount;
@@ -136,16 +136,18 @@ public class ItemMainCommand extends Commands {
             return;
         }
 
-        player=this.target;
-
-        coreGet(player, name, amount, true);
+        for(Player p : playerList){
+            if(!coreGet(p, name, amount, true)){
+                break;
+            }
+        }
     }
 
     //--------------
-    private void coreGet(Player player, String name, int amount, boolean isConsole){
+    private boolean coreGet(Player player, String name, int amount, boolean isConsole){
         if (amount>max){
             senderMessageIPr("&cHas sobrepasado el limite definido en config. &e("+max+")");
-            return;
+            return false;
         }
 
         ItemStack item;
@@ -154,16 +156,16 @@ public class ItemMainCommand extends Commands {
         }catch (InvalidMaterialException e){
             senderMessageIPr("&cEl material registrado de tal item es invalido. (Check console)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }catch (MissingMaterialException e){
             senderMessageIPr("&cNo hay ningún material registrado en tal item. (Check console)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cError en tu config. (Check console)");
             senderMessageIPr("&e&o(Posiblemente no exista tu item)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }
 
 
@@ -191,6 +193,7 @@ public class ItemMainCommand extends Commands {
         if (isConsole){
             senderMessageIPr("&aLe has dado un item &f"+name+" &aal jugador &f"+player.getName()+" &acorrectamente! &e(x"+amount+")");
         }
+        return true;
     }
 
 

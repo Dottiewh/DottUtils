@@ -2,6 +2,7 @@ package mp.dottiewh;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -36,7 +37,7 @@ import java.util.*;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
-public abstract class Commands {
+public class Commands {
     private static final Logger log = LoggerFactory.getLogger(Commands.class);
     protected Set<String> comandosRegistrados;
     protected Command command;
@@ -132,7 +133,7 @@ public abstract class Commands {
             //case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
             //case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
             //case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
-            case "cinematic" -> new CinematicMainCommand(comandosRegistrados, sender, command, label, args);
+            //case "cinematic" -> new CinematicMainCommand(comandosRegistrados, sender, command, label, args);
 
             default -> {
                 sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
@@ -318,17 +319,17 @@ public abstract class Commands {
                         )
                         .then(literal("give")
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
-                                        .then(io.papermc.paper.command.brigadier.Commands.argument("player", ArgumentTypes.player())
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
                                                 .executes(ctx->{
                                                     String item = ctx.getArgument("itemName", String.class);
-                                                    new ItemMainCommand(ctx, "give", true, 1, item);
+                                                    new ItemMainCommand(ctx, "give", 1, item, getPlayerListFromCtx(ctx));
                                                     return 1;
                                                 })
                                                 .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
                                                         .executes(ctx -> {
                                                             String item = ctx.getArgument("itemName", String.class);
                                                             int amount = ctx.getArgument("amount", Integer.class);
-                                                            new ItemMainCommand(ctx, "give", true, amount, item);
+                                                            new ItemMainCommand(ctx, "give", amount, item, getPlayerListFromCtx(ctx));
                                                             return 1;
                                                         })
                                                 )
@@ -345,7 +346,7 @@ public abstract class Commands {
                                                     String song = ctx.getArgument("song", String.class);
                                                     PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
                                                     List<Player> players = resolver.resolve(ctx.getSource());
-                                                    MusicMainCommand.buildCommand(ctx, "play", players, song, false);
+                                                    new MusicMainCommand(ctx, "play", players, song, false);
                                                     return 1;
                                                 })
                                                 .then(io.papermc.paper.command.brigadier.Commands.argument("loop", BoolArgumentType.bool())
@@ -354,7 +355,91 @@ public abstract class Commands {
                                                             PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
                                                             List<Player> players = resolver.resolve(ctx.getSource());
                                                             boolean loop = ctx.getArgument("loop", Boolean.class);
-                                                            MusicMainCommand.buildCommand(ctx, "play", players, song, loop);
+                                                            new MusicMainCommand(ctx, "play", players, song, loop);
+                                                            return 1;
+                                                        })
+                                                )
+                                        )
+                                        .executes(ctx->{
+                                            String song = ctx.getArgument("song", String.class);
+                                            MusicMainCommand.BuildForSolo(ctx, "play", song, false);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("stop")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                            new MusicMainCommand(ctx, "stop", players, null, false);
+                                            return 1;
+                                        })
+                                )
+                                .executes(ctx->{
+                                    MusicMainCommand.BuildForSolo(ctx, "stop", null, false);
+                                    return 1;
+                                })
+                        )
+                )
+                //
+                .then(literal("cinematic")
+                        .then(literal("record")
+                                .then(literal("start")
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())
+                                                .executes(ctx->{
+                                                    String cName = ctx.getArgument("cinematicname", String.class);
+                                                    new CinematicMainCommand(ctx, "start", cName, 15L);
+                                                    return 1;
+                                                })
+                                                .then(io.papermc.paper.command.brigadier.Commands.argument("period", LongArgumentType.longArg(1L, 100L))
+                                                        .executes(ctx -> {
+                                                            long delay = ctx.getArgument("period", Long.class);
+                                                            String cName = ctx.getArgument("cinematicname", String.class);
+                                                            new CinematicMainCommand(ctx, "start", cName, delay);
+                                                            return 1;
+                                                        })
+                                                )
+                                        )
+                                )
+                                .then(literal("stop")
+                                        .executes(ctx -> {
+                                            new CinematicMainCommand(ctx, "stop", null, 0L);
+                                            return 1;
+                                        })
+                                )
+                                .then(literal("pause")
+                                        .executes(ctx -> {
+                                            new CinematicMainCommand(ctx, "pause", null, 0L);
+                                            return 1;
+                                        })
+                                )
+                                .then(literal("resume")
+                                        .executes(ctx -> {
+                                            new CinematicMainCommand(ctx, "resume", null, 0L);
+                                            return 1;
+                                        })
+                                )
+                        )
+
+                        //----
+                        .then(literal("play")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                                .executes(ctx->{
+                                                    String cName = ctx.getArgument("cinematicname", String.class);
+                                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                                    CinematicMainCommand.BuildReproductor(ctx, "play", cName, players, true);
+                                                    return 1;
+                                                })
+                                                .then(io.papermc.paper.command.brigadier.Commands.argument("clone", BoolArgumentType.bool())
+                                                        .executes(ctx -> {
+                                                            String cName = ctx.getArgument("cinematicname", String.class);
+                                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                                            boolean clone = ctx.getArgument("clone", Boolean.class);
+                                                            CinematicMainCommand.BuildReproductor(ctx, "play", cName, players, clone);
                                                             return 1;
                                                         })
                                                 )
@@ -366,14 +451,22 @@ public abstract class Commands {
                                         .executes(ctx->{
                                             PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
                                             List<Player> players = resolver.resolve(ctx.getSource());
-                                            MusicMainCommand.buildCommand(ctx, "stop", players, null, false);
+                                            CinematicMainCommand.BuildReproductor(ctx, "stop", players);
                                             return 1;
                                         })
                                 )
+                                .executes(ctx->{
+                                    CinematicMainCommand.BuildReproductor(ctx, "stop");
+                                    return 1;
+                                })
+                        )
+                        .then(literal("list")
+                                .executes(ctx->{
+                                    CinematicMainCommand.BuildList(ctx.getSource().getSender());
+                                    return 1;
+                                })
                         )
                 )
-                //
-
                 //-------
                 ;
     }
@@ -396,10 +489,15 @@ public abstract class Commands {
 
         return players.getFirst();
     }
-
+    protected static List<Player> getPlayerListFromCtx(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+        return resolver.resolve(ctx.getSource());
+    }
 
     // comandos como tal
-    protected abstract void run();
+    protected void run(){
+        U.mensajeConsola("&4&lrun no definido.");
+    };
 
 
     // metodos utiles
