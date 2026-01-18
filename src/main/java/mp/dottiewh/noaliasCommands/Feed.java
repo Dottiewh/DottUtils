@@ -1,53 +1,64 @@
 package mp.dottiewh.noaliasCommands;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import mp.dottiewh.Commands;
+import mp.dottiewh.ReferibleCommand;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Set;
 
-public class Feed extends Commands {
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
-    public Feed(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+public class Feed extends ReferibleCommand {
+
+    public Feed(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
+        super(ctx, sender);
+        if(isListEmpty) return;
+        run();
+    }
+
+    public Feed(CommandContext<CommandSourceStack> ctx, List<Player> playerList) {
+        super(ctx, playerList);
+        if(isListEmpty) return;
         run();
     }
 
     @Override
     protected void run() {
-        if (!(sender instanceof Player player)){
-            senderMessageNP("&cEste comando solo lo puede usar un jugador.");
-            return;
+        for(Player p : playerList){
+            coreHeal(p);
         }
-        boolean isForOther;
-
-        if(args.length == 0)isForOther=false;
-        else{
-            isForOther = checkIfForOtherPlayer(args[0]);
-        }
-
-        if (isForOther){
-            forOther();
-            return;
-        }
-
-        player.setFoodLevel(20);
-        player.setSaturation(20f);
-        senderMessageNP("&8&l> &aHas devuelto tu comida al máximo nivel! &e(20)");
+        senderMessageNP("&8&l> &aLe has regenerado la comida al máximo a &f"+getOutput("&f")+"&a.");
     }
-    //
-    private void forOther(){
-        Player player = Bukkit.getPlayerExact(args[0]);
-        if (player==null){
-            senderMessageNP("&cNo se ha encontrado al jugador "+args[0]);
-            return;
-        }
-
+    private void coreHeal(Player player){
         player.setFoodLevel(20);
         player.setSaturation(20f);
         U.targetMessageNP(player, "&8&l> &eTe han regenerado la comida al máximo.");
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("feed")
+                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.feed"))
+                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                        .executes(ctx->{
+                            new Feed(ctx, getPlayerListFromCtx(ctx));
+                            return 1;
+                        })
+                )
+                .executes(ctx->{
+                    new Feed(ctx, ctx.getSource().getSender());
+                    return 1;
+                })
+                //
+                ;
     }
 }

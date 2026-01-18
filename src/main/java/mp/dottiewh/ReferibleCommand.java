@@ -43,6 +43,19 @@ public class ReferibleCommand extends Commands{
         this.playerList=playerList;
         commonCheck();
     }
+    public ReferibleCommand(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
+        super(ctx);
+        if(!(sender instanceof Player p)){
+            senderMessage("&cEste tipo de referenciación solo la puede usar un jugador!");
+            senderMessage("&6Prueba a referirte con @a o a alguien!");
+            isListEmpty=true;
+            return;
+        }
+        List<Player> toDeliver = new ArrayList<>();
+        toDeliver.add(p);
+        this.playerList=toDeliver;
+        commonCheck();
+    }
     //
 
     private void commonCheck(){

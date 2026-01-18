@@ -4,11 +4,14 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.ReferibleCommand;
+import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
@@ -30,11 +33,21 @@ public class MusicMainCommand extends ReferibleCommand {
     }
     public MusicMainCommand(CommandContext<CommandSourceStack> ctx, String type, List<Player> pList, String song, boolean loop) {
         super(ctx, pList);
-        this.type=type;
-        this.songName=song;
-        this.loop=loop;
+
+        this.type = type;
+        this.songName = song;
+        this.loop = loop;
+
+        if(isListEmpty) return;
         run();
     }
+
+    @ApiStatus.Internal
+    public MusicMainCommand(CommandContext<CommandSourceStack> ctx) {
+        super(ctx);
+        list();
+    }
+
 
     @Override
     protected void run() {
@@ -72,6 +85,19 @@ public class MusicMainCommand extends ReferibleCommand {
     private void stop(){
         playerList.forEach(p->MusicConfig.stopMusicTasks(p.getUniqueId()));
         senderMessageMPr("Has parado todas las reproducciones a &f"+getOutput("&f"));
+    }
+    private void list(){
+        Set<String> musicas;
+        try{
+            musicas = MusicConfig.getMusicList();
+        }catch (ItemSectionEmpty e){
+            senderMessageMPr("Hay un error en tu yml, consola para detalles.");
+            U.mensajeConsola(e.toString());
+            return;
+        }
+
+        String musicList = String.join("&8, &f", musicas);
+        senderMessageMPr("&aLista de musicas registradas: &f"+musicList);
     }
 
     //---

@@ -98,7 +98,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         //new Commands(comandosRegistrados, sender, cmd, label, args);
-        Commands.commandCore(comandosRegistrados, sender, cmd, label, args);
+        //Commands.commandCore(comandosRegistrados, sender, cmd, label, args); sob
         return true;
     }
 
@@ -227,5 +227,6 @@ public class DottUtils extends JavaPlugin implements Listener {
                     );
                 }
         );
+        Commands.regNoAliasCommands(this);
     }
 }

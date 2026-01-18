@@ -1,5 +1,9 @@
 package mp.dottiewh.noaliasCommands;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
@@ -15,11 +19,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.papermc.paper.command.brigadier.Commands.literal;
+
 public class Coordenadas extends Commands {
     private static final Map<UUID, BukkitTask> taskMap = new HashMap<>();
 
-    public Coordenadas(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+    public Coordenadas(CommandContext<CommandSourceStack> ctx) {
+        super(ctx);
         run();
     }
 
@@ -57,5 +63,16 @@ public class Coordenadas extends Commands {
     private void cancelAndRemove(UUID uuid, BukkitTask task){
         task.cancel();
         taskMap.remove(uuid);
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(String cmd){
+        return literal(cmd)
+                .executes(ctx->{
+                    new Coordenadas(ctx);
+                    return 1;
+                })
+                //
+                ;
     }
 }

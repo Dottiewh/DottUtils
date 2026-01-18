@@ -3,6 +3,7 @@ package mp.dottiewh.music;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
 import mp.dottiewh.music.Exceptions.MusicNullKeyException;
 import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
 import mp.dottiewh.music.Exceptions.MusicSoundException;
@@ -12,9 +13,11 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -203,5 +206,14 @@ public class MusicConfig {
                 addRunnable(player.getUniqueId(), runnable, accumuledDelay);
             }
         }
+    }
+
+    @NotNull
+    public static Set<String> getMusicList(){
+        FileConfiguration cfg = configMusic.getConfig();
+
+        if (cfg==null) throw new MusicSectionEmpty("Problema en tu Music.yml, Maybe file doesn't exists.");
+
+        return cfg.getKeys(false);
     }
 }

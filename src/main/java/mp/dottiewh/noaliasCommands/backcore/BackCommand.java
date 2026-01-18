@@ -1,7 +1,11 @@
 package mp.dottiewh.noaliasCommands.backcore;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.Commands;
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.noaliasCommands.Coordenadas;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,13 +18,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.papermc.paper.command.brigadier.Commands.literal;
+
 public class BackCommand extends Commands {
     private static final Map<UUID, BukkitTask> onGoingTasksMap = new HashMap<>();
 
-    public BackCommand(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+    public BackCommand(CommandContext<CommandSourceStack> ctx) {
+        super(ctx);
         run();
     }
+
     @Override
     protected void run(){
         if (!DottUtils.ymlConfig.getConfig().getBoolean("back_active")){ //Si está en true, sigue, si no no
@@ -73,5 +80,16 @@ public class BackCommand extends Commands {
             return true;
         }
         return false;
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("back")
+                .executes(ctx->{
+                    new BackCommand(ctx);
+                    return 1;
+                })
+                //
+                ;
     }
 }

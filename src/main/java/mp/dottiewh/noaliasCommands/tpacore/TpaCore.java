@@ -254,20 +254,15 @@ public class TpaCore {
         return mainCheck(sender);
     }
     // only for /tpa
-    public static boolean failedGlobalTpaChecks(CommandSender sender, String[] args){
+    public static boolean failedGlobalTpaChecks(CommandSender sender, String targetName){
         if(mainCheck(sender)) return true;
 
-        if (args.length<1){
-            senderMsgPr("&cPor favor añade un nombre.", sender);
-            return true;
-        }
-        String input = args[0];
-        Player target = Bukkit.getPlayerExact(input);
+        Player target = Bukkit.getPlayerExact(targetName);
         if (target==null){
-            senderMsgPr("&cEl jugador &f"+input+" &cno está conectado actualmente.", sender);
+            senderMsgPr("&cEl jugador &f"+ targetName +" &cno está conectado actualmente.", sender);
             return true;
         }
-        if(sender.getName().equals(input)){
+        if(sender.getName().equals(targetName)){
             senderMsgPr("&cNo puedes enviarte un tpa a ti mismo.", sender);
             return true;
         }

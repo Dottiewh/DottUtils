@@ -1,10 +1,18 @@
 package mp.dottiewh.noaliasCommands;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import mp.dottiewh.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.springframework.expression.spel.ast.Literal;
 
 import java.text.DecimalFormat;
 
@@ -13,9 +21,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static io.papermc.paper.command.brigadier.Commands.argument;
+
 public class Status extends Commands {
-    public Status(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
+
+    public Status(CommandContext<CommandSourceStack> ctx) {
+        super(ctx);
 
         run();
     }
@@ -70,5 +82,16 @@ public class Status extends Commands {
             ping = ping + player.getPing();
         }
         return ping / listaJugadores.size();
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return io.papermc.paper.command.brigadier.Commands.literal("status")
+                .executes(ctx->{
+                    new Status(ctx);
+                    return 1;
+                })
+                //
+                ;
     }
 }

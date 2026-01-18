@@ -50,6 +50,7 @@ public class ItemMainCommand extends ReferibleCommand {
         this.type=type;
         this.amount=amount;
         this.iName=iName;
+
         run();
     }
 
@@ -124,7 +125,7 @@ public class ItemMainCommand extends ReferibleCommand {
         coreGet(player, name, amount, false);
     }
     private void give() {
-        if(!isListEmpty) return;
+        if(isListEmpty) return;
         int amount = 1;
 
         String name = getItemName();

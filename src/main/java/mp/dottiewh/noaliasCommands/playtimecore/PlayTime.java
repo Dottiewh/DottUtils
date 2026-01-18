@@ -1,6 +1,12 @@
 package mp.dottiewh.noaliasCommands.playtimecore;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import mp.dottiewh.Commands;
+import mp.dottiewh.noaliasCommands.tpacore.Tpa;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -10,33 +16,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.papermc.paper.command.brigadier.Commands.literal;
+
 public class PlayTime extends Commands {
     boolean isConsole;
-    boolean toOtherPlayer;
     String askingFor;
 
     private static final int limit = 4;
 
-    public PlayTime(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
-        toOtherPlayer=false;
-
+    public PlayTime(CommandContext<CommandSourceStack> ctx, String askingFor, boolean toOtherPlayer) {
+        super(ctx);
         if(sender instanceof Player player){
             this.askingFor=player.getName();
             isConsole=false;
         }else{
-            this.askingFor=null;
+            this.askingFor=askingFor;
             isConsole=true;
-        }
-        if(args.length>0){
-            if(!PlayTimeManagement.isNameInConfig(args[0])){
-                senderMessageNP("&cEl nombre &f"+args[0]+" &cno está registrado!");
-                return;
-            }
-            this.askingFor=args[0];
-            toOtherPlayer=true;
+            run();
+            return;
         }
 
+        if(toOtherPlayer) this.askingFor = askingFor;
+
+        if(!PlayTimeManagement.isNameInConfig(this.askingFor)){
+            senderMessageNP("&cEl nombre &f"+this.askingFor+" &cno está registrado!");
+            return;
+        }
         run();
     }
 
@@ -102,5 +107,23 @@ public class PlayTime extends Commands {
             return(lHours+"h, "+lMinutes+"m.");
         }
         return(lMinutes+"m.");
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("playtime")
+                .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())
+                        .executes(ctx -> {
+                            String name = ctx.getArgument("name", String.class);
+                            new PlayTime(ctx, name, true);
+                            return 1;
+                        })
+                )
+                .executes(ctx -> {
+                    new PlayTime(ctx, null, false);
+                    return 1;
+                })
+                //
+                ;
     }
 }
