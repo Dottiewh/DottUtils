@@ -162,6 +162,10 @@ public class Commands {
         listaLiterals.add(TpaDeny.getLiteralBuilder());
         listaLiterals.add(PlayTime.getLiteralBuilder());
         listaLiterals.add(BackCommand.getLiteralBuilder());
+        //=========
+        listaLiterals.add(AdminChat.getLiteralBuilder("adminchat"));
+        listaLiterals.add(AdminChat.getLiteralBuilder("achat"));
+        listaLiterals.add(AdminChat.getLiteralBuilder("ac"));
 
         //
         for(LiteralArgumentBuilder<CommandSourceStack> litBuilder : listaLiterals){
@@ -225,26 +229,11 @@ public class Commands {
                                 })
                         )
                 )
-                .then(literal("adminchat")
-                        .then(literal("toggle")
-                                .executes(ctx->{
-                                    new AdminChat(ctx, "toggle", false);
-                                    return 1;
-                                })
-                        )
-                        .then(literal("leave")
-                                .executes(ctx->{
-                                    new AdminChat(ctx, "leave", false);
-                                    return 1;
-                                })
-                        )
-                        .then(literal("join")
-                                .executes(ctx->{
-                                    new AdminChat(ctx, "join", false);
-                                    return 1;
-                                })
-                        )
-                )
+                //
+                .then(AdminChat.getLiteralBuilder("adminchat"))
+                .then(AdminChat.getLiteralBuilder("achat"))
+                .then(AdminChat.getLiteralBuilder("ac"))
+                //
                 .then(literal("whitelist")
                         .then(literal("add")
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())

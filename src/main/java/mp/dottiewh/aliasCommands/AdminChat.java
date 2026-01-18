@@ -1,5 +1,6 @@
 package mp.dottiewh.aliasCommands;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.events.DiscordGuildMessageReceivedEvent;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class AdminChat extends Commands {
     private static final Map<String, Boolean> adminchatStatus = new HashMap<>();
@@ -246,5 +249,29 @@ public class AdminChat extends Commands {
 
     public static void acPrefixReload(){
         acPrefix = U.getMsgPath("adminchat_prefix");
+    }
+
+    //
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder (String cmd){
+        return literal(cmd)
+                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.adminchat"))
+                .then(literal("toggle")
+                        .executes(ctx->{
+                            new AdminChat(ctx, "toggle", false);
+                            return 1;
+                        })
+                )
+                .then(literal("leave")
+                        .executes(ctx->{
+                            new AdminChat(ctx, "leave", false);
+                            return 1;
+                        })
+                )
+                .then(literal("join")
+                        .executes(ctx->{
+                            new AdminChat(ctx, "join", false);
+                            return 1;
+                        })
+                );
     }
 }
