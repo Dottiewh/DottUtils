@@ -1,6 +1,6 @@
 package mp.dottiewh.listeners;
 
-import mp.dottiewh.aliasCommands.AdminChat;
+import mp.dottiewh.commands.aliasCommands.AdminChat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerCommandEvent;

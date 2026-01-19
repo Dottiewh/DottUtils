@@ -2,8 +2,8 @@ package mp.dottiewh.listeners;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
-import mp.dottiewh.noaliasCommands.backcore.BackUtils;
-import mp.dottiewh.noaliasCommands.tpacore.TpaCore;
+import mp.dottiewh.commands.noaliasCommands.backcore.BackUtils;
+import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCore;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

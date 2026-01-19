@@ -489,6 +489,11 @@ public class CinematicsConfig {
         // misc
         U.unHidePlayerForAll(player);
     }
+    public static boolean deleteCinematic(String fileName) throws CinematicFileDontExist{
+        File archivo = getFileRaw(fileName, false);
+        if(archivo==null) throw new CinematicFileDontExist("La cinemática que se ha intentado borrar no existe.", fileName);
+        return archivo.delete();
+    }
     //
     public static void onJoinCheck(Player player){
         UUID uuid = player.getUniqueId();
@@ -517,14 +522,14 @@ public class CinematicsConfig {
         U.targetMessageNP(sender, prefix+msg);
     }
     //
+    @Nullable
     public static List<String> getCinematicsName(){
        File folder = DottUtils.folderCinematic;
-       List<String> aList = new ArrayList<>();
 
-       String[] names = folder.list();
-       if(names==null) return aList;
+        String[] names = folder.list();
+       if(names==null) return null;
 
-        aList.addAll(Arrays.asList(names));
+        List<String> aList = new ArrayList<>(Arrays.asList(names));
 
         aList.replaceAll(name ->
                 name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name

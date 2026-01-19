@@ -1,23 +1,29 @@
 package mp.dottiewh.cinematics;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import mp.dottiewh.Commands;
-import mp.dottiewh.ReferibleCommand;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
 import mp.dottiewh.cinematics.exceptions.CinematicInternalError;
 import mp.dottiewh.cinematics.exceptions.CinematicRecordingHasNotStarted;
+import mp.dottiewh.commands.aliasCommands.Reload;
 import mp.dottiewh.utils.U;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class CinematicMainCommand extends ReferibleCommand {
     Player player;
@@ -45,6 +51,24 @@ public class CinematicMainCommand extends ReferibleCommand {
     public static void BuildReproductor(CommandContext<CommandSourceStack> ctx, String type, String cinematicName, List<Player> playerList, boolean clone){
         new CinematicMainCommand(ctx, type, cinematicName, playerList, clone);
     }
+
+    @ApiStatus.Internal
+    private CinematicMainCommand(CommandContext<CommandSourceStack> ctx, String fileName){
+        super(ctx);
+        delete(fileName);
+    }
+    @ApiStatus.Internal
+    private CinematicMainCommand(CommandContext<CommandSourceStack> ctx, CommandSender sender, String type, String cinematicName, boolean clone) {
+        super(ctx, sender);
+        if(isListEmpty) return;
+
+        this.type = type;
+        this.cinematicName = cinematicName;
+        this.clone = clone;
+
+        run();
+    }
+
     private CinematicMainCommand(CommandContext<CommandSourceStack> ctx, String type, String cinematicName, List<Player> playerList, boolean clone) {
         super(ctx, playerList);
         if(isListEmpty) return;
@@ -142,7 +166,7 @@ public class CinematicMainCommand extends ReferibleCommand {
         }
         if(success){
             String output = String.join("&8, &f", getPlayerNameList());
-            CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+cinematicName+" &acorrectamente a &f"+output+"&a.", sender);
+            CinematicsConfig.cineMsg("&aSe ha reproducido la cinemática &f&l"+cinematicName+" &acorrectamente a &f"+output+"&a. &e("+clone+")", sender);
 
         }else{
             CinematicsConfig.cineMsg("&cLa cinemática &f&l"+cinematicName+" &cno existe.", sender);
@@ -163,8 +187,126 @@ public class CinematicMainCommand extends ReferibleCommand {
     }
     private static void list(CommandSender sender){
         List<String> aList =CinematicsConfig.getCinematicsName();
+        if(aList==null){
+            CinematicsConfig.cineMsg("&cNo tienes cinemáticas guardadas aún!", sender);
+            return;
+        }
         String output = String.join("&8, &f", aList);
         CinematicsConfig.cineMsg("&6&lLas cinemáticas guardadas son: &f"+output, sender);
     }
+    private void delete(String fileName){
+        try{
+            if(CinematicsConfig.deleteCinematic(fileName)){
+                CinematicsConfig.cineMsg("&aHas borrado la cinemática &e"+fileName+" &acorrectamente!", sender);
+            }else{
+                CinematicsConfig.cineMsg("&4&lAlgo pasó.", sender);
+            }
 
+        }catch (CinematicFileDontExist e){
+            CinematicsConfig.cineMsg("&c&lLa cinemática '"+fileName+"' probablemente no existe.", sender);
+            return;
+        }
+    }
+
+    //----------------------------------
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("cinematic")
+                .then(literal("record")
+                        .then(literal("start")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())
+                                        .executes(ctx->{
+                                            String cName = ctx.getArgument("cinematicname", String.class);
+                                            new CinematicMainCommand(ctx, "start", cName, 15L);
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("period", LongArgumentType.longArg(1L, 100L))
+                                                .executes(ctx -> {
+                                                    long delay = ctx.getArgument("period", Long.class);
+                                                    String cName = ctx.getArgument("cinematicname", String.class);
+                                                    new CinematicMainCommand(ctx, "start", cName, delay);
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                        )
+                        .then(literal("stop")
+                                .executes(ctx -> {
+                                    new CinematicMainCommand(ctx, "stop", null, 0L);
+                                    return 1;
+                                })
+                        )
+                        .then(literal("pause")
+                                .executes(ctx -> {
+                                    new CinematicMainCommand(ctx, "pause", null, 0L);
+                                    return 1;
+                                })
+                        )
+                        .then(literal("resume")
+                                .executes(ctx -> {
+                                    new CinematicMainCommand(ctx, "resume", null, 0L);
+                                    return 1;
+                                })
+                        )
+                )
+
+                //----
+                .then(literal("play")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            String cName = ctx.getArgument("cinematicname", String.class);
+                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                            CinematicMainCommand.BuildReproductor(ctx, "play", cName, players, true);
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("clone", BoolArgumentType.bool())
+                                                .executes(ctx -> {
+                                                    String cName = ctx.getArgument("cinematicname", String.class);
+                                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                                    boolean clone = ctx.getArgument("clone", Boolean.class);
+                                                    CinematicMainCommand.BuildReproductor(ctx, "play", cName, players, clone);
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                                .executes(ctx -> {
+                                    String cName = ctx.getArgument("cinematicname", String.class);
+                                    new CinematicMainCommand(ctx, ctx.getSource().getSender(), "play", cName, true);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("stop")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                .executes(ctx->{
+                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                    CinematicMainCommand.BuildReproductor(ctx, "stop", players);
+                                    return 1;
+                                })
+                        )
+                        .executes(ctx->{
+                            CinematicMainCommand.BuildReproductor(ctx, "stop");
+                            return 1;
+                        })
+                )
+                .then(literal("list")
+                        .executes(ctx->{
+                            CinematicMainCommand.BuildList(ctx.getSource().getSender());
+                            return 1;
+                        })
+                )
+                .then(literal("delete")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicName", StringArgumentType.word())
+                                .executes(ctx->{
+                                    String fileName = ctx.getArgument("cinematicName", String.class);
+                                    new CinematicMainCommand(ctx, fileName);
+                                    return 1;
+                                })
+                        )
+                )
+                ;
+    }
 }

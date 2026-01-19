@@ -1,7 +1,7 @@
 package mp.dottiewh.listeners;
 
 import mp.dottiewh.cinematics.CinematicsConfig;
-import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
+import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

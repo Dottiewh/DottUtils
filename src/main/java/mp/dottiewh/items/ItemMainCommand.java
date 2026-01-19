@@ -1,9 +1,13 @@
 package mp.dottiewh.items;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import mp.dottiewh.Commands;
-import mp.dottiewh.ReferibleCommand;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import mp.dottiewh.commands.ReferibleCommand;
+import mp.dottiewh.commands.aliasCommands.Reload;
 import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.items.Exceptions.InvalidMaterialException;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
@@ -11,15 +15,14 @@ import mp.dottiewh.items.Exceptions.MissingMaterialException;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class ItemMainCommand extends ReferibleCommand {
     String prefix = U.getMsgPath("item_prefix");
@@ -32,9 +35,6 @@ public class ItemMainCommand extends ReferibleCommand {
         super(ctx, forOther);
         this.type=type;
         run();
-        if(this.allGood){
-            run();
-        }
     }
     public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount, String iName) {
         super(ctx, forOther);
@@ -225,5 +225,70 @@ public class ItemMainCommand extends ReferibleCommand {
     }
     private boolean checkArgL5(){
         return args.length >= 5;
+    }
+
+    //----------------------------------
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("item")
+                .then(literal("save")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx,"save", false,0 ,item);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("get")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx,"get", false, 1, item);
+                                    return 1;
+                                })
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                        .executes(ctx -> {
+                                            int amount = ctx.getArgument("amount", Integer.class);
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx, "get", false, amount, item);
+                                            return 1;
+                                        })
+                                )
+                        )
+                )
+                .then(literal("remove")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx, "remove", false, 0, item);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("list")
+                        .executes(ctx -> {
+                            new ItemMainCommand(ctx, "list", false);
+                            return 1;
+                        })
+                )
+                .then(literal("give")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx, "give", 1, item, getPlayerListFromCtx(ctx));
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                .executes(ctx -> {
+                                                    String item = ctx.getArgument("itemName", String.class);
+                                                    int amount = ctx.getArgument("amount", Integer.class);
+                                                    new ItemMainCommand(ctx, "give", amount, item, getPlayerListFromCtx(ctx));
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                        )
+                );
     }
 }

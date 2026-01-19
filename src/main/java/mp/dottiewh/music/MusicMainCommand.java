@@ -1,19 +1,23 @@
 package mp.dottiewh.music;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import mp.dottiewh.Commands;
-import mp.dottiewh.ReferibleCommand;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import mp.dottiewh.commands.ReferibleCommand;
+import mp.dottiewh.commands.aliasCommands.Reload;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
+
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class MusicMainCommand extends ReferibleCommand {
     private static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
@@ -52,7 +56,6 @@ public class MusicMainCommand extends ReferibleCommand {
     @Override
     protected void run() {
         String errorMsg = "&cNo has usado bien el comando.\n&6Posibles usos: &eplay, stop";
-        if(!isListEmpty) return;
 
         switch (type){
             case "play" -> play();
@@ -74,7 +77,7 @@ public class MusicMainCommand extends ReferibleCommand {
             }
         }
         if(success){
-            senderMessageMPr("&aHas reproducido la canción &f"+songName+"&a a &f"+getOutput("&f")+"&a.");
+            senderMessageMPr("&aHas reproducido la canción &f"+songName+"&a a &f"+getOutput("&f")+"&a. &e("+loop+")");
         }
     }
     //
@@ -107,5 +110,58 @@ public class MusicMainCommand extends ReferibleCommand {
 
     private void senderMessageMPr(String msg){
         senderMessageNP(musicPrefix+msg);
+    }
+
+    //----------------------------------
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("music")
+                .then(literal("play")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("song", StringArgumentType.word())
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            String song = ctx.getArgument("song", String.class);
+                                            PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                            List<Player> players = resolver.resolve(ctx.getSource());
+                                            new MusicMainCommand(ctx, "play", players, song, false);
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("loop", BoolArgumentType.bool())
+                                                .executes(ctx -> {
+                                                    String song = ctx.getArgument("song", String.class);
+                                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                                    boolean loop = ctx.getArgument("loop", Boolean.class);
+                                                    new MusicMainCommand(ctx, "play", players, song, loop);
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                                .executes(ctx->{
+                                    String song = ctx.getArgument("song", String.class);
+                                    MusicMainCommand.BuildForSolo(ctx, "play", song, false);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("stop")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                .executes(ctx->{
+                                    PlayerSelectorArgumentResolver resolver = ctx.getArgument("players", PlayerSelectorArgumentResolver.class);
+                                    List<Player> players = resolver.resolve(ctx.getSource());
+                                    new MusicMainCommand(ctx, "stop", players, null, false);
+                                    return 1;
+                                })
+                        )
+                        .executes(ctx->{
+                            MusicMainCommand.BuildForSolo(ctx, "stop", null, false);
+                            return 1;
+                        })
+                )
+                .then(literal("list")
+                        .executes(ctx->{
+                            new MusicMainCommand(ctx);
+                            return 1;
+                        })
+                );
     }
 }

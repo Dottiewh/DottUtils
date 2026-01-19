@@ -1,11 +1,10 @@
 package mp.dottiewh.config;
 
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.aliasCommands.AdminChat;
+import mp.dottiewh.commands.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
