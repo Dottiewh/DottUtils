@@ -382,6 +382,7 @@ public class CinematicsConfig {
                         if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
                         int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
 
+
                         U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);
                     }
                 };
@@ -406,6 +407,7 @@ public class CinematicsConfig {
                     }
                 }
 
+                loc.subtract(0, 1.6, 1);
                 p.teleport(loc);
                 count++;
                 continue;
@@ -427,6 +429,7 @@ public class CinematicsConfig {
 
         mapaPlayerReproduce.put(uuid, lRunnables);
     }
+
     private static void notNaturalClean(UUID uuid){
         Map.Entry<Mannequin, TextDisplay> entry = mapaPlayerDataTwo.remove(uuid);
         entry.getValue().remove();
