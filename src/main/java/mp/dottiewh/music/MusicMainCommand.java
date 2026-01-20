@@ -10,6 +10,7 @@ import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSele
 import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.commands.aliasCommands.Reload;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.utils.U;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,6 +66,7 @@ public class MusicMainCommand extends ReferibleCommand {
         }
     }
     private void play(){
+        debugMsg("ItemMainCommand.play");
         boolean success=true;
         for(Player p : playerList){
             try{
@@ -86,10 +88,13 @@ public class MusicMainCommand extends ReferibleCommand {
     }
 
     private void stop(){
+        debugMsg("ItemMainCommand.stop");
         playerList.forEach(p->MusicConfig.stopMusicTasks(p.getUniqueId()));
         senderMessageMPr("Has parado todas las reproducciones a &f"+getOutput("&f"));
     }
     private void list(){
+        debugMsg("ItemMainCommand.list");
+
         Set<String> musicas;
         try{
             musicas = MusicConfig.getMusicList();

@@ -201,6 +201,13 @@ public class Commands {
 
         return true;
     }
+
+    protected void debugMsg(String msg) {
+        U.mensajeDebug(msg, sender);
+    }
+    protected void debugMsgConsole(String msg){
+        U.mensajeDebugConsole(msg);
+    }
     protected void senderMessage(String mensaje){
         sender.sendMessage(U.mensajeConPrefix(mensaje));
     }
