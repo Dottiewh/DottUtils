@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.commands.Commands;
+import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -56,7 +57,7 @@ public class Status extends Commands {
             else if (ping<226) pingD="&c"; // 121-225 = rojo
             else pingD="&4"; // 225+ = rojo oscuro
             pingD = pingD+ping;
-            senderMessageNP("&6Tu ping: "+pingD+" &8| &e&oavg: "+getAvgPing());
+            senderMessageNP("&6Tu ping: "+pingD+" &8| &e&oavg: "+df.format(getAvgPing()));
         }else{
             if(!Bukkit.getOnlinePlayers().isEmpty()){
                 senderMessageNP("&6Ping promedio: &e"+getAvgPing());

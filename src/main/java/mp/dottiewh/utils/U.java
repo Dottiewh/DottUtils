@@ -99,6 +99,16 @@ public class U { //Stands for utils
         Bukkit.getConsoleSender().sendMessage(componentColor(mensaje));
     }
 
+    public static void mensajeDebug(String mensaje, CommandSender sender){
+        if(!Config.getBoolean("debug_mode", false)) return;
+        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&Debug&8&l] ");
+        targetMessageNP(sender, prefix+mensaje);
+    }
+    public static void mensajeDebugConsole(String mensaje){
+        mensajeDebug(mensaje, Bukkit.getConsoleSender());
+    }
+
+
     public static String componentToStringMsg(Component component){
         return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }

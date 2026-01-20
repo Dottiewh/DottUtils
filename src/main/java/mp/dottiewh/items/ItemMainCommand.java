@@ -69,6 +69,7 @@ public class ItemMainCommand extends ReferibleCommand {
         }
     }
     private void list(){
+        debugMsg("ItemMainCommand.list");
         Set<String> items;
         try{
             items = ItemConfig.getItems();
@@ -82,6 +83,7 @@ public class ItemMainCommand extends ReferibleCommand {
         senderMessageIPr("&aLista de items registrados: &f"+itemList);
     }
     private void del(){
+        debugMsg("ItemMainCommand.del");
         String name = getItemName();
 
         try {
@@ -95,6 +97,7 @@ public class ItemMainCommand extends ReferibleCommand {
         senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
     }
     private void save(){
+        debugMsg("ItemMainCommand.save");
         String name = getItemName();
 
         if (!(sender instanceof Player player)){
@@ -106,6 +109,7 @@ public class ItemMainCommand extends ReferibleCommand {
         senderMessageIPr("&aHas guardado exitosamente tu item &f"+name+"!");
     }
     private void get() {
+        debugMsg("ItemMainCommand.get");
         int amount = 1;
 
         String name =getItemName();
@@ -125,6 +129,7 @@ public class ItemMainCommand extends ReferibleCommand {
         coreGet(player, name, amount, false);
     }
     private void give() {
+        debugMsg("ItemMainCommand.give");
         if(isListEmpty) return;
         int amount = 1;
 
@@ -146,6 +151,7 @@ public class ItemMainCommand extends ReferibleCommand {
 
     //--------------
     private boolean coreGet(Player player, String name, int amount, boolean isConsole){
+        debugMsg("ItemMainCommand.coreGet");
         if (amount>max){
             senderMessageIPr("&cHas sobrepasado el limite definido en config. &e("+max+")");
             return false;

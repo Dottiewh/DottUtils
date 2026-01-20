@@ -120,6 +120,7 @@ public class CinematicMainCommand extends ReferibleCommand {
     }
 
     private void recordStart(long delay) {
+        debugMsg("CinematicMainCommand.recordStart");
         if(cinematicName==null) throw new CinematicInternalError("Nombre de la cinematica es null?","recordStart in CinematicMainCommand");
 
         long period = delay;
@@ -128,9 +129,11 @@ public class CinematicMainCommand extends ReferibleCommand {
         CinematicsConfig.startRecording(player, cinematicName, period);
     }
     private void recordStop(){
+        debugMsg("CinematicMainCommand.recordStop");
         CinematicsConfig.stopRegister(player);
     }
     private void recordPause(){
+        debugMsg("CinematicMainCommand.recordPause");
         try{
             CinematicsConfig.pauseRecord(player);
             CinematicsConfig.cineMsg("&eHas pausado tu grabación, usa &6/du cinematic record resume &epara resumirla.", player);
@@ -141,6 +144,7 @@ public class CinematicMainCommand extends ReferibleCommand {
         }
     }
     private void recordResume(){
+        debugMsg("CinematicMainCommand.recordResume");
         try{
             CinematicsConfig.resumeRecord(player);
             U.playsoundTarget(player, Sound.BLOCK_BEACON_ACTIVATE, 10f, 1f);
@@ -152,6 +156,7 @@ public class CinematicMainCommand extends ReferibleCommand {
 
     //--
     private void play(){
+        debugMsg("CinematicMainCommand.play");
         if(cinematicName==null) throw new CinematicInternalError("Nombre de la cinematica es null al intentar reproducir cinematica?","play in CinematicMainCommand");
 
         // /du cinematic play test
@@ -177,6 +182,7 @@ public class CinematicMainCommand extends ReferibleCommand {
 
     // /du cinematic[0] stop[1] player[2]
     private void stop(){
+        debugMsg("CinematicMainCommand.stop");
         for(Player t : playerList){
             CinematicsConfig.stopReproducing(t.getUniqueId());
         }
@@ -186,6 +192,7 @@ public class CinematicMainCommand extends ReferibleCommand {
 
     }
     private static void list(CommandSender sender){
+        U.mensajeDebug("CinematicMainCommand.list", sender);
         List<String> aList =CinematicsConfig.getCinematicsName();
         if(aList==null){
             CinematicsConfig.cineMsg("&cNo tienes cinemáticas guardadas aún!", sender);
@@ -195,6 +202,7 @@ public class CinematicMainCommand extends ReferibleCommand {
         CinematicsConfig.cineMsg("&6&lLas cinemáticas guardadas son: &f"+output, sender);
     }
     private void delete(String fileName){
+        debugMsg("CinematicMainCommand.delete");
         try{
             if(CinematicsConfig.deleteCinematic(fileName)){
                 CinematicsConfig.cineMsg("&aHas borrado la cinemática &e"+fileName+" &acorrectamente!", sender);
