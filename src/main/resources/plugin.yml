@@ -76,7 +76,3 @@ commands:
   coords:
     description: Comando principal del plugin.
     usage: /coords
-    aliases:
-      - coordenadas
-      - coord
-      - antonia

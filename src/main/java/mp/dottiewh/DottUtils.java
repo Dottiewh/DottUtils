@@ -1,31 +1,19 @@
 package mp.dottiewh;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.music.MusicConfig;
-import mp.dottiewh.noaliasCommands.playtimecore.PlayTimeManagement;
+import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
+import mp.dottiewh.commands.Commands;
 import mp.dottiewh.utils.U;
-import mp.dottiewh.aliasCommands.AdminChat;
-import mp.dottiewh.aliasCommands.Whitelist;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.noaliasCommands.backcore.BackUtils;
 import mp.dottiewh.listeners.*;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -70,7 +58,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         initCustomConfig();
         checkSoftDependencys();
         regEvents();
-        //registrarComandos();
+        registrarComandos();
         checkVersion();
 
         //Other things
@@ -93,13 +81,6 @@ public class DottUtils extends JavaPlugin implements Listener {
                 ChatColor.translateAlternateColorCodes('&',prefix+"&c&lHa sido desactivado. &c["+version+"]")
         );
         instance = null;
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        //new Commands(comandosRegistrados, sender, cmd, label, args);
-        Commands.commandCore(comandosRegistrados, sender, cmd, label, args);
-        return true;
     }
 
     //----------
@@ -213,6 +194,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         });
     }
     private void registrarComandos(){
+        // reg alias
         this.getLifecycleManager().registerEventHandler(
                 LifecycleEvents.COMMANDS,
                 event->{
@@ -226,5 +208,6 @@ public class DottUtils extends JavaPlugin implements Listener {
                     );
                 }
         );
+        Commands.regNoAliasCommands(this);
     }
 }

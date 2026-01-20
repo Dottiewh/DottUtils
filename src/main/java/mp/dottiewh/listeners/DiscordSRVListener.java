@@ -1,14 +1,10 @@
 package mp.dottiewh.listeners;
 
-import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.*;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.util.DiscordUtil;
-import mp.dottiewh.aliasCommands.AdminChat;
-import org.bukkit.Bukkit;
+import mp.dottiewh.commands.aliasCommands.AdminChat;
 import org.bukkit.plugin.Plugin;
 
 // Para ver ejemplos revisar https://github.com/DiscordSRV/DiscordSRV-ApiTest/blob/master/src/main/java/com/discordsrv/apitest/DiscordSRVListener.java

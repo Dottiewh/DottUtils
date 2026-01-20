@@ -1,6 +1,13 @@
 package mp.dottiewh.items;
 
-import mp.dottiewh.Commands;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import mp.dottiewh.commands.ReferibleCommand;
+import mp.dottiewh.commands.aliasCommands.Reload;
 import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
 import mp.dottiewh.items.Exceptions.InvalidMaterialException;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
@@ -8,36 +15,50 @@ import mp.dottiewh.items.Exceptions.MissingMaterialException;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ItemMainCommand extends Commands {
-    private static String prefix;
-    private static int max;
+import static io.papermc.paper.command.brigadier.Commands.literal;
 
-    public ItemMainCommand(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
-        super(comandosRegistrados, sender, command, label, args);
-        prefix = U.getMsgPath("item_prefix");
-        max = U.getIntConfigPath("max_itemgive_amount");
+public class ItemMainCommand extends ReferibleCommand {
+    String prefix = U.getMsgPath("item_prefix");
+    int max = U.getIntConfigPath("max_itemgive_amount");
+    String type;
+    int amount;
+    String iName;
+
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther) {
+        super(ctx, forOther);
+        this.type=type;
+        run();
+    }
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, boolean forOther, int amount, String iName) {
+        super(ctx, forOther);
+        this.type=type;
+        this.amount=amount;
+        this.iName=iName;
+        if(this.allGood){
+            run();
+        }
+    }
+    public ItemMainCommand(CommandContext<CommandSourceStack> ctx, String type, int amount, String iName, List<Player> pList) {
+        super(ctx, pList);
+        this.type=type;
+        this.amount=amount;
+        this.iName=iName;
+
         run();
     }
 
     @Override
     protected void run() {
         String errorMsg = "&cNo has usado bien el comando.\n&6Posibles usos: &esave, get, give, delete &e&o[del]&e, list";
-        //Check
-        if (args.length<2){
-            senderMessageIPr(errorMsg);
-            return;
-        }
 
-        switch (args[1]){
+        switch (type){
             case "save" -> save();
             case "get" -> get();
             case "delete", "del", "remove" -> del();
@@ -61,8 +82,7 @@ public class ItemMainCommand extends Commands {
         senderMessageIPr("&aLista de items registrados: &f"+itemList);
     }
     private void del(){
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
         try {
             ItemConfig.removeItem(name);
@@ -75,8 +95,7 @@ public class ItemMainCommand extends Commands {
         senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
     }
     private void save(){
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
         if (!(sender instanceof Player player)){
             senderMessageIPr("&cEste comando solo lo puede usar un jugador.");
@@ -89,20 +108,13 @@ public class ItemMainCommand extends Commands {
     private void get() {
         int amount = 1;
 
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name =getItemName();
 
-
-        if (argNombreCheck()) return;
-        boolean amountMode = checkArgL4();
-
-        if (amountMode){
-            try{
-                amount = Integer.parseInt(args[3]);
-            }catch (Exception e){
-                senderMessageIPr("&cNo has añadido una cantidad correcta.");
-                return;
-            }
+        try{
+            amount=this.amount;
+        } catch (Exception e) {
+            senderMessage("&cCantidad incorrecta!");
+            return;
         }
 
         if (!(sender instanceof Player player)) {
@@ -113,46 +125,30 @@ public class ItemMainCommand extends Commands {
         coreGet(player, name, amount, false);
     }
     private void give() {
+        if(isListEmpty) return;
         int amount = 1;
 
-        if (argNombreCheck()) return;
-        String name = args[2];
+        String name = getItemName();
 
-
-        if (argNombreCheck()) return;
-        boolean toOther = checkArgL4();
-        Player player;
-
-        boolean amountMode = checkArgL5();
-        if (amountMode){
-            try{
-                amount = Integer.parseInt(args[4]);
-            }catch (Exception e){
-                senderMessageIPr("&cNo has añadido una cantidad correcta.");
-                return;
-            }
-        }
-
-        if (!toOther) {
-            senderMessageIPr("&cAñade el nombre de un jugador!");
+        try{
+            amount = this.amount;
+        }catch (Exception e){
+            senderMessageIPr("&cNo has añadido una cantidad correcta.");
             return;
         }
-        else{
-            player = Bukkit.getPlayer(args[3]);
-            if (player == null) {
-                senderMessageIPr("&cEl jugador &f" + args[3] + "&c no está conectado.");
-                return;
+
+        for(Player p : playerList){
+            if(!coreGet(p, name, amount, true)){
+                break;
             }
         }
-
-        coreGet(player, name, amount, true);
     }
 
     //--------------
-    private void coreGet(Player player, String name, int amount, boolean isConsole){
+    private boolean coreGet(Player player, String name, int amount, boolean isConsole){
         if (amount>max){
             senderMessageIPr("&cHas sobrepasado el limite definido en config. &e("+max+")");
-            return;
+            return false;
         }
 
         ItemStack item;
@@ -161,16 +157,16 @@ public class ItemMainCommand extends Commands {
         }catch (InvalidMaterialException e){
             senderMessageIPr("&cEl material registrado de tal item es invalido. (Check console)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }catch (MissingMaterialException e){
             senderMessageIPr("&cNo hay ningún material registrado en tal item. (Check console)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cError en tu config. (Check console)");
             senderMessageIPr("&e&o(Posiblemente no exista tu item)");
             U.mensajeConsola(e.toString());
-            return;
+            return false;
         }
 
 
@@ -198,6 +194,7 @@ public class ItemMainCommand extends Commands {
         if (isConsole){
             senderMessageIPr("&aLe has dado un item &f"+name+" &aal jugador &f"+player.getName()+" &acorrectamente! &e(x"+amount+")");
         }
+        return true;
     }
 
 
@@ -219,10 +216,79 @@ public class ItemMainCommand extends Commands {
         }
         else return false;
     }
+    // /du[0] item[1] get[2] nombre[3]
+    private String getItemName(){
+        return iName;
+    }
     private boolean checkArgL4(){
         return args.length >= 4;
     }
     private boolean checkArgL5(){
         return args.length >= 5;
+    }
+
+    //----------------------------------
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
+        return literal("item")
+                .then(literal("save")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx,"save", false,0 ,item);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("get")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx,"get", false, 1, item);
+                                    return 1;
+                                })
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                        .executes(ctx -> {
+                                            int amount = ctx.getArgument("amount", Integer.class);
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx, "get", false, amount, item);
+                                            return 1;
+                                        })
+                                )
+                        )
+                )
+                .then(literal("remove")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    String item = ctx.getArgument("itemName", String.class);
+                                    new ItemMainCommand(ctx, "remove", false, 0, item);
+                                    return 1;
+                                })
+                        )
+                )
+                .then(literal("list")
+                        .executes(ctx -> {
+                            new ItemMainCommand(ctx, "list", false);
+                            return 1;
+                        })
+                )
+                .then(literal("give")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
+                                        .executes(ctx->{
+                                            String item = ctx.getArgument("itemName", String.class);
+                                            new ItemMainCommand(ctx, "give", 1, item, getPlayerListFromCtx(ctx));
+                                            return 1;
+                                        })
+                                        .then(io.papermc.paper.command.brigadier.Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                .executes(ctx -> {
+                                                    String item = ctx.getArgument("itemName", String.class);
+                                                    int amount = ctx.getArgument("amount", Integer.class);
+                                                    new ItemMainCommand(ctx, "give", amount, item, getPlayerListFromCtx(ctx));
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                        )
+                );
     }
 }

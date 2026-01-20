@@ -10,6 +10,7 @@ import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
@@ -311,6 +312,7 @@ public class CinematicsConfig {
             npc.setCustomNameVisible(true);
             npc.setGravity(false);
             npc.setPersistent(true);
+            npc.setInvulnerable(true);
 
             npcToDeliver = npc;
         }
@@ -378,7 +380,6 @@ public class CinematicsConfig {
                     public void run() {
                         if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
                         if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
-
                         int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
 
 
@@ -492,6 +493,11 @@ public class CinematicsConfig {
         // misc
         U.unHidePlayerForAll(player);
     }
+    public static boolean deleteCinematic(String fileName) throws CinematicFileDontExist{
+        File archivo = getFileRaw(fileName, false);
+        if(archivo==null) throw new CinematicFileDontExist("La cinemática que se ha intentado borrar no existe.", fileName);
+        return archivo.delete();
+    }
     //
     public static void onJoinCheck(Player player){
         UUID uuid = player.getUniqueId();
@@ -514,5 +520,24 @@ public class CinematicsConfig {
     static void cineMsg(String msg, Player p){
         String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
         U.targetMessageNP(p, prefix+msg);
+    }
+    static void cineMsg(String msg, CommandSender sender){
+        String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
+        U.targetMessageNP(sender, prefix+msg);
+    }
+    //
+    @Nullable
+    public static List<String> getCinematicsName(){
+       File folder = DottUtils.folderCinematic;
+
+        String[] names = folder.list();
+       if(names==null) return null;
+
+        List<String> aList = new ArrayList<>(Arrays.asList(names));
+
+        aList.replaceAll(name ->
+                name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name
+        );
+        return aList;
     }
 }
