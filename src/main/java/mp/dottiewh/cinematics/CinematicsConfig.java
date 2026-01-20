@@ -379,6 +379,7 @@ public class CinematicsConfig {
                     @Override
                     public void run() {
                         if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
+                        if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
                         int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
 
                         U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);

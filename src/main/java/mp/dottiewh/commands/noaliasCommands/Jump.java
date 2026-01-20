@@ -34,14 +34,6 @@ public class Jump extends ReferibleCommand {
         run();
     }
 
-    public Jump(CommandContext<CommandSourceStack> ctx, CommandSender sender, double power, int times) {
-        super(ctx, sender);
-        if(isListEmpty) return;
-        this.power=power;
-        this.times=times;
-        run();
-    }
-
     @Override
     protected void run() {
 

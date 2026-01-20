@@ -83,13 +83,6 @@ public class DottUtils extends JavaPlugin implements Listener {
         instance = null;
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        //new Commands(comandosRegistrados, sender, cmd, label, args);
-        //Commands.commandCore(comandosRegistrados, sender, cmd, label, args); sob
-        return true;
-    }
-
     //----------
     public static CustomConfig getRegisteredConfigLists(){
         if (ymlLists == null) {

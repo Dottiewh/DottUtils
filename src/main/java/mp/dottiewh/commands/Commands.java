@@ -51,7 +51,7 @@ public class Commands {
     protected Player classTarget;
     protected boolean allGood;
 
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "1.2.2")
     protected Commands (Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
         this.sender = sender;
         this.command = command;
@@ -86,62 +86,6 @@ public class Commands {
         this.plugin=DottUtils.getPlugin();
     }
 
-    public static void commandCore(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
-        String cmdString = command.getName();
-        if (!comandosRegistrados.contains(cmdString)){
-            sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("not_right_command"))); //"&c&lNo se ha encontrado tu comando."
-            return;
-        }
-
-
-        switch (cmdString.toLowerCase()){
-            //case "gm"-> new Gm(comandosRegistrados, sender, command, label, args);
-            //case "jump" -> new Jump(comandosRegistrados, sender, command, label, args);
-            //case "status" -> new Status(comandosRegistrados, sender, command, label, args);
-            //case "back" -> new BackCommand(comandosRegistrados, sender, command, label, args);
-            //case "tpa" -> new Tpa(comandosRegistrados, sender, command, label, args);
-            //case "tpaaccept" -> new TpaAccept(comandosRegistrados, sender, command, label, args);
-            //case "tpacancel" -> new TpaCancel(comandosRegistrados, sender, command, label, args);
-            //case "tpadeny" -> new TpaDeny(comandosRegistrados, sender, command, label, args);
-            //case "playtime" -> new PlayTime(comandosRegistrados, sender, command, label, args);
-            //case "repair" -> new Repair(comandosRegistrados, sender, command, label, args);
-            //case "heal" -> new Heal(comandosRegistrados, sender, command, label, args);
-            //case "feed" -> new Feed(comandosRegistrados, sender, command, label, args);
-            //case "coords", "coordenadas", "coord", "antonia" -> new Coordenadas(comandosRegistrados, sender, command, label, args);
-            //case "countdown" -> new Countdown(comandosRegistrados, sender, command, label, args);
-            //case "adminchat", "ac", "achat" -> new AdminChat(comandosRegistrados, sender, command, label, args, true);
-            case "dottutils", "du", "dutils" -> checkAllias(comandosRegistrados, sender, command, label, args);
-
-            default -> sender.sendMessage(U.mensajeConPrefix(U.getMsgPath("non_registered_command"))); //"&c&lComando no registrado."
-        }
-
-//
-    }
-    private static void checkAllias(Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args){
-
-        if (args.length<1){
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',U.getMsgPath("non_registered_command")));
-            return;
-        }
-        String input = args[0].toLowerCase();
-        switch (input){
-            //case "admin", "adm" -> new Admin(comandosRegistrados, sender, command, label, args);
-            //case "reload" -> new Reload(comandosRegistrados, sender, command, label, args);
-            //case "help", "-h", "--help" -> new Help(comandosRegistrados, sender, command, label, args);
-            //case "adminchat", "ac" -> new AdminChat(comandosRegistrados, sender, command, label, args, false);
-            //case "whitelist", "wl" -> new Whitelist(comandosRegistrados, sender, command, label, args);
-            //case "pvp" -> new Pvp(comandosRegistrados, sender, command, label, args);
-            //case "nofall", "nf" -> new NoFall(comandosRegistrados, sender, command, label, args);
-            //case "item"-> new ItemMainCommand(comandosRegistrados, sender, command, label, args);
-            //case "music"-> new MusicMainCommand(comandosRegistrados, sender, command, label, args);
-            //case "cinematic" -> new CinematicMainCommand(comandosRegistrados, sender, command, label, args);
-
-            default -> {
-                sender.sendMessage(U.mensajeConPrefix("&c&lSub-índice no encontrado."));
-                sender.sendMessage(U.mensajeConPrefix("&6Puedes probar usando &f/du help&6!"));
-            }
-        }
-    }
     //==================
     public static void regNoAliasCommands(Plugin plugin){
         List<LiteralArgumentBuilder<CommandSourceStack>> listaLiterals = new LinkedList<>();
