@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import mp.dottiewh.cinematics.exceptions.CinematicInvalidStatusException;
 import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
 import mp.dottiewh.cinematics.exceptions.CinematicInternalError;
@@ -140,7 +141,10 @@ public class CinematicMainCommand extends ReferibleCommand {
             U.playsoundTarget(player, Sound.BLOCK_BEACON_DEACTIVATE, 10f, 1f);
         }catch(CinematicRecordingHasNotStarted e){
             CinematicsConfig.cineMsg("&cNo estás grabando ninguna cinemática", player);
-            U.mensajeConsolaNP("&e"+ Arrays.toString(e.getStackTrace()));
+            U.mensajeDebugConsole("CinematicRecordingHasNotStarted e");
+        }catch(CinematicInvalidStatusException e){
+            CinematicsConfig.cineMsg("&eYa tienes pausada la grabación!", player);
+            U.mensajeDebugConsole("CinematicInvalidStatusException e");
         }
     }
     private void recordResume(){
@@ -150,7 +154,10 @@ public class CinematicMainCommand extends ReferibleCommand {
             U.playsoundTarget(player, Sound.BLOCK_BEACON_ACTIVATE, 10f, 1f);
         }catch(CinematicRecordingHasNotStarted e){
             CinematicsConfig.cineMsg("&cNo estás grabando ninguna cinemática", player);
-            U.mensajeConsolaNP("&e"+ Arrays.toString(e.getStackTrace()));
+            U.mensajeDebugConsole("CinematicRecordingHasNotStarted e");
+        }catch(CinematicInvalidStatusException e){
+            CinematicsConfig.cineMsg("&eYa tienes en marcha la grabación!", player);
+            U.mensajeDebugConsole("CinematicInvalidStatusException e");
         }
     }
 
@@ -219,6 +226,7 @@ public class CinematicMainCommand extends ReferibleCommand {
     //----------------------------------
     public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
         return literal("cinematic")
+                .requires(ctx->ctx.getSender().hasPermission("Dottutils.cinematic"))
                 .then(literal("record")
                         .then(literal("start")
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())

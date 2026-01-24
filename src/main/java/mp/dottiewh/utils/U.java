@@ -65,6 +65,12 @@ public class U { //Stands for utils
             sendTitleTarget(player, title, subtitle, fadeIn, stay, fadeOut);
         }
     }
+    public static boolean targetCommand(Player target, String cmd){
+        return Bukkit.dispatchCommand(target, cmd);
+    }
+    public static boolean consoleCommand(String cmd){
+        return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+    }
 
     public static void playsoundTarget(Player p, Sound sound, float vol, float pitch){
         p.playSound(p, sound, vol, pitch);
@@ -101,7 +107,7 @@ public class U { //Stands for utils
 
     public static void mensajeDebug(String mensaje, CommandSender sender){
         if(!Config.getBoolean("debug_mode", false)) return;
-        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&Debug&8&l] ");
+        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
         targetMessageNP(sender, prefix+mensaje);
     }
     public static void mensajeDebugConsole(String mensaje){

@@ -2,17 +2,23 @@ package mp.dottiewh.cinematics;
 
 import com.destroystokyo.paper.SkinParts;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
-import mp.dottiewh.cinematics.exceptions.CinematicFileNull;
-import mp.dottiewh.cinematics.exceptions.CinematicInvalidValue;
-import mp.dottiewh.cinematics.exceptions.CinematicRecordingHasNotStarted;
+import mp.dottiewh.cinematics.exceptions.*;
 import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,8 +31,15 @@ import java.util.*;
 
 // TO DO, cinematics that are in a chunk not loaded, are going to be weird
 public class CinematicsConfig {
+    private enum Status{
+        PAUSED,
+        RECORDING
+    }
+
     private static final DottUtils instance = DottUtils.getInstance();
     private static final Plugin plugin = DottUtils.getPlugin();
+
+    private static final List<UUID> listaCooldown = new LinkedList<>();
     private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
     private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
     private static final HashMap<UUID, Map.Entry<String, Long>> mapaOnGoingRecords = new HashMap<>();
@@ -34,6 +47,7 @@ public class CinematicsConfig {
     private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPlayerData = new HashMap<>();
     private static final HashMap<UUID, Map.Entry<Mannequin, TextDisplay>> mapaPlayerDataTwo = new HashMap<>();
     private static final HashMap<UUID, List<BukkitRunnable>> mapaPlayerReproduce = new HashMap<>();
+    private static final HashMap<UUID, Status> mapaPlayerStatus = new HashMap<>();
 
     private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPending = new HashMap<>();
 
@@ -43,6 +57,7 @@ public class CinematicsConfig {
             public void run() {
                 Location loc = p.getEyeLocation();
                 registerLocation(loc, fileName, period);
+                mapaPlayerStatus.put(p.getUniqueId(), Status.RECORDING);
             }
         };
     }
@@ -54,6 +69,9 @@ public class CinematicsConfig {
         }
         if(checkFileExists(fileName)){
             cineMsg("&cYa existe una cinematica con ese nombre, borrala en tus archivos.", p);
+            return;
+        }if(!itemCheck(p)){
+            cineMsg("&cLiberate los espacios de la hotbar para grabar!", p);
             return;
         }
 
@@ -74,6 +92,7 @@ public class CinematicsConfig {
                 U.playsoundTarget(p, Sound.BLOCK_NOTE_BLOCK_BELL,10,1);
                 runnable.runTaskTimer(plugin, 0, period);
                 U.staticActionBar(p, "&c&l● &cGrabando...");
+                giveItems(p);
                 removeCountdownMap(uuid);
             }
         };
@@ -91,9 +110,11 @@ public class CinematicsConfig {
         config.saveConfig();
     }
 
-    public static void pauseRecord(Player p) throws CinematicRecordingHasNotStarted{
+    public static void pauseRecord(Player p) throws CinematicRecordingHasNotStarted, CinematicInvalidStatusException{
         UUID uuid = p.getUniqueId();
+        if(mapaPlayerStatus.get(uuid).equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere pausar una animación ya pausada.");
         if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+
         BukkitRunnable mainRun = mapaRunnables.remove(uuid);
         String fileName = mapaOnGoingRecords.get(uuid).getKey();
         long period = mapaOnGoingRecords.get(uuid).getValue();
@@ -103,14 +124,16 @@ public class CinematicsConfig {
                 mainRun.cancel();
                 mapaRunnables.put(uuid, getMainRun(p, fileName, period));
                 U.staticActionBar(p, "&6&l● &eEn pausa...");
+                mapaPlayerStatus.put(uuid, Status.PAUSED);
             } catch (IllegalStateException e){
                 throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación que no ha comenzado");
             }
         }
     }
-    public static void resumeRecord(Player p) throws CinematicRecordingHasNotStarted{
+    public static void resumeRecord(Player p) throws CinematicRecordingHasNotStarted, CinematicInvalidStatusException{
         UUID uuid = p.getUniqueId();
         if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+        if(!mapaPlayerStatus.get(uuid).equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere resumir una animación en marcha.");
         BukkitRunnable mainRun = mapaRunnables.get(uuid);
         if(mainRun!=null){
             try {
@@ -163,6 +186,7 @@ public class CinematicsConfig {
         Player tryPlayer = Bukkit.getPlayer(uuid);
         if(tryPlayer!=null) U.playsoundTarget(tryPlayer, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
 
+        mapaPlayerStatus.remove(uuid);
         BukkitRunnable mainRun = mapaRunnables.remove(uuid);
         if(mainRun!=null){
             try {
@@ -172,8 +196,13 @@ public class CinematicsConfig {
         //caso de que se grabó mal
         else badRecord=true;
 
-        // destacar END en record
         if(!(mapaOnGoingRecords.containsKey(uuid))) return;
+        Player p = Bukkit.getPlayer(uuid);
+        if(p!=null){
+            removeItems(p);
+        }
+
+        // destacar END en record
         String fileName = mapaOnGoingRecords.remove(uuid).getKey();
 
         CustomConfig file = getFile(fileName, false);
@@ -530,7 +559,109 @@ public class CinematicsConfig {
         String prefix = U.getMsgPath("cinematic_prefix", "&6&l[&e&lCinematics&6&l] ");
         U.targetMessageNP(sender, prefix+msg);
     }
-    //
+    //------------ON INTERACT----------
+    public static void onItemInteract(PlayerInteractEvent event){
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        if(!mapaOnGoingRecords.containsKey(uuid)) return;
+        ItemStack item = event.getItem();
+        if(item==null) return;
+        if(!player.hasPermission("Dottutils.cinematic")) return;
+        if(listaCooldown.contains(uuid)){
+            CinematicsConfig.cineMsg("&eEspera un poco.", player);
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        NamespacedKey key = new NamespacedKey(plugin, "cinematicInternal");
+
+        String output = meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        if(output==null){
+            U.mensajeDebugConsole("output en onItemInteract da null.");
+            return;
+        }
+
+        switch(output){
+            case "stop" ->{
+                U.targetCommand(player, "du cinematic record stop");}
+            case "pause"->{
+                U.targetCommand(player, "du cinematic record pause");
+            }
+            case "resume"->{
+                U.targetCommand(player, "du cinematic record resume");
+            }
+            default -> {
+                U.mensajeDebugConsole("En tus outputs de itemInteract no da nada! "+output);
+            }
+        }
+        listaCooldown.add(uuid);
+        Bukkit.getScheduler().runTaskLater(plugin, task->{
+            listaCooldown.remove(uuid);
+        }, 10L);
+    }
+    public static void onPlayerDrop(PlayerDropItemEvent event){
+        ItemStack item = event.getItemDrop().getItemStack();
+        Player player = event.getPlayer();
+        if(itemInternalCheck(item, player)){
+            event.setCancelled(true);
+        }
+    }
+    public static void onItemClick(InventoryClickEvent event){
+        if(!(event.getWhoClicked() instanceof Player player)) return;
+
+        ItemStack item = event.getCurrentItem();
+        if(itemInternalCheck(item, player)){
+            event.setCancelled(true);
+        }
+    }
+    private static boolean itemInternalCheck(ItemStack item, Player player){
+        if(!mapaOnGoingRecords.containsKey(player.getUniqueId())) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        if(meta==null) return false;
+
+        NamespacedKey key = new NamespacedKey(plugin, "cinematicInternal");
+
+        String output = meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        if(output==null){
+            return false;
+        }
+        return true;
+    }
+    public static boolean giveItems(@NotNull Player player){
+        PlayerInventory inv = player.getInventory();
+        //if(!itemCheck(player)) return false;
+        CustomConfig internalConfig = DottUtils.ymlInternalItems;
+        ItemStack pause = ItemConfig.loadItem("cinematic_pause", internalConfig);
+        ItemStack resume = ItemConfig.loadItem("cinematic_resume", internalConfig);
+        ItemStack stop = ItemConfig.loadItem("cinematic_stop", internalConfig);
+
+        inv.setItem(0, pause);
+        inv.setItem(1, resume);
+        inv.setItem(8, stop);
+        return true;
+    }
+    private static boolean itemCheck(@NotNull Player player){
+        PlayerInventory inv = player.getInventory();
+        ItemStack i0 = inv.getItem(0);
+        ItemStack i1 = inv.getItem(1);
+        ItemStack i8 = inv.getItem(8);
+        if(i0!=null||i1!=null|i8!=null){
+            return false;
+        }
+        return true;
+    }
+
+    public static void removeItems(@NotNull Player player){
+        PlayerInventory inv = player.getInventory();
+        CustomConfig internalConfig = DottUtils.ymlInternalItems;
+        ItemStack pause = ItemConfig.loadItem("cinematic_pause", internalConfig);
+        ItemStack resume = ItemConfig.loadItem("cinematic_resume", internalConfig);
+        ItemStack stop = ItemConfig.loadItem("cinematic_stop", internalConfig);
+        inv.removeItemAnySlot(pause, resume, stop);
+    }
+
+    // getters
     @Nullable
     public static List<String> getCinematicsName(){
        File folder = DottUtils.folderCinematic;

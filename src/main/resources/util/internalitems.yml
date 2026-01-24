@@ -1,0 +1,14 @@
+Items:
+  # DO NOT change the 'Persistent_data:' value.
+  cinematic_pause:
+    Material: GRAY_DYE
+    Name: '&7&l~Pausar Grabación~'
+    Persistent_data: "cinematicInternal.pause"
+  cinematic_resume:
+    Material: YELLOW_DYE
+    Name: '&e&l~Resumir Grabación~'
+    Persistent_data: "cinematicInternal.resume"
+  cinematic_stop:
+    Material: RED_DYE
+    Name: '&c&l~Parar Grabación~'
+    Persistent_data: "cinematicInternal.stop"

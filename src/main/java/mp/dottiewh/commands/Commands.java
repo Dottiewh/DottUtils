@@ -15,6 +15,7 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.CinematicMainCommand;
 import mp.dottiewh.commands.aliasCommands.*;
 import mp.dottiewh.commands.noaliasCommands.*;
+import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.commands.noaliasCommands.backcore.BackCommand;
@@ -50,7 +51,11 @@ public class Commands {
     protected Plugin plugin;
     protected Player classTarget;
     protected boolean allGood;
+    //
+    protected CustomConfig interalItemsCustomConfig=DottUtils.ymlInternalItems;
 
+    protected Commands(){
+    }
     @Deprecated(forRemoval = true, since = "1.2.2")
     protected Commands (Set<String> comandosRegistrados, CommandSender sender, Command command, String label, String[] args) {
         this.sender = sender;
@@ -214,4 +219,7 @@ public class Commands {
     protected void senderMessageNP(String mensaje){
         sender.sendMessage(U.mensajeConColor(mensaje));
     }
+
+    //
+
 }

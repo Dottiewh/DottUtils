@@ -32,18 +32,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.FoodComponent;
 import io.papermc.paper.datacomponent.item.Consumable;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class ItemConfig{
     //private static CustomConfig configMsg;
     private static CustomConfig configItem;
+    private static Plugin plugin;
     //private static String prefix;
 
 
@@ -51,10 +52,11 @@ public class ItemConfig{
     public static void itemConfigInit(){
         //configMsg = DottUtils.getRegisteredMsgConfig();
         configItem = DottUtils.getRegisteredItemConfig();
+        plugin=DottUtils.getPlugin();
         //prefix = U.getMsgPath("item_prefix");
     }
 
-    public static void saveItem(String name, ItemStack item){ //path something like = Items.ItemName
+    public static void saveItem(@NotNull String name, @NotNull ItemStack item){ //path something like = Items.ItemName
         ConfigurationSection section = configItem.getConfig().createSection("Items."+name);
 
         section.set("Material", item.getType().name());
@@ -198,12 +200,19 @@ public class ItemConfig{
         }
         configItem.saveConfig();
     }
-    public static ItemStack loadItem(String name) { //path something like = Items.ItemName
+
+    @NotNull
+    public static ItemStack loadItem(@NotNull String name){
+        return loadItem(name, configItem);
+    }
+
+    @NotNull
+    public static ItemStack loadItem(@NotNull String name, @NotNull CustomConfig iConfig){ //path something like = Items.ItemName
         boolean modifyData = false;
         Consumable consToAdd = null;
         
         String path = "Items."+name;
-        ConfigurationSection section = configItem.getConfig().getConfigurationSection(path);
+        ConfigurationSection section = iConfig.getConfig().getConfigurationSection(path);
         if (section==null){
             throw new InvalidItemConfigException(path, "Tu path no existe.");
         }
@@ -340,6 +349,18 @@ public class ItemConfig{
                 consToAdd = ItemUtils.consumableBuilderU(consumableSection, name);
                 
                 modifyData = true;
+            }
+            //---------Persistent Data--------
+            String stringPData = section.getString("Persistent_data", null);
+            if(stringPData!=null){
+                String[] arPData = stringPData.split("\\.");
+                if(arPData.length!=2){
+                    U.mensajeConsolaNP("&cError al intentar cargar Persistent_data en "+name);
+                    U.mensajeConsolaNP("&cEl input no es de dos valores | value: "+stringPData+" ("+arPData.length+")");
+                }else{
+                    NamespacedKey key = new NamespacedKey(plugin, arPData[0]);
+                    meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, arPData[1]);
+                }
             }
             //---------------
             item.setItemMeta(meta);

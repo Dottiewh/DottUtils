@@ -40,6 +40,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlBackList;
     public static CustomConfig ymlPlayTime;
     public static CustomConfig ymlMusic;
+    public static CustomConfig ymlInternalItems;
     public static File folderCinematic;
     public static File folderMusic;
 
@@ -116,7 +117,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlItems = new CustomConfig("items.yml", null, instance, false);
         ymlBackList = new CustomConfig("backlist.yml", "util", instance, false);
         ymlPlayTime = new CustomConfig("playtimes.yml", "util", instance, false);
-        ymlMusic = new CustomConfig("musics/demo.yml", null, instance, false);
+        ymlInternalItems = new CustomConfig("internalitems.yml", "util", instance, false);
 
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
@@ -124,7 +125,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlItems.registerConfig();
         ymlBackList.registerConfig();
         ymlPlayTime.registerConfig();
-        ymlMusic.registerConfig();
+        ymlInternalItems.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 
@@ -155,6 +156,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new ServerCommandListener());
         regFormat(new PlayerJoinListener());
         regFormat(new PlayerQuitListener());
+        regFormat(new PlayerInteractListener());
+        regFormat(new PlayerInventoryItemClickListener());
+        regFormat(new PlayerItemDropListener());
 
         if (discordCase){
             DiscordSRV.api.subscribe(discordsrvListener);
