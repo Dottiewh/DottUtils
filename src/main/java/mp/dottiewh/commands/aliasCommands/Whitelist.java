@@ -108,7 +108,7 @@ public class Whitelist extends Commands {
                 .then(literal("add")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())
                                 .executes(ctx -> {
-                                    String to = ctx.getArgument("itemnombre", String.class);
+                                    String to = ctx.getArgument("name", String.class);
                                     new Whitelist(ctx, "add", to);
                                     return 1;
                                 })
@@ -117,7 +117,7 @@ public class Whitelist extends Commands {
                 .then(literal("remove")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("name", StringArgumentType.word())
                                 .executes(ctx -> {
-                                    String to = ctx.getArgument("itemnombre", String.class);
+                                    String to = ctx.getArgument("name", String.class);
                                     new Whitelist(ctx, "remove", to);
                                     return 1;
                                 })

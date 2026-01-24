@@ -5,6 +5,7 @@ import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
 import mp.dottiewh.cinematics.exceptions.CinematicFileNull;
+import mp.dottiewh.cinematics.exceptions.CinematicInvalidValue;
 import mp.dottiewh.cinematics.exceptions.CinematicRecordingHasNotStarted;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.utils.U;
@@ -279,6 +280,10 @@ public class CinematicsConfig {
         if (!(checkFileExists(fileName)) || config == null){
             throw new CinematicFileDontExist("No se puede reproducir animación, pues posiblemente no existe.", "Cinematics/"+fileName);
         }
+        long period = config.getConfig().getLong("Period", -1);
+        if(period<=0){
+            throw new CinematicInvalidValue("El periodo obtenido es menor que 0 o no existe. Revisa el yml de tu cinematica!", "Cinematics/"+fileName);
+        }
 
         UUID uuid = p.getUniqueId();
         checkAndStop(uuid);
@@ -339,7 +344,7 @@ public class CinematicsConfig {
         Map.Entry<Mannequin, TextDisplay> entryToDeliverTwo = new AbstractMap.SimpleEntry<>(npcToDeliver, textDisplay);
         mapaPlayerDataTwo.put(uuid, entryToDeliverTwo); //DATADOS
 
-        long period = config.getConfig().getLong("Period");
+
         int count = 0;
         textDisplay.setInterpolationDelay(0);
         textDisplay.setInterpolationDuration((int) period);

@@ -4,6 +4,7 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
+import mp.dottiewh.music.Exceptions.InvalidMusicConfigException;
 import mp.dottiewh.music.Exceptions.MusicNullKeyException;
 import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
 import mp.dottiewh.music.Exceptions.MusicSoundException;
@@ -18,16 +19,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 public class MusicConfig {
     private static Plugin pl;
-    private static CustomConfig configMusic;
+    private static File mFolder;
+    private static DottUtils instance;
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
 
     public static void initMusicConfig(){
-        configMusic = DottUtils.ymlMusic;
+        mFolder = DottUtils.folderMusic;
+        instance=DottUtils.getInstance();
         pl=DottUtils.getPlugin();
         MusicMainCommand.setMusicPrefix(U.getMsgPath("music_prefix", "&d&l[&9&lMusica&d&l] "));
     }
@@ -63,11 +68,18 @@ public class MusicConfig {
             reproduceTo(song, player, loop);
         }
     }
-    public static void reproduceTo(String song, Player player, boolean loop){
-        ConfigurationSection section = configMusic.getConfig().getConfigurationSection(song);
-        if(section==null){
+    public static void reproduceTo(String song, Player player, boolean loop) throws InvalidMusicConfigException{
+        File file = getFileRaw(song);
+        if(file==null){
             throw new MusicSectionEmpty(song, "No se ha identificado la canción.");
         }
+
+        CustomConfig c = getFile(song);
+        ConfigurationSection section = c.getConfig().getConfigurationSection(song);
+        if(section==null){
+            throw new InvalidMusicConfigException(song, "No existe la sección en un yml.");
+        }
+
 
         ConfigurationSection strSection = section.getConfigurationSection("Structure");
         if(strSection==null){
@@ -131,7 +143,8 @@ public class MusicConfig {
     private static void sectionLoad(String songName, String sectionName, int totalTicks, Player player){
         if(totalTicks<=0) totalTicks=1;
 
-        ConfigurationSection section = configMusic.getConfig().getConfigurationSection(songName+".Sections");
+        CustomConfig c = getFile(songName);
+        ConfigurationSection section = c.getConfig().getConfigurationSection(songName+".Sections");
         if(section==null){
             throw new MusicSectionEmpty(songName+".Sections", "No se ha podido entrar en Sections, no existe Sections en tu canción?");
         }
@@ -208,12 +221,26 @@ public class MusicConfig {
         }
     }
 
+    private static CustomConfig getFile(String name){
+        CustomConfig config = new CustomConfig(name+".yml", "musics", instance, false);
+
+        config.registerConfig();
+        return config;
+    }
+    @Nullable
+    private static File getFileRaw(String name){
+        File raw = new File(DottUtils.folderMusic, name+".yml");
+        if(!raw.exists()){
+            return null;
+        }
+        return raw;
+    }
     @NotNull
-    public static Set<String> getMusicList(){
-        FileConfiguration cfg = configMusic.getConfig();
+    public static List<String> getMusicList(){
+        String[] childs = mFolder.list();
 
-        if (cfg==null) throw new MusicSectionEmpty("Problema en tu Music.yml, Maybe file doesn't exists.");
+        if (childs==null) throw new MusicSectionEmpty("Problema en tu carpeta de musics, Maybe folder or childs doesn't exists.");
 
-        return cfg.getKeys(false);
+        return U.removeYmlFormat(Arrays.asList(childs));
     }
 }

@@ -12,8 +12,6 @@ import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.listeners.*;
 import org.bukkit.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -43,6 +41,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlPlayTime;
     public static CustomConfig ymlMusic;
     public static File folderCinematic;
+    public static File folderMusic;
 
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
@@ -117,7 +116,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlItems = new CustomConfig("items.yml", null, instance, false);
         ymlBackList = new CustomConfig("backlist.yml", "util", instance, false);
         ymlPlayTime = new CustomConfig("playtimes.yml", "util", instance, false);
-        ymlMusic = new CustomConfig("musics.yml", null, instance, false);
+        ymlMusic = new CustomConfig("musics/demo.yml", null, instance, false);
 
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
@@ -131,13 +130,20 @@ public class DottUtils extends JavaPlugin implements Listener {
 
         Config.configInit();
         ItemConfig.itemConfigInit();
-        MusicConfig.initMusicConfig();
+
 
         //cinematics related
         folderCinematic = new File(instance.getDataFolder(), "cinematics");
         if(!folderCinematic.exists()){
             folderCinematic.mkdirs();
         }
+
+        //music related
+        folderMusic = new File(instance.getDataFolder(), "musics");
+        if(!folderMusic.exists()){
+            folderMusic.mkdirs();
+        }
+        MusicConfig.initMusicConfig();
     }
     private void regEvents(){
         regFormat(new ChatListener());

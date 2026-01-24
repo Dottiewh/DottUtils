@@ -11,7 +11,7 @@
           - #### /du item save (Nombre del item)
           - #### /du item get (Nombre del item) _(Opcional: Cantidad)_
           - #### /du item give (Nombre del item) (Jugador) _(Opcional: Cantidad)_
-          - #### /du item delete _[del]_ (Nombre del item)
+          - #### /du item delete (Nombre del item)
           - #### /du item list
 ### En Items.yml
 #### _un ejemplo sería:_ 

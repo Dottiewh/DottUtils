@@ -95,7 +95,7 @@ public class MusicMainCommand extends ReferibleCommand {
     private void list(){
         debugMsg("ItemMainCommand.list");
 
-        Set<String> musicas;
+        List<String> musicas;
         try{
             musicas = MusicConfig.getMusicList();
         }catch (ItemSectionEmpty e){
