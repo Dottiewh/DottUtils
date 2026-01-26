@@ -1,5 +1,6 @@
 Items:
   # DO NOT change the 'Persistent_data:' value.
+  # DO NOT change the ID of the items.
   #-----------------------
   #--
   cinematic_pause:
@@ -15,8 +16,37 @@ Items:
     Name: '&c&l~Parar Grabación~'
     Persistent_data: "cinematicInternal.stop"
   #
+  music_gotomenu:
+    Material: PLAYER_HEAD
+    Name: "&7&lVolver al menú"
+    Lore:
+      - ""
   music_menu_saves:
     Material: LIME_DYE
     Name: '&a&l~Musicas Guardadas~'
     Persistent_data: "musicFrontInternal.menu_saves"
     Max_stack_size: 99
+  music_menu_options:
+    Material: IRON_INGOT
+    Name: '&f&l~Opciones~'
+    Persistent_data: "musicFrontInternal.menu_options"
+  music_saves_previouspage:
+    Material: PLAYER_HEAD
+    Name: "&7&lVolver"
+  music_saves_nextpage:
+    Material: PLAYER_HEAD
+    Name: "&f&lSiguiente Página"
+  music_saves_stopmusic:
+    Material: REDSTONE_TORCH
+    Name: "&c&lParar músicas"
+    Lore:
+      - "&7Click &8- &fparar a ti cualquier canción."
+      - "&7Shift Click &8- &fparar a todos cualquier canción."
+    Persistent_data: "musicFrontInternal.saves_stopmusic"
+  music_options_volume:
+    Material: APPLE
+    Name: '&e&lAjustar Volumen'
+    Lore:
+      - "&7Click derecho &8- &fsubir el volumen &a+0.05&f."
+      - "&7Click izquierdo &8- &fbajar el volumen &c-0.05&f."
+    Persistent_data: "musicFrontInternal.options_volume"

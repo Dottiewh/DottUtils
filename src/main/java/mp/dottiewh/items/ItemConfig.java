@@ -339,10 +339,11 @@ public class ItemConfig{
             //-----MAX STACK SIZE--------
             int max_stack = section.getInt("Max_stack_size");
             if(max_stack!=0){
-                meta.setMaxStackSize(max_stack);
-            }else{
-                U.mensajeConsolaNP("&cHubo un problema intentando cargar Max_stack_size en "+name+". Value interpretado: "+max_stack);
+                if(max_stack>99||max_stack<0){
+                    U.mensajeConsolaNP("&cHubo un problema intentando cargar Max_stack_size en "+name+". Value interpretado: "+max_stack);
+                }else meta.setMaxStackSize(max_stack);
             }
+
             //---------CONSUMIBLE--------
             ConfigurationSection consumableSection = section.getConfigurationSection("Consumable");
             if (consumableSection!=null){

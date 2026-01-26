@@ -15,6 +15,7 @@ back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode m
 add_encrypt_mode_to_save: true
 delay_onback: 100 #Ticks
 
+default_music_volume: 1 # integer between 0-2
 # only for discordSRV compability
 # on discord srv you may also config this. Example: (Around line 89 config.yml on DiscordSRV)
 # UseModernPaperChatEvent: true

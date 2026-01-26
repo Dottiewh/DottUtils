@@ -1,7 +1,6 @@
 package mp.dottiewh.music;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -116,7 +115,15 @@ public class MusicMainCommand extends ReferibleCommand {
         String musicList = String.join("&8, &f", musicas);
         senderMessageMPr("&aLista de musicas registradas: &f"+musicList);
     }
+    private static void setVolume(CommandSender sender, float f){
+        float oldValue = MusicConfig.getVolume();
+        MusicConfig.setVolume(f);
+        senderMessageMPr(sender, "&aHas cambiado el volumen general de las músicas, tal que &6"+oldValue+" &8-> &6"+MusicConfig.getVolume());
 
+    }
+    private static void getVolume(CommandSender sender){
+        senderMessageMPr(sender, "&aEl volumen actual es de: &e"+ MusicConfig.getVolume());
+    }
     //---
     public static void setMusicPrefix(String prefix){
         musicPrefix=prefix;
@@ -174,6 +181,23 @@ public class MusicMainCommand extends ReferibleCommand {
                             MusicMainCommand.BuildForSolo(ctx, "stop", null, false);
                             return 1;
                         })
+                )
+                .then(literal("volume")
+                        .then(literal("set")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("volume", FloatArgumentType.floatArg(0, 2))
+                                        .executes(ctx->{
+                                            float vol = ctx.getArgument("volume", Float.class);
+                                            setVolume(ctx.getSource().getSender(), vol);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("get")
+                                .executes(ctx->{
+                                    getVolume(ctx.getSource().getSender());
+                                    return 1;
+                                })
+                        )
                 )
                 .then(literal("list")
                         .executes(ctx->{

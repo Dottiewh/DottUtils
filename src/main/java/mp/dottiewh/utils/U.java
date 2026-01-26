@@ -216,6 +216,10 @@ public class U { //Stands for utils
         double factor = Math.pow(10, decimales);
         return Math.floor(value*factor) / factor;
     }
+    public static double truncar(float value, int decimales){
+        double factor = Math.pow(10, decimales);
+        return Math.floor(value*factor) / factor;
+    }
     public static int removeDecimals(double value){
         double dToGive = truncar(value,0);
         return (int) dToGive;

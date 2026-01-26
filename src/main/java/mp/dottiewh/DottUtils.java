@@ -145,6 +145,7 @@ public class DottUtils extends JavaPlugin implements Listener {
             folderMusic.mkdirs();
         }
         MusicConfig.initMusicConfig();
+        MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
     }
     private void regEvents(){
         regFormat(new ChatListener());

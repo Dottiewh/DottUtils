@@ -9,10 +9,7 @@ import mp.dottiewh.music.Exceptions.MusicNullKeyException;
 import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
 import mp.dottiewh.music.Exceptions.MusicSoundException;
 import mp.dottiewh.utils.U;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -29,6 +26,8 @@ public class MusicConfig {
     private static File mFolder;
     private static DottUtils instance;
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
+
+    private static float volume = 1;
 
     public static void initMusicConfig(){
         mFolder = DottUtils.folderMusic;
@@ -208,10 +207,12 @@ public class MusicConfig {
                 float vol = Float.parseFloat(sVol);
                 float pitch = Float.parseFloat(sPitch);
 
+
                 BukkitRunnable runnable = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        player.playSound(player, sound, vol, pitch);
+                        float finalVol = vol*(volume*0.125f);
+                        player.playSound(player, sound, finalVol, pitch);
 
                     }
                 };
@@ -243,4 +244,39 @@ public class MusicConfig {
 
         return U.removeYmlFormat(Arrays.asList(childs));
     }
+
+    @NotNull
+    public static Material getDisplayMaterial(String songName) throws MusicSectionEmpty{
+        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción al intentar conseguir el display material.");
+        CustomConfig cConfig = getFile(songName);
+        String stringMaterial = cConfig.getConfig().getString(songName+".DisplayMaterial", null);
+        if(stringMaterial==null){
+            U.mensajeDebugConsole("&cMaterial captado en "+songName+" es null?");
+            return Material.YELLOW_DYE;
+        }
+        Material material = Material.matchMaterial(stringMaterial.toUpperCase());
+        if(material==null){
+            U.mensajeConsola("&c"+songName+" tiene un DisplayMaterial no valido: "+stringMaterial);
+            return Material.YELLOW_DYE;
+        }
+        return material;
+    }
+    public static void setVolume(float vol){
+        if(vol>2){
+            volume=2;
+            return;
+        }
+        if(vol<0){
+            volume=0;
+            return;
+        }
+        volume=vol;
+    }
+    public static void addVolume(float f){
+        setVolume(volume+f);
+    }
+    static float getVolume(){
+        return volume;
+    }
+
 }
