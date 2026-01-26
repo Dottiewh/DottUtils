@@ -146,7 +146,11 @@ public class MusicFront extends MusicMainCommand{
         volMeta.lore(overRideVolLore);
         volItem.setItemMeta(volMeta);
 
+        ItemStack reloadItem = ItemConfig.getInternalItem("music_options_reload", Material.WRITABLE_BOOK,
+                "&e&lRecargar la config", null, "musicFrontInternal", "options_reload");
+
         inv.setItem(3, volItem);
+        inv.setItem(7, reloadItem);
 
         p.openInventory(inv);
         return inv;
@@ -203,6 +207,7 @@ public class MusicFront extends MusicMainCommand{
                 switchOptionMusic(clickType);
                 loadSettingsInventory(p);
             }
+            case "options_reload"-> U.targetCommand(p, "du reload");
             case "saves_stopmusic"->switchStopMusic(p, clickType);
 
             //

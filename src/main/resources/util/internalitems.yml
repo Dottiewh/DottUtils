@@ -50,3 +50,7 @@ Items:
       - "&7Click derecho &8- &fsubir el volumen &a+0.05&f."
       - "&7Click izquierdo &8- &fbajar el volumen &c-0.05&f."
     Persistent_data: "musicFrontInternal.options_volume"
+  music_options_reload:
+    Material: WRITABLE_BOOK
+    Name: '&e&lRecargar la config'
+    Persistent_data: "musicFrontInternal.options_reload"

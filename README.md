@@ -11,7 +11,6 @@
 - #### Comando /du tellraw
 - #### Los comandos ahora tienen tabcomplete
 - #### Opción debug en config.yml
-- ####
 ## Requisitos:
 - #### Paper _(o algun fork)_.
 - #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.11)

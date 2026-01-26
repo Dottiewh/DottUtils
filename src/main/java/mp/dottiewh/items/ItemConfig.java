@@ -32,11 +32,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.FoodComponent;
 import io.papermc.paper.datacomponent.item.Consumable;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -56,8 +58,11 @@ public class ItemConfig{
         //prefix = U.getMsgPath("item_prefix");
     }
 
-    public static void saveItem(@NotNull String name, @NotNull ItemStack item){ //path something like = Items.ItemName
-        ConfigurationSection section = configItem.getConfig().createSection("Items."+name);
+    public static void saveItem(@NotNull String name, @NotNull ItemStack item){
+        saveItem(name, item, configItem, null);
+    }
+    public static void saveItem(@NotNull String name, @NotNull ItemStack item, CustomConfig config, @Nullable String pDataKey){ //path something like = Items.ItemName
+        ConfigurationSection section = config.getConfig().createSection("Items."+name);
 
         section.set("Material", item.getType().name());
 
@@ -121,6 +126,14 @@ public class ItemConfig{
             if (meta.hasMaxStackSize()){
                 int max = meta.getMaxStackSize();
                 section.set("Max_stack_size", max);
+            }
+            // Persistent data container
+            if(pDataKey!=null){
+                PersistentDataContainer pContainer = meta.getPersistentDataContainer();
+                String output = pContainer.get(new NamespacedKey(plugin, pDataKey), PersistentDataType.STRING);
+                if(output!=null){
+                    section.set("Persistent_data", pDataKey+"."+output);
+                }
             }
             //---------consumible---------
             var consumible = item.getData(DataComponentTypes.CONSUMABLE);
@@ -198,7 +211,7 @@ public class ItemConfig{
                 }
             }
         }
-        configItem.saveConfig();
+        config.saveConfig();
     }
 
     @NotNull
@@ -207,7 +220,7 @@ public class ItemConfig{
     }
 
     @NotNull
-    public static ItemStack loadItem(@NotNull String name, @NotNull CustomConfig iConfig){ //path something like = Items.ItemName
+    public static ItemStack loadItem(@NotNull String name, @NotNull CustomConfig iConfig) throws InvalidItemConfigException, MissingMaterialException{ //path something like = Items.ItemName
         boolean modifyData = false;
         Consumable consToAdd = null;
         
@@ -389,5 +402,68 @@ public class ItemConfig{
         if (section==null) throw new ItemSectionEmpty("Problema en tu Items.yml, Maybe 'Items:' doesn't exists.");
 
         return section.getKeys(false);
+    }
+    @Nullable
+    public static ItemStack getInternalItem(@NotNull String itemName){
+        ItemStack toDeliver;
+        try{
+            toDeliver = loadItem(itemName, DottUtils.ymlInternalItems);
+        } catch (InvalidItemConfigException e) {
+            toDeliver = null;
+            U.mensajeDebugConsole("&cA ocurrido una excepción al buscar "+itemName+"! | &4"+e);
+        }
+        return toDeliver;
+    }
+    @NotNull
+    public static ItemStack getInternalItem(@NotNull String itemName, @NotNull ItemStack def){
+        ItemStack item = getInternalItem(itemName);
+        if(item==null) {
+            saveItem(itemName, def, DottUtils.ymlInternalItems, null);
+            U.mensajeConsolaNP("&eNo existía el item interno &4"+itemName+" &eregenerando automaticamente...");
+            return def;
+        }
+        return item;
+    }
+    @NotNull
+    public static ItemStack getInternalItem(@NotNull String itemName, @NotNull Material m, @Nullable String display, @Nullable List<Component> lore){
+        ItemStack success = getInternalItem(itemName);
+        if(success!=null) return success;
+
+        ItemStack itemDefault = new ItemStack(m);
+        ItemMeta meta = itemDefault.getItemMeta();
+        if(display!=null){
+            Component dName = U.componentColor(display);
+            meta.displayName(dName);
+        }
+        if(lore!=null){
+            meta.lore(lore);
+        }
+        itemDefault.setItemMeta(meta);
+        saveItem(itemName, itemDefault, DottUtils.ymlInternalItems, null);
+        U.mensajeConsolaNP("&eNo existía el item interno &4"+itemName+" &eregenerando automaticamente...");
+        return itemDefault;
+    }
+    @NotNull
+    public static ItemStack getInternalItem(@NotNull String itemName, @NotNull Material m, @Nullable String display, @Nullable List<Component> lore, @NotNull String pDataKey, @NotNull String pDataValue){
+        ItemStack success = getInternalItem(itemName);
+        if(success!=null) return success;
+
+        ItemStack itemDefault = new ItemStack(m);
+        ItemMeta meta = itemDefault.getItemMeta();
+        if(display!=null){
+            Component dName = U.componentColor(display);
+            meta.displayName(dName);
+        }
+        if(lore!=null){
+            meta.lore(lore);
+        }
+        PersistentDataContainer pData = meta.getPersistentDataContainer();
+        NamespacedKey key = new NamespacedKey(plugin, pDataKey);
+        pData.set(key, PersistentDataType.STRING, pDataValue);
+
+        itemDefault.setItemMeta(meta);
+        saveItem(itemName, itemDefault, DottUtils.ymlInternalItems, pDataKey);
+        U.mensajeConsolaNP("&eNo existía el item interno &4"+itemName+" &eregenerando automaticamente...");
+        return itemDefault;
     }
 }
