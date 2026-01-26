@@ -7,6 +7,7 @@
   - #### /du music list
   - #### /du music play (Nombre de la canción) _[Jugadores]_ _[Loop]_
   - #### /du music stop _[Jugadores]_
+  - #### /du music menu
 
 ### En la carpeta musics
 ### CADA MÚSICA DEBE TENER SU PROPIO ARCHIVO.
