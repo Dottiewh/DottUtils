@@ -156,7 +156,7 @@ public class ItemConfig{
                                     ConfigurationSection potionSection = cEffectSection.createSection(stringPotionEffect);
 
                                     if (potion.isInfinite()){
-                                        potionSection.set("duration", "infinite");
+                                        potionSection.set("duration", PotionEffect.INFINITE_DURATION);
                                     }
                                     else{
                                         potionSection.set("duration", potion.getDuration());
@@ -228,7 +228,7 @@ public class ItemConfig{
         ItemMeta meta = item.getItemMeta();
 
         if (meta!=null){
-            // ---------------LORE------------------
+            // ---------------Name------------------
             String strName = section.getString("Name");
             if (strName != null){
                 Component colorName = U.componentColor(strName);

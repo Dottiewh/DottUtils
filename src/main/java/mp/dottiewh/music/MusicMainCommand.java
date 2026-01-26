@@ -15,15 +15,19 @@ import mp.dottiewh.utils.U;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class MusicMainCommand extends ReferibleCommand {
-    private static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
+    private static final Logger log = LoggerFactory.getLogger(MusicMainCommand.class);
+    protected static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
     String type, songName;
     boolean loop;
+
 
     public static void BuildForSolo(CommandContext<CommandSourceStack> ctx, String type, String song, boolean loop){
         CommandSender sender = ctx.getSource().getSender();
@@ -36,6 +40,11 @@ public class MusicMainCommand extends ReferibleCommand {
         pList.add(p);
         new MusicMainCommand(ctx, type, pList, song, loop);
     }
+
+    // DO NOT PUT NOTHING ON IT
+    protected MusicMainCommand(){
+    }
+
     public MusicMainCommand(CommandContext<CommandSourceStack> ctx, String type, List<Player> pList, String song, boolean loop) {
         super(ctx, pList);
 
@@ -113,13 +122,17 @@ public class MusicMainCommand extends ReferibleCommand {
         musicPrefix=prefix;
     }
 
-    private void senderMessageMPr(String msg){
+    protected void senderMessageMPr(String msg){
         senderMessageNP(musicPrefix+msg);
+    }
+    protected static void senderMessageMPr(CommandSender sender, String msg){
+        U.targetMessageNP(sender, musicPrefix+msg);
     }
 
     //----------------------------------
     public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
         return literal("music")
+                .requires(ctx->ctx.getSender().hasPermission("DottUtils.music"))
                 .then(literal("play")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("song", StringArgumentType.word())
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
@@ -167,6 +180,13 @@ public class MusicMainCommand extends ReferibleCommand {
                             new MusicMainCommand(ctx);
                             return 1;
                         })
-                );
+                )
+                .then(literal("menu")
+                        .executes(ctx->{
+                            MusicFront.buildFront(ctx);
+                            return 1;
+                        })
+                )
+                ;
     }
 }

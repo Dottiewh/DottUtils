@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -22,6 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -114,6 +117,16 @@ public class U { //Stands for utils
         mensajeDebug(mensaje, Bukkit.getConsoleSender());
     }
 
+    @Nullable
+    public static String getPersistentDataContainerValue(ItemMeta meta, String key){
+        NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
+
+        return meta.getPersistentDataContainer().get(nKey, PersistentDataType.STRING);
+    }
+    public static void setPersistentDataContainerValue(ItemMeta meta, String key, String value){
+        NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
+        meta.getPersistentDataContainer().set(nKey, PersistentDataType.STRING, value);
+    }
 
     public static String componentToStringMsg(Component component){
         return LegacyComponentSerializer.legacyAmpersand().serialize(component);

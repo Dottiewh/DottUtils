@@ -1,5 +1,7 @@
 Items:
   # DO NOT change the 'Persistent_data:' value.
+  #-----------------------
+  #--
   cinematic_pause:
     Material: GRAY_DYE
     Name: '&7&l~Pausar Grabación~'
@@ -12,3 +14,9 @@ Items:
     Material: RED_DYE
     Name: '&c&l~Parar Grabación~'
     Persistent_data: "cinematicInternal.stop"
+  #
+  music_menu_saves:
+    Material: LIME_DYE
+    Name: '&a&l~Musicas Guardadas~'
+    Persistent_data: "musicFrontInternal.menu_saves"
+    Max_stack_size: 99
