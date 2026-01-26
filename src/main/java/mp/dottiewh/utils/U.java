@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -22,6 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -65,6 +68,12 @@ public class U { //Stands for utils
             sendTitleTarget(player, title, subtitle, fadeIn, stay, fadeOut);
         }
     }
+    public static boolean targetCommand(Player target, String cmd){
+        return Bukkit.dispatchCommand(target, cmd);
+    }
+    public static boolean consoleCommand(String cmd){
+        return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+    }
 
     public static void playsoundTarget(Player p, Sound sound, float vol, float pitch){
         p.playSound(p, sound, vol, pitch);
@@ -101,13 +110,23 @@ public class U { //Stands for utils
 
     public static void mensajeDebug(String mensaje, CommandSender sender){
         if(!Config.getBoolean("debug_mode", false)) return;
-        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&Debug&8&l] ");
+        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
         targetMessageNP(sender, prefix+mensaje);
     }
     public static void mensajeDebugConsole(String mensaje){
         mensajeDebug(mensaje, Bukkit.getConsoleSender());
     }
 
+    @Nullable
+    public static String getPersistentDataContainerValue(ItemMeta meta, String key){
+        NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
+
+        return meta.getPersistentDataContainer().get(nKey, PersistentDataType.STRING);
+    }
+    public static void setPersistentDataContainerValue(ItemMeta meta, String key, String value){
+        NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
+        meta.getPersistentDataContainer().set(nKey, PersistentDataType.STRING, value);
+    }
 
     public static String componentToStringMsg(Component component){
         return LegacyComponentSerializer.legacyAmpersand().serialize(component);
@@ -194,6 +213,10 @@ public class U { //Stands for utils
         return DottUtils.ymlConfig.getConfig().getInt(path);
     }
     public static double truncar(double value, int decimales){
+        double factor = Math.pow(10, decimales);
+        return Math.floor(value*factor) / factor;
+    }
+    public static double truncar(float value, int decimales){
         double factor = Math.pow(10, decimales);
         return Math.floor(value*factor) / factor;
     }

@@ -16,6 +16,7 @@ public class ReferibleCommand extends Commands{
     public List<Player> playerList;
     public boolean isListEmpty=false;
 
+    public ReferibleCommand(){};
     public ReferibleCommand(CommandSender sender, String input) {
         super(sender, input);
     }
@@ -79,4 +80,5 @@ public class ReferibleCommand extends Commands{
     }
 
     //
+
 }

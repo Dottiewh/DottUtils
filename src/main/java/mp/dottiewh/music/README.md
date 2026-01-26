@@ -9,16 +9,24 @@
   - #### /du music stop _[Jugadores]_
 
 ### En la carpeta musics
-### CADA MUSICA DEBE TENER SU PROPIO ARCHIVO.
+### CADA MÚSICA DEBE TENER SU PROPIO ARCHIVO.
+### EL NOMBRE DE LA MÚSICA **NO** PUEDE TENER ESPACIOS. (será su id)
 #### _Usando la canción "demo".yml de ejemplo:_
 ```
 demo:
+    DisplayMaterial: YELLOW_DYE #What it shows in the music menu
     Structure:
+        Part0:
+            ticks_to_continue: 40 #ticks before part "ends"
+            section_list:
+                - "bass"
         Part1:
-            ticks_to_continue: 120 #ticks before part "ends"
+            ticks_to_continue: 480 #ticks before part "ends"
             section_list:
                 - "bass"
                 - "drums"
+                - "chords"
+                - "solo"
         Part2:
             ticks_to_continue: 240 #then it'll continue with next part.
             section_list:
@@ -26,14 +34,12 @@ demo:
                 - "drums"
                 - "chords"
         Part3:
-            ticks_to_continue: 400 # IN CASE IT DOESN'T MATCH CORRECTLY
+            ticks_to_continue: 160 # IN CASE IT DOESN'T MATCH CORRECTLY
             section_list:
                 - "bass"
-                - "drums"
                 - "chords"
-                - "solo"
         Part4:
-            ticks_to_continue: 80 # It'll stop some sections little before part ends.
+            ticks_to_continue: 40 # It'll stop some sections a little before part ends.
             section_list:
                 - "bass"
     Sections:
@@ -67,47 +73,50 @@ demo:
             - "wait;4"
         chords:
             - "wait;2"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.189207"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.498307"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.781797"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.189207"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.498307"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.781797"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.059463"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.334840"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.587401"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.059463"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.334840"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.587401"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.PLING;10;0.943874"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.189207"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.414214"
+            - "BLOCK.NOTE_BLOCK.PLING;2;0.943874"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.189207"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.414214"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.PLING;10;0.890899"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.059463"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.334840"
-            - "BLOCK.NOTE_BLOCK.PLING;10;1.587401"
+            - "BLOCK.NOTE_BLOCK.PLING;2;0.890899"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.059463"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.334840"
+            - "BLOCK.NOTE_BLOCK.PLING;2;1.587401"
             - "wait;8"
         solo:
-            - "wait;4"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
-            - "wait;4"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
-            - "wait;4"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.781797"
-            - "wait;4"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
             - "wait;2"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
-            - "wait;14"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.189207"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
+            - "wait;5"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "wait;5"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797"
+            - "wait;5"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "wait;3"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
+            - "wait;12"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.189207"
             - "wait;10"
             #
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.414214"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.781797"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;50;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
             - "wait;8"
  ```
+## DisplayMaterial
+- #### Sería el material con el que se muestra tu canción en el _/du music menu_.
+- #### Puedes usar cualquier material de [Materials - Spigot](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html).
 ## Structure:
 - ### Part1: _| Part2, Part3..._ 
   - #### Vendría a ser un nombre X para identificar la estructura de tu canción.
@@ -130,6 +139,7 @@ demo:
     - #### Puede ser cualquiera de esta lista. [Sonidos MC](https://minecraftsounds.com/)
   - #### 10
     - #### Sería el volumen de la nota o sonido.
+    - #### Se recomienda el volumen 10 como genérico y 2 para acordes.
   - #### 1.189207
     - #### Sería el pitch del sonido.
     - #### En caso de estar intentando importar note blocks de una build, puedes usar la wiki para saber el pitch [Note Block - MC Wiki](https://minecraft.wiki/w/Note_Block)

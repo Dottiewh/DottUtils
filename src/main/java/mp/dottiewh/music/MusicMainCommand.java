@@ -1,7 +1,6 @@
 package mp.dottiewh.music;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -15,15 +14,19 @@ import mp.dottiewh.utils.U;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class MusicMainCommand extends ReferibleCommand {
-    private static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
+    private static final Logger log = LoggerFactory.getLogger(MusicMainCommand.class);
+    protected static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
     String type, songName;
     boolean loop;
+
 
     public static void BuildForSolo(CommandContext<CommandSourceStack> ctx, String type, String song, boolean loop){
         CommandSender sender = ctx.getSource().getSender();
@@ -36,6 +39,11 @@ public class MusicMainCommand extends ReferibleCommand {
         pList.add(p);
         new MusicMainCommand(ctx, type, pList, song, loop);
     }
+
+    // DO NOT PUT NOTHING ON IT
+    protected MusicMainCommand(){
+    }
+
     public MusicMainCommand(CommandContext<CommandSourceStack> ctx, String type, List<Player> pList, String song, boolean loop) {
         super(ctx, pList);
 
@@ -107,19 +115,31 @@ public class MusicMainCommand extends ReferibleCommand {
         String musicList = String.join("&8, &f", musicas);
         senderMessageMPr("&aLista de musicas registradas: &f"+musicList);
     }
+    private static void setVolume(CommandSender sender, float f){
+        float oldValue = MusicConfig.getVolume();
+        MusicConfig.setVolume(f);
+        senderMessageMPr(sender, "&aHas cambiado el volumen general de las músicas, tal que &6"+oldValue+" &8-> &6"+MusicConfig.getVolume());
 
+    }
+    private static void getVolume(CommandSender sender){
+        senderMessageMPr(sender, "&aEl volumen actual es de: &e"+ MusicConfig.getVolume());
+    }
     //---
     public static void setMusicPrefix(String prefix){
         musicPrefix=prefix;
     }
 
-    private void senderMessageMPr(String msg){
+    protected void senderMessageMPr(String msg){
         senderMessageNP(musicPrefix+msg);
+    }
+    protected static void senderMessageMPr(CommandSender sender, String msg){
+        U.targetMessageNP(sender, musicPrefix+msg);
     }
 
     //----------------------------------
     public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder(){
         return literal("music")
+                .requires(ctx->ctx.getSender().hasPermission("DottUtils.music"))
                 .then(literal("play")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("song", StringArgumentType.word())
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
@@ -162,11 +182,35 @@ public class MusicMainCommand extends ReferibleCommand {
                             return 1;
                         })
                 )
+                .then(literal("volume")
+                        .then(literal("set")
+                                .then(io.papermc.paper.command.brigadier.Commands.argument("volume", FloatArgumentType.floatArg(0, 2))
+                                        .executes(ctx->{
+                                            float vol = ctx.getArgument("volume", Float.class);
+                                            setVolume(ctx.getSource().getSender(), vol);
+                                            return 1;
+                                        })
+                                )
+                        )
+                        .then(literal("get")
+                                .executes(ctx->{
+                                    getVolume(ctx.getSource().getSender());
+                                    return 1;
+                                })
+                        )
+                )
                 .then(literal("list")
                         .executes(ctx->{
                             new MusicMainCommand(ctx);
                             return 1;
                         })
-                );
+                )
+                .then(literal("menu")
+                        .executes(ctx->{
+                            MusicFront.buildFront(ctx);
+                            return 1;
+                        })
+                )
+                ;
     }
 }
