@@ -124,6 +124,11 @@ public class MusicMainCommand extends ReferibleCommand {
     private static void getVolume(CommandSender sender){
         senderMessageMPr(sender, "&aEl volumen actual es de: &e"+ MusicConfig.getVolume());
     }
+    private static void importCommand(CommandSender sender, String fileName, MusicConfig.MusicRoundType roundType){
+        MusicConfig.importNBSFile(fileName, roundType);
+        senderMessageMPr(sender,"&aSe ha mandado a hacer la importación con éxito de "+fileName+"!");
+        senderMessageMPr(sender, "&eRevisa la consola para más detalles.");
+    }
     //---
     public static void setMusicPrefix(String prefix){
         musicPrefix=prefix;
@@ -210,6 +215,37 @@ public class MusicMainCommand extends ReferibleCommand {
                             MusicFront.buildFront(ctx);
                             return 1;
                         })
+                )
+                .then(literal("import")
+                        .then(io.papermc.paper.command.brigadier.Commands.argument("filename", StringArgumentType.word())
+                                .executes(ctx->{
+                                        String fileName = ctx.getArgument("filename", String.class);
+                                        importCommand(ctx.getSource().getSender(), fileName, MusicConfig.MusicRoundType.NORMAL);
+                                        return 1;
+                                    }
+                                )
+                                .then(literal("--tempocelling")
+                                        .executes(ctx->{
+                                            String fileName = ctx.getArgument("filename", String.class);
+                                            importCommand(ctx.getSource().getSender(), fileName, MusicConfig.MusicRoundType.CELLING);
+                                            return 1;
+                                        })
+                                )
+                                .then(literal("--tempofloor")
+                                        .executes(ctx->{
+                                            String fileName = ctx.getArgument("filename", String.class);
+                                            importCommand(ctx.getSource().getSender(), fileName, MusicConfig.MusicRoundType.FLOOR);
+                                            return 1;
+                                        })
+                                )
+                                .then(literal("--normal")
+                                        .executes(ctx->{
+                                            String fileName = ctx.getArgument("filename", String.class);
+                                            importCommand(ctx.getSource().getSender(), fileName, MusicConfig.MusicRoundType.NORMAL);
+                                            return 1;
+                                        })
+                                )
+                        )
                 )
                 ;
     }

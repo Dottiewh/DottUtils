@@ -75,17 +75,22 @@ public class MusicFront extends MusicMainCommand{
         //ITEMS REGISTRAR
         int slot=0;
         List<Component> loreList = new ArrayList<>();
+
+        loreList.add(U.componentColor("")); // id 0 o first
+        loreList.add(U.componentColor("&8--------------"));
         loreList.add(U.componentColor("&7Click Derecho &8- &fReproducir CON loop"));
         loreList.add(U.componentColor("&7Click Izquierdo &8- &fReproducir SIN loop"));
         loreList.add(U.componentColor("&7Shift + Click Derecho &8- &fReproducir a todos CON loop"));
         loreList.add(U.componentColor("&7Shift + Click Izquierdo &8- &fReproducir a todos SIN loop"));
         for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
             String songName = musicArray.get(i);
+            int tickDuration = MusicConfig.getTicksDuration(songName);
+            loreList.set(0, U.componentColor("&6Duración: &e"+tickDuration+" &7("+(tickDuration/20)+"s)"));
 
             ItemStack item = new ItemStack(MusicConfig.getDisplayMaterial(songName));
             ItemMeta meta = item.getItemMeta();
 
-            meta.displayName(U.componentColor("&6"+songName));
+            meta.displayName(U.componentColor("&6&l"+songName));
             meta.lore(loreList);
 
             U.setPersistentDataContainerValue(meta, "musicFrontInternal", "plays_"+songName);
@@ -192,7 +197,7 @@ public class MusicFront extends MusicMainCommand{
             return;
         }
         if(itemType.startsWith("plays")){
-            String[] output = itemType.split("_");
+            String[] output = itemType.split("_", 2);
             switchPlayType(p, output[1], clickType);
             return;
         }

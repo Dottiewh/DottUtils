@@ -295,7 +295,7 @@ public class ItemConfig{
                             NamespacedKey key = NamespacedKey.minecraft(attrKey);
 
                             RegistryAccess regAccess = RegistryAccess.registryAccess();
-                            Registry<Attribute> registry = regAccess.getRegistry(RegistryKey.ATTRIBUTE);
+                            Registry<@NotNull Attribute> registry = regAccess.getRegistry(RegistryKey.ATTRIBUTE);
                             double value = singleAttr.getDouble("value");
                             String operation = singleAttr.getString("operation");
                             String slot = singleAttr.getString("slot");

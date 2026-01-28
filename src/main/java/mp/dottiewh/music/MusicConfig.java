@@ -1,13 +1,15 @@
 package mp.dottiewh.music;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.music.Exceptions.InvalidMusicConfigException;
-import mp.dottiewh.music.Exceptions.MusicNullKeyException;
-import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
-import mp.dottiewh.music.Exceptions.MusicSoundException;
+import mp.dottiewh.music.Exceptions.*;
+import mp.dottiewh.music.classes.Layer;
+import mp.dottiewh.music.classes.Music;
+import mp.dottiewh.music.classes.Note;
+import mp.dottiewh.music.classes.ResolvedNote;
+import mp.dottiewh.utils.NBSutils;
 import mp.dottiewh.utils.U;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class MusicConfig {
@@ -28,6 +31,11 @@ public class MusicConfig {
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
 
     private static float volume = 1;
+    public enum MusicRoundType {
+        FLOOR,
+        NORMAL,
+        CELLING
+    }
 
     public static void initMusicConfig(){
         mFolder = DottUtils.folderMusic;
@@ -242,12 +250,32 @@ public class MusicConfig {
 
         if (childs==null) throw new MusicSectionEmpty("Problema en tu carpeta de musics, Maybe folder or childs doesn't exists.");
 
-        return U.removeYmlFormat(Arrays.asList(childs));
+        List<String> list = new ArrayList<>(Arrays.asList(childs));
+
+        list.removeIf(s -> s.equals("import"));
+        U.removeYmlFormat(list);
+        return list;
     }
 
     @NotNull
+    public static int getTicksDuration(String songName) throws MusicSectionEmpty{
+        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el tiempo.");
+        CustomConfig cConfig = getFile(songName);
+
+        ConfigurationSection structureSection = cConfig.getConfig().getConfigurationSection(songName+".Structure");
+        if (structureSection==null) throw new MusicSectionEmpty("No existe la sección 'Structure' en la canción "+songName);
+
+        int tickCount=0;
+        for(String key : structureSection.getKeys(false)){
+            ConfigurationSection partSection = structureSection.getConfigurationSection(key);
+            if(partSection==null) continue;
+            tickCount+=partSection.getInt("ticks_to_continue", 0);
+        }
+        return tickCount;
+    }
+    @NotNull
     public static Material getDisplayMaterial(String songName) throws MusicSectionEmpty{
-        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción al intentar conseguir el display material.");
+        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el display material.");
         CustomConfig cConfig = getFile(songName);
         String stringMaterial = cConfig.getConfig().getString(songName+".DisplayMaterial", null);
         if(stringMaterial==null){
@@ -277,6 +305,151 @@ public class MusicConfig {
     }
     static float getVolume(){
         return volume;
+    }
+    //
+    public static void importNBSFile(String fileName) throws MusicFileRelatedException {
+        importNBSFile(fileName, MusicRoundType.NORMAL);
+    }
+    public static void importNBSFile(String fileName, MusicRoundType roundType) throws MusicFileRelatedException {
+        File importFolder = new File(mFolder, "import");
+        if(!importFolder.exists()) importFolder.mkdir();
+        File nbsFile = new File(importFolder, fileName+".nbs");
+
+        if(!nbsFile.exists()) throw new MusicFileRelatedException("El file "+fileName+".nbs no existe o no se puede captar.", "route: "+nbsFile.getPath());
+        Music music = NBSutils.decodeNBS(nbsFile);
+        if(music==null) return;
+
+        fileName = fileName.replace(" ","_");
+        fileName=fileName.replace(".","-");
+
+        File newFile = new File(mFolder, fileName+".yml");
+        if(newFile.exists()) throw new MusicFileRelatedException("Ya existe un file "+fileName+" registrado en tu carpeta music/");
+        try{
+            newFile.createNewFile();
+        }catch (IOException e){
+            U.mensajeConsolaNP(e.toString());
+        }
+        U.mensajeConsolaNP("&eArchivo creado");
+
+        CustomConfig customConfigNewFile = new CustomConfig(fileName+".yml", "musics", DottUtils.getInstance(), false);
+        customConfigNewFile.registerConfig();
+        FileConfiguration config = customConfigNewFile.getConfig();
+
+        //definir cosas
+        List<Layer> layerList = music.getLayerList();
+        int normalizedTempo = normalizeTempo(music.getSongTempo(), roundType);
+        int tickDuration = music.getSongLength()*normalizedTempo;
+
+        ConfigurationSection mainSection = config.createSection(fileName);
+        U.mensajeConsolaNP("&eSe ha entrado en el archivo correctamente.");
+
+        mainSection.set("DisplayMaterial", Material.GOLD_INGOT.name());
+        U.mensajeConsolaNP("&eDisplayMaterial set");
+        //-------STRUCTURE-------------
+        ConfigurationSection structureSection = mainSection.createSection("Structure");
+        ConfigurationSection mainPartSection = structureSection.createSection("MainPart");
+
+        List<String> layerListNames = new ArrayList<>();
+        layerList.forEach(layer->{layerListNames.add(layer.getName().replace(" ","_").replace(".","-"));});
+        for (int i = 0; i < layerListNames.size(); i++) {
+            String value = layerListNames.get(i);
+            if (value == null || value.isEmpty()) {
+                layerListNames.set(i, "empty_" + i);
+            }
+        }
+
+        HashMap<String, Integer> counter = new HashMap<>();
+
+        //checkea si hay una copia ya
+        for (int i = 0; i < layerListNames.size(); i++) {
+            String value = layerListNames.get(i);
+            int count = counter.getOrDefault(value, 0);
+
+            if(count>0) layerListNames.set(i, value + "copy".repeat(count));
+
+            counter.put(value, count+1);
+        }
+        try{
+            mainPartSection.set("section_list", layerListNames);
+
+            U.mensajeConsolaNP("&eParte de las secciones en structure listo.");
+            //------SECTIONS------------
+            ConfigurationSection partsSections = mainSection.createSection("Sections");
+
+            RegistryAccess regAccess = RegistryAccess.registryAccess();
+            Registry<@NotNull Sound> registry = regAccess.getRegistry(RegistryKey.SOUND_EVENT);
+
+            int countCheck=0;
+            for(Layer layer : layerList){
+                List<Note> noteList = layer.getNotes();
+                List<String> outputList = new ArrayList<>();
+                byte layerVolume = layer.getVolume();
+                String layerName = layer.getName().replace(" ", "_");
+                String expectedValue = layerListNames.get(countCheck);
+                if(!expectedValue.equalsIgnoreCase(layerName)) layerName=expectedValue;
+
+                layerName=layerName.replace(".","-");
+
+                int lastNoteTick=0;
+                for(Note note : noteList){
+                    ResolvedNote resolvedNote = new ResolvedNote(note, layerVolume);
+                    int actualTick = resolvedNote.getTick()*normalizedTempo;
+                    if(lastNoteTick!=actualTick){
+                        int delta = actualTick-lastNoteTick;
+                        outputList.add("wait;"+delta);
+                    }
+                    lastNoteTick=actualTick;
+
+                    Sound sound = resolvedNote.getSound();
+                    NamespacedKey namespacedKey = registry.getKey(sound);
+                    if(namespacedKey==null){
+                        U.mensajeConsolaNP("&cNo se ha podido resolver el namespacedkey "+namespacedKey+", saltandolo...");
+                        continue;
+                    }
+                    String keyString = namespacedKey.getKey();
+
+                    if(actualTick>tickDuration) tickDuration=actualTick;
+                    outputList.add(keyString+";"+resolvedNote.getVolume()+";"+resolvedNote.getPitch());
+                }
+                //structure parte 2
+                mainPartSection.set("ticks_to_continue", tickDuration);
+
+                partsSections.set(layerName, outputList);
+                countCheck++;
+                U.mensajeConsolaNP("&eSección "+layerName+" setteada.");
+            }
+            U.mensajeDebugConsole("NTempo: &e"+normalizedTempo);
+        }catch (Exception e){
+            U.mensajeConsolaNP("&cSe ha captado un error.");
+            U.mensajeConsolaNP("&4"+e.toString());
+            U.mensajeConsolaNP("&c"+Arrays.toString(e.getStackTrace()));
+            newFile.delete();
+            return;
+        }
+
+        //======================
+        customConfigNewFile.saveConfig();
+        U.mensajeConsolaNP("&aSe ha importado "+fileName+" correctamente! &8| &6RoundType: &e"+roundType);
+    }
+
+    private static int normalizeTempo(float tempo, MusicRoundType roundType){
+        int factor=1;
+        switch (roundType){
+            case CELLING -> {
+                factor =  (int) Math.ceil(20d/tempo);
+
+            }
+            case FLOOR -> {
+                factor = U.removeDecimals(20d/tempo);
+            }
+            default -> {
+                factor = Math.round(20f/tempo);
+            }
+        }
+        //
+        U.mensajeDebugConsole("original tempo: "+tempo);
+        if(factor==0) return 1;
+        return factor;
     }
 
 }
