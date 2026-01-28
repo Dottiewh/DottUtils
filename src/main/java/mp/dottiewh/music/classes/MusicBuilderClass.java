@@ -75,4 +75,9 @@ public class MusicBuilderClass implements MusicBuilder{
     public void setLoopStartTick(short tick) {
         building.setLoopStartTick(tick);
     }
+
+    @Override
+    public void setStereo(boolean b){
+        building.setStereo(b);
+    }
 }

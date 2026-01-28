@@ -9,6 +9,8 @@ public class ResolvedNote{
     Sound sound;
     float volume;
     float pitch;
+    float panning;
+
     public enum PitchConstants {
 
         FSHARP_1(0,  0.5f),
@@ -57,7 +59,7 @@ public class ResolvedNote{
         }
     }
 
-    public ResolvedNote(Note note, byte layerVolume){
+    public ResolvedNote(Note note, byte layerVolume, int layerPanning){
         this.tick=note.getTick();
         this.sound=switchKey(note.getInstrument());
         float rawVol = (layerVolume*note.getVelocity()) / 100f;
@@ -68,6 +70,7 @@ public class ResolvedNote{
 
         this.pitch=switchPitch(rawPitch);
         //System.out.println(this.volume+":"+this.tick+" |||"+rawPitch+" | "+this.pitch);
+        this.panning=(note.getPanning()+layerPanning)/2f;
     }
 
     private Sound switchKey(byte instrument){
@@ -149,5 +152,9 @@ public class ResolvedNote{
 
     public float getPitch() {
         return pitch;
+    }
+
+    public float getPanning() {
+        return panning;
     }
 }

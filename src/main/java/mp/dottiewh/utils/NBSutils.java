@@ -148,6 +148,7 @@ public class NBSutils {
             musicBuilder.setTempo(speed);
 
             musicBuilder.setOriginalName(originalName);
+            musicBuilder.setStereo(stereo);
 
             Music music = musicBuilder.build();
             for(Map.Entry<Integer, Layer> entry : layerList.entrySet()){

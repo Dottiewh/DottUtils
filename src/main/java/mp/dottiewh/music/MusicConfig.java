@@ -188,7 +188,7 @@ public class MusicConfig {
 
             for(String input : section.getStringList(sectionName)){
 
-                String[] aInput = input.split(";", 3);
+                String[] aInput = input.split(";", 4);
                 if(aInput.length<2) continue;
                 if(aInput[0].equalsIgnoreCase("wait")){
                     accumuledDelay = accumuledDelay+Integer.parseInt(aInput[1]);
@@ -196,10 +196,19 @@ public class MusicConfig {
                 }
                 if(aInput.length<3) continue;
                 //end of "checks"?
+                boolean isStereo = aInput.length==4; // sound0;volume1;pitch2;panning3
 
                 String sID = aInput[0];
                 String sVol = aInput[1];
                 String sPitch = aInput[2];
+                float panning;
+                if(isStereo){
+                    float inputPanning= Float.parseFloat(aInput[3]);
+                    if(inputPanning>200) inputPanning=200;
+                    if(inputPanning<0) inputPanning=0;
+                    panning=inputPanning;
+                }
+                else panning = 100;
 
                 NamespacedKey key = NamespacedKey.fromString(sID.toLowerCase());
                 if(key==null){
@@ -220,6 +229,34 @@ public class MusicConfig {
                     @Override
                     public void run() {
                         float finalVol = vol*(volume*0.125f);
+                        if(isStereo){
+                            if(panning==100){
+                                player.playSound(player, sound, finalVol, pitch);
+                                return;
+                            }
+
+                            Location feetLoc = player.getLocation();
+                            Location playerLoc = player.getEyeLocation();
+                            org.bukkit.util.Vector forward = playerLoc.getDirection().setY(0).normalize(); // ignorar pitch si quieres plano horizontal
+                            org.bukkit.util.Vector right = forward.clone().crossProduct(new org.bukkit.util.Vector(0,1,0)).normalize();
+                            org.bukkit.util.Vector left  = right.clone().multiply(-1);
+
+                            double offset = ((panning%100)/100.0)*2; // distancia lateral
+                            if(panning==0||panning==200) offset=2;
+
+                            Location finalLoc;
+                            if(panning>100){ //right
+                                finalLoc = feetLoc.clone().add(right.multiply(offset));
+                            }else if(panning<100){ // left
+                                finalLoc= feetLoc.clone().add(left.multiply(offset));
+                            }else{
+                                finalLoc=feetLoc;
+                            }
+
+                            player.playSound(finalLoc, sound, finalVol, pitch);
+                            return;
+                        }
+
                         player.playSound(player, sound, finalVol, pitch);
 
                     }
@@ -257,6 +294,18 @@ public class MusicConfig {
         return list;
     }
 
+    @Nullable
+    public static String getDisplayNameAndAuthor(String songName, String titleFormat, String authorFormat) throws MusicSectionEmpty{
+        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el display name.");
+        CustomConfig cConfig = getFile(songName);
+        ConfigurationSection mainSec = cConfig.getConfig().getConfigurationSection(songName);
+        if (mainSec==null) throw new MusicSectionEmpty("No existe la sección '"+songName+"' en la canción "+songName);
+
+        String displayName = mainSec.getString("Title", null);
+        String author = mainSec.getString("Author", null);
+        if(displayName==null||author==null) return null;
+        return titleFormat+displayName+" &8- "+authorFormat+author;
+    }
     @NotNull
     public static int getTicksDuration(String songName) throws MusicSectionEmpty{
         if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el tiempo.");
@@ -339,12 +388,15 @@ public class MusicConfig {
         List<Layer> layerList = music.getLayerList();
         int normalizedTempo = normalizeTempo(music.getSongTempo(), roundType);
         int tickDuration = music.getSongLength()*normalizedTempo;
+        boolean isStereo = music.isStereo();
 
         ConfigurationSection mainSection = config.createSection(fileName);
         U.mensajeConsolaNP("&eSe ha entrado en el archivo correctamente.");
 
+        mainSection.set("Title", music.getSongName());
+        mainSection.set("Author", music.getSongAuthor());
         mainSection.set("DisplayMaterial", Material.GOLD_INGOT.name());
-        U.mensajeConsolaNP("&eDisplayMaterial set");
+        U.mensajeConsolaNP("&eDisplays setteados");
         //-------STRUCTURE-------------
         ConfigurationSection structureSection = mainSection.createSection("Structure");
         ConfigurationSection mainPartSection = structureSection.createSection("MainPart");
@@ -392,7 +444,7 @@ public class MusicConfig {
 
                 int lastNoteTick=0;
                 for(Note note : noteList){
-                    ResolvedNote resolvedNote = new ResolvedNote(note, layerVolume);
+                    ResolvedNote resolvedNote = new ResolvedNote(note, layerVolume, layer.getStereoData());
                     int actualTick = resolvedNote.getTick()*normalizedTempo;
                     if(lastNoteTick!=actualTick){
                         int delta = actualTick-lastNoteTick;
@@ -409,7 +461,13 @@ public class MusicConfig {
                     String keyString = namespacedKey.getKey();
 
                     if(actualTick>tickDuration) tickDuration=actualTick;
-                    outputList.add(keyString+";"+resolvedNote.getVolume()+";"+resolvedNote.getPitch());
+
+                    if(isStereo){
+                        outputList.add(keyString+";"+resolvedNote.getVolume()+";"+resolvedNote.getPitch()+";"+resolvedNote.getPanning());
+                    }else{
+                        outputList.add(keyString+";"+resolvedNote.getVolume()+";"+resolvedNote.getPitch());
+                    }
+
                 }
                 //structure parte 2
                 mainPartSection.set("ticks_to_continue", tickDuration);
@@ -451,5 +509,4 @@ public class MusicConfig {
         if(factor==0) return 1;
         return factor;
     }
-
 }

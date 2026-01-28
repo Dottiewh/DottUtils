@@ -76,22 +76,28 @@ public class MusicFront extends MusicMainCommand{
         int slot=0;
         List<Component> loreList = new ArrayList<>();
 
-        loreList.add(U.componentColor("")); // id 0 o first
         loreList.add(U.componentColor("&8--------------"));
         loreList.add(U.componentColor("&7Click Derecho &8- &fReproducir CON loop"));
         loreList.add(U.componentColor("&7Click Izquierdo &8- &fReproducir SIN loop"));
         loreList.add(U.componentColor("&7Shift + Click Derecho &8- &fReproducir a todos CON loop"));
         loreList.add(U.componentColor("&7Shift + Click Izquierdo &8- &fReproducir a todos SIN loop"));
         for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
+            List<Component> loreListCopy = new ArrayList<>(loreList);
+
             String songName = musicArray.get(i);
             int tickDuration = MusicConfig.getTicksDuration(songName);
-            loreList.set(0, U.componentColor("&6Duración: &e"+tickDuration+" &7("+(tickDuration/20)+"s)"));
+            String formattedDuration = timeFormat(tickDuration/20d);
+            loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
+            String titleAndAuthor = MusicConfig.getDisplayNameAndAuthor(songName, "&f&l", "&e&o");
+            if(titleAndAuthor==null) titleAndAuthor=songName;
+
+            loreListCopy.addFirst(U.componentColor("&7"+songName));
 
             ItemStack item = new ItemStack(MusicConfig.getDisplayMaterial(songName));
             ItemMeta meta = item.getItemMeta();
 
-            meta.displayName(U.componentColor("&6&l"+songName));
-            meta.lore(loreList);
+            meta.displayName(U.componentColor("&f&l"+titleAndAuthor));
+            meta.lore(loreListCopy);
 
             U.setPersistentDataContainerValue(meta, "musicFrontInternal", "plays_"+songName);
             item.setItemMeta(meta);
@@ -262,5 +268,13 @@ public class MusicFront extends MusicMainCommand{
         U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", "go_back");
         head.setItemMeta(skullMeta);
         return head;
+    }
+    private static String timeFormat(double segundos){
+        if(segundos<60) return ""+U.truncar(segundos, 2);
+
+        int minutos = U.removeDecimals(segundos/60d);
+        int segundosSobrantes = (int) segundos%60;
+
+        return minutos+"m "+segundosSobrantes+"s";
     }
 }

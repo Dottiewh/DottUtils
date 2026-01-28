@@ -17,4 +17,6 @@ public interface MusicBuilder {
     void setLoop(byte b);
     void setMaxLoopCount(int b);
     void setLoopStartTick(short tick);
+
+    void setStereo(boolean b);
 }

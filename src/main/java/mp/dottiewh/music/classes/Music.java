@@ -155,6 +155,14 @@ public class Music {
         this.loopStartTick = loopStartTick;
     }
 
+    public boolean isStereo() {
+        return stereo;
+    }
+
+    public void setStereo(boolean stereo) {
+        this.stereo = stereo;
+    }
+
     public void addLayer(int id, Layer layer){
         layers.put(id, layer);
     }

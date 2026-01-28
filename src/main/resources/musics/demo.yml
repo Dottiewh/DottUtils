@@ -1,4 +1,6 @@
 demo:
+    Title: "demo" # Shows in the menu
+    Author: "Dottiewh" # Shows in the menu
     DisplayMaterial: YELLOW_DYE #What it shows in the music menu
     Structure:
         Part0:
@@ -30,21 +32,21 @@ demo:
     Sections:
         bass:
             - "wait;2" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.189207"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.189207;200"
             - "wait;4" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.781797"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.781797;200"
             - "wait;6" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.059463"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.059463;200"
             - "wait;4" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.587401"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.587401;200"
             - "wait;6" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;0.943874"
+            - "BLOCK.NOTE_BLOCK.BASS;10;0.943874;200"
             - "wait;4" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.414214"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.414214;200"
             - "wait;6" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;0.890899"
+            - "BLOCK.NOTE_BLOCK.BASS;10;0.890899;200"
             - "wait;4" # in ticks
-            - "BLOCK.NOTE_BLOCK.BASS;10;1.334840"
+            - "BLOCK.NOTE_BLOCK.BASS;10;1.334840;200"
             - "wait;4"
         drums:
             - "wait;2"
@@ -77,24 +79,24 @@ demo:
             - "wait;8"
         solo:
             - "wait;2"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214;0"
             - "wait;5"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401;0"
             - "wait;5"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797;0"
             - "wait;5"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401;0"
             - "wait;3"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214;0"
             - "wait;12"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.189207"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.189207;0"
             - "wait;10"
-            #
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214"
+            - #
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.414214;0"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401;0"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.781797;0"
             - "wait;10"
-            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401"
+            - "BLOCK.NOTE_BLOCK.IRON_XYLOPHONE;20;1.587401;0"
             - "wait;8"
