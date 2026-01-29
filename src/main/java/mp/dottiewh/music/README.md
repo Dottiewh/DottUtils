@@ -1,13 +1,24 @@
 ## Documentación de /du music
 
+### _Sobre la importación de archivos .nbs_
+- ##### Debes de poner el archivo .nbs en la ruta de /plugins/DottUtils/musics/import
+- ##### nbs significa NoteBlockStudio, y puedes sacar algunas canciones ya hechas en [NoteBlock World](https://noteblock.world/).
+- ##### REMUÉVELE cualquier tipo de espacio que pueda tener el archivo.
+- ##### Una vez ya puesto el .nbs en la carpeta de import, debes colocar el comando /du music import (nombre del archivo)
+- ##### Debería estar listo, y ya saldría en tu carpeta de musics, y en el menú!
+
+#
+#
 #### /du music
 - #### Soporta customización.
 - #### Se maneja por partes, parecido a un FlStudio.
+- #### Se pueden importar NBS.
 - ## Su uso
   - #### /du music list
   - #### /du music play (Nombre de la canción) _[Jugadores]_ _[Loop]_
   - #### /du music stop _[Jugadores]_
   - #### /du music menu
+  - #### /du music import (Nombre del archivo)
 
 ### En la carpeta musics
 ### CADA MÚSICA DEBE TENER SU PROPIO ARCHIVO.

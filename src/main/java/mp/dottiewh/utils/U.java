@@ -212,6 +212,10 @@ public class U { //Stands for utils
     public static int getIntConfigPath (String path){
         return DottUtils.ymlConfig.getConfig().getInt(path);
     }
+    public static void printException(Exception e){
+        U.mensajeConsolaNP("&c"+e.toString());
+        U.mensajeConsolaNP("&4"+Arrays.toString(e.getStackTrace()));
+    }
     public static double truncar(double value, int decimales){
         double factor = Math.pow(10, decimales);
         return Math.floor(value*factor) / factor;
