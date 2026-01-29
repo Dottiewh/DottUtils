@@ -63,7 +63,7 @@ public class ResolvedNote{
         this.tick=note.getTick();
         this.sound=switchKey(note.getInstrument());
         float rawVol = (layerVolume*note.getVelocity()) / 100f;
-        this.volume=rawVol=rawVol/10f;
+        this.volume=rawVol/10f;
 
         int pitch = Math.ceilDivExact(note.getPitch(), 100);
         int rawPitch = note.getKey()+pitch;

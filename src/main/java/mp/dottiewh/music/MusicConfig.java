@@ -267,14 +267,14 @@ public class MusicConfig {
         }
     }
 
-    private static CustomConfig getFile(String name){
+    public static CustomConfig getFile(String name){
         CustomConfig config = new CustomConfig(name+".yml", "musics", instance, false);
 
         config.registerConfig();
         return config;
     }
     @Nullable
-    private static File getFileRaw(String name){
+    public static File getFileRaw(String name){
         File raw = new File(DottUtils.folderMusic, name+".yml");
         if(!raw.exists()){
             return null;
@@ -295,11 +295,7 @@ public class MusicConfig {
     }
 
     @Nullable
-    public static String getDisplayNameAndAuthor(String songName, String titleFormat, String authorFormat) throws MusicSectionEmpty{
-        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el display name.");
-        CustomConfig cConfig = getFile(songName);
-        ConfigurationSection mainSec = cConfig.getConfig().getConfigurationSection(songName);
-        if (mainSec==null) throw new MusicSectionEmpty("No existe la sección '"+songName+"' en la canción "+songName);
+    public static String getDisplayNameAndAuthor(@NotNull ConfigurationSection mainSec, String titleFormat, String authorFormat){
 
         String displayName = mainSec.getString("Title", null);
         String author = mainSec.getString("Author", null);
@@ -307,12 +303,7 @@ public class MusicConfig {
         return titleFormat+displayName+" &8- "+authorFormat+author;
     }
     @NotNull
-    public static int getTicksDuration(String songName) throws MusicSectionEmpty{
-        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el tiempo.");
-        CustomConfig cConfig = getFile(songName);
-
-        ConfigurationSection structureSection = cConfig.getConfig().getConfigurationSection(songName+".Structure");
-        if (structureSection==null) throw new MusicSectionEmpty("No existe la sección 'Structure' en la canción "+songName);
+    public static int getTicksDuration(@NotNull ConfigurationSection structureSection){
 
         int tickCount=0;
         for(String key : structureSection.getKeys(false)){
@@ -323,10 +314,11 @@ public class MusicConfig {
         return tickCount;
     }
     @NotNull
-    public static Material getDisplayMaterial(String songName) throws MusicSectionEmpty{
-        if(getFileRaw(songName)==null) throw new MusicSectionEmpty("No existe la canción "+songName+" al intentar conseguir el display material.");
-        CustomConfig cConfig = getFile(songName);
-        String stringMaterial = cConfig.getConfig().getString(songName+".DisplayMaterial", null);
+    public static Material getDisplayMaterial(ConfigurationSection section, String songName){
+
+        String stringMaterial = section.getString("DisplayMaterial", null);
+
+
         if(stringMaterial==null){
             U.mensajeDebugConsole("&cMaterial captado en "+songName+" es null?");
             return Material.YELLOW_DYE;
@@ -389,6 +381,7 @@ public class MusicConfig {
         int normalizedTempo = normalizeTempo(music.getSongTempo(), roundType);
         int tickDuration = music.getSongLength()*normalizedTempo;
         boolean isStereo = music.isStereo();
+        if(music.getSongName().isEmpty()) music.setSongName(music.getOriginalFileName());
 
         ConfigurationSection mainSection = config.createSection(fileName);
         U.mensajeConsolaNP("&eSe ha entrado en el archivo correctamente.");

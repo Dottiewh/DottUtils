@@ -6,6 +6,7 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.commands.Commands;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.music.classes.LegacyMusic;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -85,15 +86,17 @@ public class MusicFront extends MusicMainCommand{
             List<Component> loreListCopy = new ArrayList<>(loreList);
 
             String songName = musicArray.get(i);
-            int tickDuration = MusicConfig.getTicksDuration(songName);
+            LegacyMusic music = new LegacyMusic(songName, "&f&l", "&e&o");
+
+            int tickDuration = music.getTicksDuration();
             String formattedDuration = timeFormat(tickDuration/20d);
             loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
-            String titleAndAuthor = MusicConfig.getDisplayNameAndAuthor(songName, "&f&l", "&e&o");
+            String titleAndAuthor = music.getTitleAndAuthor();
             if(titleAndAuthor==null) titleAndAuthor=songName;
 
             loreListCopy.addFirst(U.componentColor("&7"+songName));
 
-            ItemStack item = new ItemStack(MusicConfig.getDisplayMaterial(songName));
+            ItemStack item = new ItemStack(music.getDisplayMaterial());
             ItemMeta meta = item.getItemMeta();
 
             meta.displayName(U.componentColor("&f&l"+titleAndAuthor));
@@ -270,7 +273,7 @@ public class MusicFront extends MusicMainCommand{
         return head;
     }
     private static String timeFormat(double segundos){
-        if(segundos<60) return ""+U.truncar(segundos, 2);
+        if(segundos<60) return U.truncar(segundos, 2)+"s";
 
         int minutos = U.removeDecimals(segundos/60d);
         int segundosSobrantes = (int) segundos%60;
