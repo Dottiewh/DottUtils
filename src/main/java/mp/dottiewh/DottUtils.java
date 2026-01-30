@@ -11,6 +11,7 @@ import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.listeners.*;
+import mp.dottiewh.libs.bstats.Metrics;
 import org.bukkit.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,7 @@ public class DottUtils extends JavaPlugin implements Listener {
 
     private final Set<String> comandosRegistrados = getDescription().getCommands().keySet();
 
+    public static Metrics metrics;
     private static CustomConfig ymlLists;
     public static CustomConfig ymlConfig;
     public static CustomConfig ymlMessages;
@@ -63,10 +65,12 @@ public class DottUtils extends JavaPlugin implements Listener {
 
         //Other things
         PlayTimeManagement.onEnableManagement(); // para cosas del playtime
+        initCharts();
         U.showAllStatus();
     }
     public void onDisable(){
         PlayTimeManagement.onDisableManagement();
+        metrics.shutdown();
         CinematicsConfig.onDisableCheck();
         U.cleanOnDisable();
 
@@ -107,6 +111,10 @@ public class DottUtils extends JavaPlugin implements Listener {
             U.mensajeConsola("&eConfig aún no cargada...");
         }
         return ymlMessages;
+    }
+    public void initCharts(){
+        final int pluginID=29159;
+        metrics = new Metrics(this, pluginID);
     }
     public static void initCustomConfig(){
         DottUtils instance = getInstance();

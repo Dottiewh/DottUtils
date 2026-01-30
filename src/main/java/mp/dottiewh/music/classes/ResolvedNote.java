@@ -95,7 +95,7 @@ public class ResolvedNote{
             case 15-> toReturn=Sound.BLOCK_NOTE_BLOCK_PLING;
             default->{
                 toReturn = Sound.BLOCK_NOTE_BLOCK_HARP;
-                U.mensajeConsolaNP("Se ha intentado resolver el instrument "+instrument+" ("+tick+") y no está registrada! Usando default...");
+                U.mensajeConsolaNP("Se ha intentado resolver el instrument ID:"+instrument+" ("+tick+") y no está registrada! Usando default...");
             }
         }
         return toReturn;
