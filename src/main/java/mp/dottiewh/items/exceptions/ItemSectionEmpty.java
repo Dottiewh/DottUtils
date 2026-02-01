@@ -1,4 +1,4 @@
-package mp.dottiewh.items.Exceptions;
+package mp.dottiewh.items.exceptions;
 
 public class ItemSectionEmpty extends InvalidItemConfigException{
     public ItemSectionEmpty() {

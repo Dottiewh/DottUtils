@@ -1,4 +1,4 @@
-package mp.dottiewh.music.Exceptions;
+package mp.dottiewh.music.exceptions;
 
 public class MusicSectionEmpty extends InvalidMusicConfigException{
     public MusicSectionEmpty(String path) {

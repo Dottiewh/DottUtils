@@ -1,5 +1,6 @@
 package mp.dottiewh.utils;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
@@ -8,21 +9,37 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
+import mp.dottiewh.DottUtils;
+import mp.dottiewh.items.ItemConfig;
 import net.kyori.adventure.key.Key;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ItemUtils {
-    public static EquipmentSlotGroup getSlotFromString(String slot) {
+    private static final Plugin plugin = DottUtils.getPlugin();
 
+    public static EquipmentSlotGroup getSlotFromString(String slot) {
         switch (slot.toUpperCase()){
             case "ARMOR" -> {
                 return EquipmentSlotGroup.ARMOR;
@@ -219,5 +236,52 @@ public class ItemUtils {
         assert namespacedKey != null;
 
         return registry.get(namespacedKey);
+    }
+
+    @NotNull
+    public static ItemMeta addPersistentDataString(@NotNull ItemMeta meta, @NotNull String key, String value){
+        PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
+        NamespacedKey nKey = new NamespacedKey(plugin, key);
+        persistentDataContainer.set(nKey, PersistentDataType.STRING, value);
+        return meta;
+    }
+    @Nullable
+    public static String getPersistentDataString(@NotNull ItemMeta meta, @NotNull String key){
+        PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
+        NamespacedKey nKey = new NamespacedKey(plugin, key);
+        return persistentDataContainer.get(nKey, PersistentDataType.STRING);
+    }
+    @NotNull
+    public static String getPersistentDataString(@NotNull ItemMeta meta, @NotNull String key, @NotNull String def){
+        String output = getPersistentDataString(meta, key);
+        if(output==null) return def;
+        return output;
+    }
+
+    //=========================
+    public static void checkItemAttackCustomData(EntityDamageByEntityEvent event){
+        if(event.isCancelled()) return;
+        if(!(event.getDamager() instanceof HumanEntity damager)) return;
+
+        ItemStack mainItem = damager.getInventory().getItemInMainHand();
+        ItemMeta meta = mainItem.getItemMeta();
+        if(meta==null) return;
+
+        Entity victim = event.getEntity();
+        Location loc = victim.getLocation();
+
+        ParticleBuilder particleData = ItemConfig.loadParticleData(meta, "onAttack", loc.clone().add(0, 1.6, 0).add(victim.getVelocity()));
+        PotionEffect effectData = ItemConfig.loadPotionEffect(meta, "onAttack");
+
+        if(particleData!=null){
+            if(particleData.particle().equals(Particle.TRAIL)) particleData.location(damager.getLocation());
+            else particleData.location(loc);
+
+            particleData.spawn();
+        }
+        if(effectData!=null){
+            if(!(victim instanceof LivingEntity victimLiving)) return;
+            victimLiving.addPotionEffect(effectData);
+        }
     }
 }

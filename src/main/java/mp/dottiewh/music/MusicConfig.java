@@ -4,7 +4,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.music.Exceptions.*;
+import mp.dottiewh.music.exceptions.*;
 import mp.dottiewh.music.classes.Layer;
 import mp.dottiewh.music.classes.Music;
 import mp.dottiewh.music.classes.Note;

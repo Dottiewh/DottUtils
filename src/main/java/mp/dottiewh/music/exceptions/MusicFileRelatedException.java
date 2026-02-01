@@ -1,4 +1,4 @@
-package mp.dottiewh.music.Exceptions;
+package mp.dottiewh.music.exceptions;
 
 public class MusicFileRelatedException extends InvalidMusicConfigException{
     public MusicFileRelatedException(String message, String path) {

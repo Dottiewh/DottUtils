@@ -1,5 +1,6 @@
 package mp.dottiewh.items;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.papermc.paper.datacomponent.DataComponentTypes;
@@ -10,33 +11,34 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.items.exceptions.InvalidItemConfigException;
+import mp.dottiewh.items.exceptions.InvalidMaterialException;
+import mp.dottiewh.items.exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.exceptions.MissingMaterialException;
 import mp.dottiewh.utils.ItemUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.FoodComponent;
+import org.bukkit.inventory.meta.components.*;
 import io.papermc.paper.datacomponent.item.Consumable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +50,6 @@ public class ItemConfig{
     private static CustomConfig configItem;
     private static Plugin plugin;
     //private static String prefix;
-
 
 
     public static void itemConfigInit(){
@@ -122,6 +123,70 @@ public class ItemConfig{
             if (meta.isUnbreakable()){
                 section.set("Unbreakable", true);
             }
+            //----glider----
+            if(meta.isGlider()) section.set("Glider", true);
+            //----Enchantment override----
+            if(meta.hasEnchantmentGlintOverride()) section.set("Enchantment_glint_override", true);
+            //----hide tooltip----
+            if(meta.isHideTooltip()) section.set("Hide_tooltip", true);
+            //----fire resistant----
+            if(meta.hasDamageResistant()){
+                Tag<DamageType> damageTag = meta.getDamageResistant();
+                if(damageTag!=null){
+                    if(damageTag.equals(DamageTypeTags.IS_FIRE)) section.set("Fire_resistant", true);
+                }
+            }
+            //----enchantable----
+            if(meta.hasEnchantable())section.set("Enchantable", meta.getEnchantable());
+            //----jukebox playable
+            if(meta.hasJukeboxPlayable()){
+                JukeboxPlayableComponent jukeboxPlayableComponent = meta.getJukeboxPlayable();
+                section.set("Jukebox_playable", jukeboxPlayableComponent.getSongKey().toString());
+            }
+            //----item model----
+            if(meta.hasItemModel()){
+                NamespacedKey modelString = meta.getItemModel();
+                if(modelString!=null) section.set("Model", modelString.toString());
+            }
+            //----tooltip style-----
+            if(meta.hasTooltipStyle()){
+                NamespacedKey tooltipStyle = meta.getTooltipStyle();
+                if(tooltipStyle!=null) section.set("ToolTip_style", tooltipStyle.toString());
+            }
+            //----use cooldown----
+            if(meta.hasUseCooldown()){
+                UseCooldownComponent cooldownComponent = meta.getUseCooldown();
+                NamespacedKey cGroup = cooldownComponent.getCooldownGroup();
+                ConfigurationSection cooldownSection = section.createSection("UseCooldown");
+
+                if(cGroup!=null)  cooldownSection.set("cooldown_group", cGroup.toString());
+                cooldownSection.set("cooldown_seconds", cooldownComponent.getCooldownSeconds());
+            }
+            //---- TOOL THINGS-----
+            if(meta.hasTool()){
+                ConfigurationSection toolSection = section.createSection("Tool");
+                ToolComponent toolComponent = meta.getTool();
+
+                toolSection.set("damage_per_block", toolComponent.getDamagePerBlock());
+                toolSection.set("default_mining_speed", toolComponent.getDefaultMiningSpeed());
+
+                List<ToolComponent.ToolRule> toolRuleList = toolComponent.getRules();
+                if(!toolRuleList.isEmpty()){
+                    ConfigurationSection rulesSection = toolSection.createSection("rules");
+                    int i=1;
+                    for(ToolComponent.ToolRule toolRule : toolRuleList){
+                        ConfigurationSection ruleSec = rulesSection.createSection("rule_"+i);
+                        ruleSec.set("correct_for_drops", toolRule.isCorrectForDrops());
+                        ruleSec.set("speed", toolRule.getSpeed());
+                        Collection<Material> materialCollection = toolRule.getBlocks();
+                        List<String> materialStringList = new LinkedList<>();
+                        materialCollection.forEach(material -> materialStringList.add(material.toString()));
+                        ruleSec.set("applies", materialStringList);
+                        i++;
+                    }
+                }
+            }
+
             //------MAXSTACKSIZE---------------
             if (meta.hasMaxStackSize()){
                 int max = meta.getMaxStackSize();
@@ -135,6 +200,27 @@ public class ItemConfig{
                     section.set("Persistent_data", pDataKey+"."+output);
                 }
             }
+            //---------EQUIPPABLE--------
+            if(meta.hasEquippable()){
+                ConfigurationSection equippableSection = section.createSection("Equippable");
+                EquippableComponent equipComp = meta.getEquippable();
+
+                EquipmentSlot eSlot = equipComp.getSlot();
+                equippableSection.set("slot", eSlot.toString());
+
+                Registry<@NotNull Sound> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.SOUND_EVENT);
+                equippableSection.set("equip_sound", registry.getKey(equipComp.getEquipSound()).getKey());
+
+                NamespacedKey modelKey = equipComp.getModel();
+                if(modelKey!=null) equippableSection.set("asset_id", modelKey.toString());
+
+                if(!equipComp.isDispensable()) equippableSection.set("dispensable", false);
+                if(equipComp.isEquipOnInteract()) equippableSection.set("equip_on_interact", true);
+                if(!equipComp.isSwappable()) equippableSection.set("swappable", false);
+                if(!equipComp.isDamageOnHurt()) equippableSection.set("damage_on_hurt", false);
+
+            }
+
             //---------consumible---------
             var consumible = item.getData(DataComponentTypes.CONSUMABLE);
             if (consumible!=null){
@@ -349,6 +435,115 @@ public class ItemConfig{
             if (unbreakStatus){
                 meta.setUnbreakable(true);
             }
+            //----glider----
+            boolean gliderStatus = section.getBoolean("Glider");
+            if(gliderStatus) meta.setGlider(true);
+            //----Enchantment override----
+            boolean enchantmentStatus = section.getBoolean("Enchantment_glint_override");
+            if (enchantmentStatus) meta.setEnchantmentGlintOverride(true);
+            //----hide tooltip----
+            boolean hideTooltipStatus = section.getBoolean("Hide_tooltip");
+            if(hideTooltipStatus) meta.setHideTooltip(true);
+            //----Fire resistant----
+            boolean fireResistantStatus = section.getBoolean("Fire_resistant");
+            if(fireResistantStatus) meta.setDamageResistant(DamageTypeTags.IS_FIRE);
+            //-------enchantable-----
+            int enchantableOutput = section.getInt("Enchantable", -1);
+            if(enchantableOutput>0) meta.setEnchantable(enchantableOutput);
+            //------ jukebox playable-----
+            String jukeboxOutput = section.getString("Jukebox_playable");
+            if(jukeboxOutput!=null){
+                String[] jukeboxOutputArray = jukeboxOutput.split(":");
+
+                JukeboxPlayableComponent jukeComponent = meta.getJukeboxPlayable();
+                jukeComponent.setSongKey(new NamespacedKey(jukeboxOutputArray[0], jukeboxOutputArray[1]));
+                meta.setJukeboxPlayable(jukeComponent);
+            }
+
+            //--------equippable----
+            ConfigurationSection equipSection = section.getConfigurationSection("Equippable");
+            if(equipSection!=null){
+                EquippableComponent equipComp = meta.getEquippable();
+
+                String sSlot = equipSection.getString("slot");
+                if(sSlot==null) U.mensajeConsola("&cError al intentar equippable slot al cargar "+name+"! saltando propiedades...");
+                else{
+                    equipComp.setSlot(EquipmentSlot.valueOf(sSlot.toUpperCase()));
+
+                    String sSound = equipSection.getString("equip_sound", "item.armor.equip_generic");
+                    Registry<@NotNull Sound> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.SOUND_EVENT);
+                    Sound equipSound = registry.get(NamespacedKey.minecraft(sSound.toLowerCase()));
+                    equipComp.setEquipSound(equipSound);
+
+                    String sModel = equipSection.getString("asset_id", null);
+                    if(sModel!=null){
+                        String[] sModelArray = sModel.split(":");
+                        NamespacedKey modelKey = new NamespacedKey(sModelArray[0], sModelArray[1]);
+                        equipComp.setModel(modelKey);
+                    }
+
+                    equipComp.setDispensable(equipSection.getBoolean("dispensable", true));
+                    equipComp.setEquipOnInteract(equipSection.getBoolean("equip_on_interact", false));
+                    equipComp.setSwappable(equipSection.getBoolean("swappable", true));
+                    equipComp.setDamageOnHurt(equipSection.getBoolean("damage_on_hurt", true));
+                    meta.setEquippable(equipComp);
+                }
+            }
+            //----- model data------
+            String modelString = section.getString("Model");
+            if(modelString!=null){
+                String[] modelArray = modelString.split(":");
+                meta.setItemModel(new NamespacedKey(modelArray[0], modelArray[1]));
+            }
+            //---- tooltip style-----
+            String tooltipStyle = section.getString("ToolTip_style");
+            if(tooltipStyle!=null){
+                String[] tooltipStyleArray = tooltipStyle.split(":");
+                meta.setTooltipStyle(new NamespacedKey(tooltipStyleArray[0], tooltipStyleArray[1]));
+            }
+            //---- use cooldown----
+            ConfigurationSection cooldownSection = section.getConfigurationSection("UseCooldown");
+            if(cooldownSection!=null){
+                String cGroup = cooldownSection.getString("cooldown_group");
+                float cSeconds = (float) cooldownSection.getDouble("cooldown_seconds", -1);
+                UseCooldownComponent cooldownComponent = meta.getUseCooldown();
+
+                if(cGroup!=null){
+
+                    String[] cGroupArray = cGroup.split(":");
+                    cooldownComponent.setCooldownGroup(new NamespacedKey(cGroupArray[0], cGroupArray[1]));
+                }
+                if(cSeconds>=0) cooldownComponent.setCooldownSeconds(cSeconds);
+                meta.setUseCooldown(cooldownComponent);
+            }
+            //---- Tool data----
+            ConfigurationSection toolSection = section.getConfigurationSection("Tool");
+            if(toolSection!=null){
+                ToolComponent toolComponent = meta.getTool();
+                toolComponent.setDamagePerBlock(toolSection.getInt("damage_per_block", 1));
+                float defaultSpeed = (float) toolSection.getDouble("default_mining_speed", -1);
+                if(defaultSpeed>=0) toolComponent.setDefaultMiningSpeed(defaultSpeed);
+
+                ConfigurationSection rulesSection = toolSection.getConfigurationSection("rules");
+                if(rulesSection!=null){
+                    Set<String> ruleKeysList = rulesSection.getKeys(false);
+                    for(String ruleKey : ruleKeysList){
+                        ConfigurationSection ruleSection = rulesSection.getConfigurationSection(ruleKey);
+                        if(ruleSection==null) continue;
+
+                        boolean correct_drops = ruleSection.getBoolean("correct_for_drops");
+                        float speed = (float) ruleSection.getDouble("speed");
+                        List<String> materialStringList = ruleSection.getStringList("applies");
+                        List<Material> materialList = new LinkedList<>();
+                        materialStringList.forEach(blockString-> materialList.add(Material.valueOf(blockString.toUpperCase())));
+
+                        toolComponent.addRule(materialList, speed, correct_drops);
+                        U.mensajeDebugConsole(correct_drops+" | "+speed+" | "+materialStringList);
+                    }
+                }else U.mensajeConsola("&cNo se ha podido cargar las reglas sobre Tool al cargar "+name);
+                meta.setTool(toolComponent);
+            }
+
             //-----MAX STACK SIZE--------
             int max_stack = section.getInt("Max_stack_size");
             if(max_stack!=0){
@@ -376,12 +571,128 @@ public class ItemConfig{
                     meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, arPData[1]);
                 }
             }
+            //==================CUSTOMDATA================
+            ConfigurationSection customDataSection = section.getConfigurationSection("CustomData");
+            if(customDataSection!=null){
+                ConfigurationSection onAttack = customDataSection.getConfigurationSection("onAttack");
+                U.mensajeDebugConsole("customDataSection");
+                //ON ATTACK
+                if(onAttack!=null){
+                    U.mensajeDebugConsole("onAttack");
+                    String effect = onAttack.getString("effectapply", "");
+                    String particle = onAttack.getString("particles", "");
+                    ItemUtils.addPersistentDataString(meta, "onAttack_effect", effect);
+                    ItemUtils.addPersistentDataString(meta, "onAttack_particle", particle);
+                    U.mensajeDebugConsole(effect+ " | "+particle);
+                }
+            }
+
             //---------------
             item.setItemMeta(meta);
             
             if (modifyData) item.setData(DataComponentTypes.CONSUMABLE, consToAdd); // cosito al final para consumible
         }
+        U.mensajeDebugConsole("load item");
         return item;
+    }
+    @Nullable
+    public static ParticleBuilder loadParticleData(ItemMeta meta, String key, @Nullable Location trailLocation){
+        String output = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, key+"_particle"), PersistentDataType.STRING);
+        if(output==null){
+            U.mensajeDebugConsole("output null "+key+"_particle");
+            return null;
+        }
+        if(output.isEmpty()) return null;
+
+        String[] outputArray = output.split(";");
+        List<String> updatedOutput = new ArrayList<>(Arrays.stream(outputArray).toList());
+        String sID = updatedOutput.removeFirst();
+        Particle particle = Particle.valueOf(sID.toUpperCase());
+
+        boolean hasCustomProperties = outputArray.length>7;
+        ParticleBuilder builder = new ParticleBuilder(particle);
+
+        Color color=null;
+        if(hasCustomProperties){
+            int red = Integer.parseInt(updatedOutput.removeFirst());
+            int green = Integer.parseInt(updatedOutput.removeFirst());
+            int blue = Integer.parseInt(updatedOutput.removeFirst());
+            color= Color.fromRGB(red,green,blue);
+        }
+
+        double offsetX = Double.parseDouble(updatedOutput.removeFirst());
+        double offsetY = Double.parseDouble(updatedOutput.removeFirst());
+        double offsetZ = Double.parseDouble(updatedOutput.removeFirst());
+        builder.offset(offsetX, offsetY, offsetZ);
+
+        if(hasCustomProperties) {
+            switch (particle){
+                case DUST -> {
+                    float size = Float.parseFloat(updatedOutput.removeFirst());
+                    Particle.DustOptions dustOptions = new Particle.DustOptions(color, size);
+                    builder.data(dustOptions);
+                }
+                case TRAIL -> {
+                    if(trailLocation==null){
+                        U.mensajeConsola("&cSe ha intentado resolver una particula trail, pero no es apta en este caso.");
+                        return null;
+                    }
+                    int durationTicks = Integer.parseInt(updatedOutput.removeFirst());
+                    Particle.Trail trailOptions = new Particle.Trail(trailLocation, color, durationTicks);
+                    builder.data(trailOptions);
+                }
+                default -> updatedOutput.removeFirst();
+            }
+        }else{
+            double speed = Double.parseDouble(updatedOutput.removeFirst());
+            builder.extra(speed);
+        }
+
+        int count = Integer.parseInt(updatedOutput.removeFirst());
+        builder.count(count);
+
+        boolean force = false;
+        if(!updatedOutput.isEmpty()) force = Boolean.parseBoolean(updatedOutput.removeFirst());
+        builder.force(force);
+
+        //U.mensajeDebugConsole(builder.toString() + " | "+force);
+        return builder;
+    }
+    @Nullable
+    public static PotionEffect loadPotionEffect(ItemMeta meta, String key){
+        String dataString = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, key+"_effect"), PersistentDataType.STRING);
+        if (dataString==null) return null;
+        if(dataString.isEmpty()) return null;
+        String[] outputArray = dataString.split(";");
+        boolean simple = outputArray.length<=3;
+        List<String> outputList = new ArrayList<>(Arrays.asList(outputArray));
+
+        String effectTypeString = outputList.removeFirst().toLowerCase();
+        Registry<@NotNull PotionEffectType> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.MOB_EFFECT);
+        PotionEffectType effectType = registry.get(NamespacedKey.minecraft(effectTypeString));
+        if(effectType==null){
+            U.mensajeConsola("&cNo se ha podido resolver el effectType: "+effectTypeString);
+            return null;
+        }
+
+
+        int duration = Integer.parseInt(outputList.removeFirst());
+        int amplifier = Integer.parseInt(outputList.removeFirst());
+        if(simple){
+            return new PotionEffect(effectType, duration, amplifier);
+        }else{
+            boolean ambient = Boolean.parseBoolean(outputList.removeFirst());
+            boolean particles = Boolean.parseBoolean(outputList.removeFirst());
+            boolean icon = Boolean.parseBoolean(outputList.removeFirst());
+            return new PotionEffect(effectType, duration, amplifier, ambient, particles, icon);
+        }
+    }
+
+    //
+    public static boolean existsItem(String name){
+        String path = "Items."+name;
+        FileConfiguration itemcfg = configItem.getConfig();
+        return itemcfg.contains(path, false);
     }
     public static void removeItem(String name){
         String path = "Items."+name;

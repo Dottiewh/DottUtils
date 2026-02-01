@@ -7,11 +7,10 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import mp.dottiewh.commands.ReferibleCommand;
-import mp.dottiewh.commands.aliasCommands.Reload;
-import mp.dottiewh.items.Exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.Exceptions.InvalidMaterialException;
-import mp.dottiewh.items.Exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.Exceptions.MissingMaterialException;
+import mp.dottiewh.items.exceptions.InvalidItemConfigException;
+import mp.dottiewh.items.exceptions.InvalidMaterialException;
+import mp.dottiewh.items.exceptions.ItemSectionEmpty;
+import mp.dottiewh.items.exceptions.MissingMaterialException;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -104,6 +103,11 @@ public class ItemMainCommand extends ReferibleCommand {
             senderMessageIPr("&cEste comando solo lo puede usar un jugador.");
             return;
         }
+        if(ItemConfig.existsItem(name)){
+            senderMessageIPr("&cEl item &4"+name+"&c ya está registrado! Considera borrarlo primero.");
+            return;
+        }
+
         ItemStack item = player.getInventory().getItemInMainHand();
         ItemConfig.saveItem(name, item);
         senderMessageIPr("&aHas guardado exitosamente tu item &f"+name+"!");
