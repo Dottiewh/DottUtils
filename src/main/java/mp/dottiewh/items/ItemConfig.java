@@ -587,6 +587,7 @@ public class ItemConfig{
             ConfigurationSection customDataSection = section.getConfigurationSection("CustomData");
             if(customDataSection!=null){
                 ConfigurationSection onAttack = customDataSection.getConfigurationSection("onAttack");
+                ConfigurationSection onKill = customDataSection.getConfigurationSection("onKill");
                 U.mensajeDebugConsole("customDataSection");
                 //ON ATTACK
                 if(onAttack!=null){
@@ -595,7 +596,12 @@ public class ItemConfig{
                     String particle = onAttack.getString("particles", "");
                     ItemUtils.addPersistentDataString(meta, "onAttack_effect", effect);
                     ItemUtils.addPersistentDataString(meta, "onAttack_particle", particle);
-                    U.mensajeDebugConsole(effect+ " | "+particle);
+                    //U.mensajeDebugConsole(effect+ " | "+particle);
+                }
+                if(onKill!=null){
+                    U.mensajeDebugConsole("onKill");
+                    String particle = onKill.getString("particles", "");
+                    ItemUtils.addPersistentDataString(meta, "onKill_particle", particle);
                 }
             }
 

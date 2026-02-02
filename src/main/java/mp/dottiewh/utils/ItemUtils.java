@@ -21,6 +21,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,12 +33,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ItemUtils {
     private static final Plugin plugin = DottUtils.getPlugin();
+    private static final String pluginKey = plugin.getName().toLowerCase();
 
     public static EquipmentSlotGroup getSlotFromString(String slot) {
         switch (slot.toUpperCase()){
@@ -266,6 +266,7 @@ public class ItemUtils {
         ItemStack mainItem = damager.getInventory().getItemInMainHand();
         ItemMeta meta = mainItem.getItemMeta();
         if(meta==null) return;
+        if(!containsKey(meta)) return;
 
         Entity victim = event.getEntity();
         Location loc = victim.getLocation();
@@ -283,5 +284,37 @@ public class ItemUtils {
             if(!(victim instanceof LivingEntity victimLiving)) return;
             victimLiving.addPotionEffect(effectData);
         }
+    }
+    public static void checkItemDeathCustomData(EntityDeathEvent event){
+        if(event.isCancelled()) return;
+        Entity source = event.getDamageSource().getCausingEntity();
+        if(source==null) return;
+        if(!(source instanceof HumanEntity humanSource)) return;
+        ItemStack mainItem = humanSource.getInventory().getItemInMainHand();
+        if(!mainItem.hasItemMeta()) return;
+
+        ItemMeta meta = mainItem.getItemMeta();
+        if(!containsKey(meta)) return;
+
+        Location loc = event.getEntity().getEyeLocation();
+        ParticleBuilder particleData = ItemConfig.loadParticleData(meta, "onKill", loc.clone().add(0, 5, 0));
+        if(particleData!=null){
+            particleData.location(loc);
+            particleData.spawn();
+        }
+    }
+
+    //
+    private static boolean containsKey(ItemMeta meta){
+        //U.mensajeDebugConsole(pluginKey);
+        Set<NamespacedKey> set = meta.getPersistentDataContainer().getKeys();
+        List<String> listKeys = new LinkedList<>();
+        set.forEach(key-> {
+            listKeys.add(key.getNamespace());
+            //U.mensajeDebugConsole(key.toString()+" | "+key.getNamespace());
+        });
+        boolean status = listKeys.contains(pluginKey);
+        //U.mensajeDebugConsole(""+status);
+        return status;
     }
 }

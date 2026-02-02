@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.dependency;
 
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;

@@ -1,11 +1,8 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.player;
 
-import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.CinematicsConfig;
-import mp.dottiewh.commands.noaliasCommands.backcore.BackUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
 public class PlayerItemDropListener implements Listener {

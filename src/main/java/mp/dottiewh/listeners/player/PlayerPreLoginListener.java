@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.player;
 
 import mp.dottiewh.commands.aliasCommands.Whitelist;
 import org.bukkit.event.EventHandler;

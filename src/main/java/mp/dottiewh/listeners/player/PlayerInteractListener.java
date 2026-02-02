@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.player;
 
 import mp.dottiewh.cinematics.CinematicsConfig;
 import org.bukkit.event.EventHandler;

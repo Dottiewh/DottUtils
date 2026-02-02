@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.dependency;
 
 import github.scarsz.discordsrv.dependencies.jda.api.events.guild.GuildUnavailableEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.hooks.ListenerAdapter;
