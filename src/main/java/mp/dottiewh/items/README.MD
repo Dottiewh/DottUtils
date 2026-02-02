@@ -13,6 +13,7 @@
           - #### /du item give (Nombre del item) (Jugador) _(Opcional: Cantidad)_
           - #### /du item delete (Nombre del item)
           - #### /du item list
+
 ### En Items.yml
 #### _un ejemplo sería:_ 
 ####

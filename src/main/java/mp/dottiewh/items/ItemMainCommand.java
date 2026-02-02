@@ -6,17 +6,17 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import mp.dottiewh.commands.Commands;
 import mp.dottiewh.commands.ReferibleCommand;
-import mp.dottiewh.items.exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.exceptions.InvalidMaterialException;
-import mp.dottiewh.items.exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.exceptions.MissingMaterialException;
+import mp.dottiewh.items.exceptions.*;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.units.qual.C;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,16 +84,28 @@ public class ItemMainCommand extends ReferibleCommand {
     private void del(){
         debugMsg("ItemMainCommand.del");
         String name = getItemName();
+        String fileName = null;
+        if(name.contains(".")){
+            String[] nameArray = name.split("\\.", 2);
+            if(nameArray[1].contains(".")){
+                senderMessageIPr("&cEl nombre del item no debería tener un '&4.&c'! ("+nameArray[1]+")");
+                senderMessageIPr("&cSi estás muy seguro de que existe borralo manualmente.");
+                return;
+            }
+            name=nameArray[1];
+            fileName=nameArray[0];
+        }
 
         try {
-            ItemConfig.removeItem(name);
+            ItemConfig.removeItem(name, fileName);
         }catch (InvalidItemConfigException e){
             senderMessageIPr("&cTu item posiblemente no existe, más detalles en consola.");
             U.mensajeConsola(e.toString());
             return;
         }
 
-        senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
+        if(fileName!=null) senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente desde el archivo &6"+fileName+"&e.");
+        else senderMessageIPr("&eSe ha borrado tu item &f"+name+"&e correctamente.");
     }
     private void save(){
         debugMsg("ItemMainCommand.save");
@@ -109,8 +121,19 @@ public class ItemMainCommand extends ReferibleCommand {
         }
 
         ItemStack item = player.getInventory().getItemInMainHand();
-        ItemConfig.saveItem(name, item);
-        senderMessageIPr("&aHas guardado exitosamente tu item &f"+name+"!");
+
+        if(name.contains(".")){
+            String[] nameArray = name.split("\\.", 2);
+            if(nameArray[1].contains(".")){
+                senderMessageIPr("&cEl id de tu item no puede contener un '&4.&c'. ("+nameArray[1]+")");
+                return;
+            }
+            ItemConfig.saveItem(nameArray[1], item, nameArray[0]);
+            senderMessageIPr("&aHas guardado exitosamente tu item &f"+nameArray[1]+"&a en el archivo &6"+nameArray[0]+".yml&a!");
+        }else{
+            ItemConfig.saveItem(name, item, null);
+            senderMessageIPr("&aHas guardado exitosamente tu item &f"+name+"&a!");
+        }
     }
     private void get() {
         debugMsg("ItemMainCommand.get");
@@ -162,8 +185,20 @@ public class ItemMainCommand extends ReferibleCommand {
         }
 
         ItemStack item;
+        String fileName=null;
+        if(name.contains(".")){
+            String[] nameArray = name.split("\\.", 2);
+            if(nameArray[1].contains(".")){
+                senderMessageIPr("&cEl id de tu item no puede contener un '&4.&c'! ("+nameArray[1]+")");
+                return false;
+            }
+            fileName=nameArray[0];
+            name=nameArray[1];
+            U.mensajeDebugConsole(Arrays.toString(nameArray));
+        }
+
         try{
-            item = ItemConfig.loadItem(name);
+            item = ItemConfig.loadItem(name, fileName);
         }catch (InvalidMaterialException e){
             senderMessageIPr("&cEl material registrado de tal item es invalido. (Check console)");
             U.mensajeConsola(e.toString());
@@ -172,7 +207,12 @@ public class ItemMainCommand extends ReferibleCommand {
             senderMessageIPr("&cNo hay ningún material registrado en tal item. (Check console)");
             U.mensajeConsola(e.toString());
             return false;
-        }catch (InvalidItemConfigException e){
+        }catch (InvalidItemFile e){
+            senderMessageIPr("&cPosiblemente no existe el archivo a guardarlo! (Check console)");
+            U.mensajeConsola(e.toString());
+            return false;
+        }
+        catch (InvalidItemConfigException e){
             senderMessageIPr("&cError en tu config. (Check console)");
             senderMessageIPr("&e&o(Posiblemente no exista tu item)");
             U.mensajeConsola(e.toString());
@@ -251,6 +291,7 @@ public class ItemMainCommand extends ReferibleCommand {
                 )
                 .then(literal("get")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .suggests(Commands.item_suggestions)
                                 .executes(ctx -> {
                                     String item = ctx.getArgument("itemName", String.class);
                                     new ItemMainCommand(ctx,"get", false, 1, item);
@@ -268,6 +309,7 @@ public class ItemMainCommand extends ReferibleCommand {
                 )
                 .then(literal("remove")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .suggests(Commands.item_suggestions)
                                 .executes(ctx -> {
                                     String item = ctx.getArgument("itemName", String.class);
                                     new ItemMainCommand(ctx, "remove", false, 0, item);
@@ -283,6 +325,7 @@ public class ItemMainCommand extends ReferibleCommand {
                 )
                 .then(literal("give")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .suggests(Commands.item_suggestions)
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
                                         .executes(ctx->{
                                             String item = ctx.getArgument("itemName", String.class);

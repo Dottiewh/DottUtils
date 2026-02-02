@@ -1,22 +1,22 @@
 package mp.dottiewh.commands;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.CinematicMainCommand;
+import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.aliasCommands.*;
 import mp.dottiewh.commands.noaliasCommands.*;
 import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.commands.noaliasCommands.backcore.BackCommand;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTime;
@@ -26,7 +26,6 @@ import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCancel;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaDeny;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,6 +51,10 @@ public class Commands {
     protected Player classTarget;
     protected boolean allGood;
     //
+    protected static SuggestionProvider<CommandSourceStack> item_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> music_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> cinematics_suggestions;
+
     protected CustomConfig interalItemsCustomConfig=DottUtils.ymlInternalItems;
 
     protected Commands(){
@@ -156,7 +159,41 @@ public class Commands {
                 //-------
                 ;
     }
+    //
+    public static void reloadBrigadier(){
+        reloadBrigadierItems();
+        reloadBrigadierMusics();
+        reloadBrigadierCinematics();
 
+    }
+    public static void reloadBrigadierItems(){
+        item_suggestions = (ctx, builder) ->{
+            addSuggestion(builder, ItemConfig.getItems());
+            return builder.buildFuture();
+        };
+    }
+    public static void reloadBrigadierMusics(){
+        music_suggestions = (ctx, builder) ->{
+            addSuggestion(builder, MusicConfig.getMusicList());
+            return builder.buildFuture();
+        };
+    }
+    public static void reloadBrigadierCinematics(){
+        cinematics_suggestions = (ctx, builder) ->{
+            addSuggestion(builder, CinematicsConfig.getCinematicsNameNotNull());
+
+            return builder.buildFuture();
+        };
+    }
+    private static void addSuggestion(SuggestionsBuilder builder, Collection<String> collection){
+        String remaining = builder.getRemaining().toLowerCase();
+        for(String id : collection){
+            if (id.toLowerCase().startsWith(remaining)) {
+                builder.suggest(id);
+            }
+        }
+    }
+    //
     protected static Player getPlayerFromCtx(CommandContext<CommandSourceStack> ctx){
         PlayerSelectorArgumentResolver resolver =
                 ctx.getArgument("player", PlayerSelectorArgumentResolver.class);

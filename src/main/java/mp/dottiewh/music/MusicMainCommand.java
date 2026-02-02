@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import mp.dottiewh.commands.Commands;
 import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.items.exceptions.ItemSectionEmpty;
 import mp.dottiewh.utils.U;
@@ -145,6 +146,7 @@ public class MusicMainCommand extends ReferibleCommand {
                 .requires(ctx->ctx.getSender().hasPermission("DottUtils.music"))
                 .then(literal("play")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("song", StringArgumentType.word())
+                                .suggests(Commands.music_suggestions)
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
                                         .executes(ctx->{
                                             String song = ctx.getArgument("song", String.class);

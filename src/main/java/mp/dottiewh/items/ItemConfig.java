@@ -11,10 +11,8 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.items.exceptions.InvalidItemConfigException;
-import mp.dottiewh.items.exceptions.InvalidMaterialException;
-import mp.dottiewh.items.exceptions.ItemSectionEmpty;
-import mp.dottiewh.items.exceptions.MissingMaterialException;
+import mp.dottiewh.commands.Commands;
+import mp.dottiewh.items.exceptions.*;
 import mp.dottiewh.utils.ItemUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
@@ -39,9 +37,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.tag.DamageTypeTags;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 
@@ -59,10 +59,16 @@ public class ItemConfig{
         //prefix = U.getMsgPath("item_prefix");
     }
 
-    public static void saveItem(@NotNull String name, @NotNull ItemStack item){
-        saveItem(name, item, configItem, null);
+    public static void saveItem(@NotNull String name, @NotNull ItemStack item, @Nullable String fileName) throws InvalidItemConfigException{
+        if(fileName!=null){
+            CustomConfig customConfig = new CustomConfig(fileName+".yml", "items", DottUtils.getInstance(), false);
+            customConfig.registerConfig();
+            if(!customConfig.getFile().exists()) throw new InvalidItemFile("El archivo al que se intenta guardar el item "+name+" no existe! "+fileName);
+            saveItem(name, item, customConfig, null);
+
+        }else saveItem(name, item, configItem, null);
     }
-    public static void saveItem(@NotNull String name, @NotNull ItemStack item, CustomConfig config, @Nullable String pDataKey){ //path something like = Items.ItemName
+    public static void saveItem(@NotNull String name, @NotNull ItemStack item, CustomConfig config, @Nullable String pDataKey) throws InvalidItemConfigException{ //path something like = Items.ItemName
         ConfigurationSection section = config.getConfig().createSection("Items."+name);
 
         section.set("Material", item.getType().name());
@@ -301,8 +307,14 @@ public class ItemConfig{
     }
 
     @NotNull
-    public static ItemStack loadItem(@NotNull String name){
-        return loadItem(name, configItem);
+    public static ItemStack loadItem(@NotNull String name, @Nullable String fileName){
+        if(fileName!=null){
+            CustomConfig customConfig = new CustomConfig(fileName+".yml", "items", DottUtils.getInstance(), false);
+            customConfig.registerConfig();
+            if(!customConfig.getFile().exists()) throw new InvalidItemFile("No se ha podido cargar el item "+name+", ya que no existe el archivo "+fileName);
+            return loadItem(name, customConfig);
+
+        }else return loadItem(name, configItem);
     }
 
     @NotNull
@@ -694,25 +706,57 @@ public class ItemConfig{
         FileConfiguration itemcfg = configItem.getConfig();
         return itemcfg.contains(path, false);
     }
-    public static void removeItem(String name){
+    public static void removeItem(String name, @Nullable String fileName){
         String path = "Items."+name;
-        FileConfiguration itemcfg = configItem.getConfig();
+        FileConfiguration itemcfg =null;
+        CustomConfig tempConfig = configItem;
+
+        if(fileName!=null){
+            tempConfig = new CustomConfig(fileName+".yml", "items", DottUtils.getInstance(), false);
+            tempConfig.registerConfig();
+            if(!tempConfig.getFile().exists()) throw new InvalidItemFile("El file "+fileName+" no existe al intentar borrar "+name+"!");
+            itemcfg=tempConfig.getConfig();
+
+        }else itemcfg = tempConfig.getConfig();
 
         if (!itemcfg.contains(path, false)){
             throw new InvalidItemConfigException(path, "Tu path no existe.");
         }
 
         itemcfg.set(path, null);
-        configItem.saveConfig();
+        tempConfig.saveConfig();
+        Commands.reloadBrigadierItems();
     }
 
+    @NotNull
     public static Set<String> getItems(){
         FileConfiguration cfg = configItem.getConfig();
         ConfigurationSection section = cfg.getConfigurationSection("Items");
 
         if (section==null) throw new ItemSectionEmpty("Problema en tu Items.yml, Maybe 'Items:' doesn't exists.");
+        Set<String> itemList = new HashSet<>(section.getKeys(false));
 
-        return section.getKeys(false);
+        File itemFolder = new File(plugin.getDataFolder(), File.separator+"items");
+        if(itemFolder.exists()){
+            DottUtils instance = DottUtils.getInstance();
+            String[] fileNames = itemFolder.list();
+            if(fileNames!=null){
+                for(String fName : fileNames) {
+                    CustomConfig tempConfig = new CustomConfig(fName, "items", instance, false);
+                    tempConfig.registerConfig();
+                    if (!tempConfig.getFile().exists()) continue;
+                    ConfigurationSection tempSection = tempConfig.getConfig().getConfigurationSection("Items");
+                    if (tempSection == null) continue;
+
+                    Set<String> keySet = tempSection.getKeys(false);
+                    if(fName.endsWith(".yml")) fName=fName.replace(".yml", "");
+                    String finalFName = fName;
+                    keySet.forEach(s->itemList.add(finalFName +"."+s));
+                }
+            }
+        }
+
+        return itemList;
     }
     @Nullable
     public static ItemStack getInternalItem(@NotNull String itemName){
