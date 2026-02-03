@@ -199,11 +199,19 @@ public class ItemConfig{
                 section.set("Max_stack_size", max);
             }
             // Persistent data container
+            PersistentDataContainer pContainer = meta.getPersistentDataContainer();
             if(pDataKey!=null){
-                PersistentDataContainer pContainer = meta.getPersistentDataContainer();
                 String output = pContainer.get(new NamespacedKey(plugin, pDataKey), PersistentDataType.STRING);
                 if(output!=null){
                     section.set("Persistent_data", pDataKey+"."+output);
+                }
+            }
+            if(!pContainer.isEmpty()){
+                ConfigurationSection pDataSection = section.createSection("Persistent_data_container");
+                for(NamespacedKey namespacedKey : pContainer.getKeys()){
+                    String value = pContainer.get(namespacedKey, PersistentDataType.STRING);
+                    if(value==null) continue;
+                    pDataSection.set(namespacedKey.toString(), value);
                 }
             }
             //---------EQUIPPABLE--------
@@ -573,6 +581,7 @@ public class ItemConfig{
             }
             //---------Persistent Data--------
             String stringPData = section.getString("Persistent_data", null);
+            ConfigurationSection sectionPData = section.getConfigurationSection("Persistent_data_container");
             if(stringPData!=null){
                 String[] arPData = stringPData.split("\\.");
                 if(arPData.length!=2){
@@ -583,11 +592,26 @@ public class ItemConfig{
                     meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, arPData[1]);
                 }
             }
+            if(sectionPData!=null){
+                for(String spacedKey : sectionPData.getKeys(false)) {
+                    String value = sectionPData.getString(spacedKey);
+                    if(value!=null){
+                        String[] arrayKey = spacedKey.split(":", 2);
+                        NamespacedKey namespacedKey = new NamespacedKey(arrayKey[0], arrayKey[1]);
+                        meta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+                    }
+                    else U.mensajeConsola("&cNo se ha podido cargar "+spacedKey+"! en "+name);
+                }
+            }
+
             //==================CUSTOMDATA================
             ConfigurationSection customDataSection = section.getConfigurationSection("CustomData");
             if(customDataSection!=null){
                 ConfigurationSection onAttack = customDataSection.getConfigurationSection("onAttack");
                 ConfigurationSection onKill = customDataSection.getConfigurationSection("onKill");
+                ConfigurationSection onShot = customDataSection.getConfigurationSection("onShot");
+                ConfigurationSection onFish = customDataSection.getConfigurationSection("onFish");
+
                 U.mensajeDebugConsole("customDataSection");
                 //ON ATTACK
                 if(onAttack!=null){
@@ -602,6 +626,16 @@ public class ItemConfig{
                     U.mensajeDebugConsole("onKill");
                     String particle = onKill.getString("particles", "");
                     ItemUtils.addPersistentDataString(meta, "onKill_particle", particle);
+                }
+                if(onShot!=null){
+                    U.mensajeDebugConsole("onShot");
+                    String particle = onShot.getString("particles", "");
+                    ItemUtils.addPersistentDataString(meta, "onShot_particle", particle);
+                }
+                if(onFish!=null){
+                    U.mensajeDebugConsole("onFish");
+                    String particle = onFish.getString("particles", "");
+                    ItemUtils.addPersistentDataString(meta, "onFish_particle", particle);
                 }
             }
 

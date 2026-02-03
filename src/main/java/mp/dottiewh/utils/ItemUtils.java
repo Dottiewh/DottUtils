@@ -11,6 +11,7 @@ import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.listeners.entity.EntityBowShotListener;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -20,8 +21,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -303,8 +308,60 @@ public class ItemUtils {
             particleData.spawn();
         }
     }
+    public static void checkItemBowShotCustomData(EntityShootBowEvent event){
+        if(event.isCancelled()) return;
+        ItemStack bow = event.getBow();
+        if(bow==null) return;
+        ItemMeta meta = bow.getItemMeta();
+        if(meta==null) return;
+        if(!containsKey(meta)) return;
+
+        Entity arrow = event.getProjectile();
+        ParticleBuilder particleData = ItemConfig.loadParticleData(meta, "onShot", event.getEntity().getEyeLocation());
+        if(particleData!=null){
+            persistentSpawnParticles(particleData, arrow);
+        }
+
+    }
+    public static void checkItemFishCustomData(PlayerFishEvent event){
+        if(event.isCancelled()) return;
+        EquipmentSlot hand = event.getHand();
+        if(hand==null) return;
+        Player player = event.getPlayer();
+        ItemStack fishingRod = player.getInventory().getItem(hand);
+        if(!fishingRod.hasItemMeta()) return;
+        ItemMeta meta = fishingRod.getItemMeta();
+        if(!containsKey(meta)) return;
+        int times = 10, delay= 4;
+        if(event.getState().equals(PlayerFishEvent.State.IN_GROUND)) times=50;
+        Entity caught = event.getCaught();
+
+        Entity hook = event.getHook();
+        if(caught!=null){
+            times=20;
+            delay = 2;
+            hook=caught;
+        }
+
+        ParticleBuilder particleBuilder = ItemConfig.loadParticleData(meta, "onFish", player.getEyeLocation());
+        if(particleBuilder!=null){
+            persistentSpawnParticles(particleBuilder, hook, times, delay);
+        }
+    }
 
     //
+    private static void persistentSpawnParticles(ParticleBuilder particleData, Entity entity){
+        persistentSpawnParticles(particleData, entity, 10*5, 3L);
+    }
+    private static void persistentSpawnParticles(ParticleBuilder particleData, Entity entity, int times, long delay){
+        for(int i=0;i<times;i++){
+            U.runTaskLater(task->{
+                if(entity.isOnGround()||!entity.isValid()||entity.getVelocity().isZero()) return;
+                particleData.location(entity.getLocation());
+                particleData.spawn();
+            }, i*delay);
+        }
+    }
     private static boolean containsKey(ItemMeta meta){
         //U.mensajeDebugConsole(pluginKey);
         Set<NamespacedKey> set = meta.getPersistentDataContainer().getKeys();

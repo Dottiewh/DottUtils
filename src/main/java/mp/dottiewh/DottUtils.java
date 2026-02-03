@@ -5,9 +5,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.listeners.dependency.DiscordSRVListener;
-import mp.dottiewh.listeners.entity.EntityAttackListener;
-import mp.dottiewh.listeners.entity.EntityDeathListener;
-import mp.dottiewh.listeners.entity.FallDamageListener;
+import mp.dottiewh.listeners.entity.*;
 import mp.dottiewh.listeners.player.*;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
@@ -176,6 +174,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new PlayerInventoryItemClickListener());
         regFormat(new PlayerItemDropListener());
         regFormat(new EntityDeathListener());
+        regFormat(new EntityBowShotListener());
+        regFormat(new PlayerFishListener());
 
         if (discordCase){
             DiscordSRV.api.subscribe(discordsrvListener);
