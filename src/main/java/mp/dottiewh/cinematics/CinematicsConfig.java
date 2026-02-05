@@ -5,6 +5,8 @@ import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.exceptions.*;
+import mp.dottiewh.commands.BrigadierManager;
+import mp.dottiewh.commands.Commands;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
@@ -530,6 +532,7 @@ public class CinematicsConfig {
     public static boolean deleteCinematic(String fileName) throws CinematicFileDontExist{
         File archivo = getFileRaw(fileName, false);
         if(archivo==null) throw new CinematicFileDontExist("La cinemática que se ha intentado borrar no existe.", fileName);
+        BrigadierManager.reloadBrigadierCinematics();
         return archivo.delete();
     }
     //
@@ -675,5 +678,11 @@ public class CinematicsConfig {
                 name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name
         );
         return aList;
+    }
+    @NotNull
+    public static List<String> getCinematicsNameNotNull(){
+        List<String> cineList = getCinematicsName();
+        if(cineList==null) return new ArrayList<>();
+        return cineList;
     }
 }

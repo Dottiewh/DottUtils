@@ -1,4 +1,4 @@
-package mp.dottiewh.music.Exceptions;
+package mp.dottiewh.music.exceptions;
 
 public class MusicNullKeyException extends InvalidMusicConfigException{
     public MusicNullKeyException(String path) {

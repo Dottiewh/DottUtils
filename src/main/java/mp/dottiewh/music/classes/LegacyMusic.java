@@ -1,9 +1,8 @@
 package mp.dottiewh.music.classes;
 
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.music.Exceptions.MusicSectionEmpty;
+import mp.dottiewh.music.exceptions.MusicSectionEmpty;
 import mp.dottiewh.music.MusicConfig;
-import mp.dottiewh.utils.U;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 

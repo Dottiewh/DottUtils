@@ -1,0 +1,18 @@
+Items:
+  bow:
+    Material: BOW
+    Name: '&d&lCustom bow!'
+    Lore:
+      - '&cTest!'
+    Enchants:
+      infinity: 1
+    CustomData:
+      onShot:
+        particles: "END_ROD;1;2;1;0.1;10"
+  fishing_rod:
+    Material: FISHING_ROD
+    Name: '&d&lCustom bow!'
+    Enchantment_glint_override: true
+    CustomData:
+      onFish:
+        particles: "END_ROD;1;2;1;0.1;25"

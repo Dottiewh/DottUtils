@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import mp.dottiewh.cinematics.exceptions.CinematicInvalidStatusException;
+import mp.dottiewh.commands.Commands;
 import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.cinematics.exceptions.CinematicFileDontExist;
 import mp.dottiewh.cinematics.exceptions.CinematicInternalError;
@@ -268,6 +269,7 @@ public class CinematicMainCommand extends ReferibleCommand {
                 //----
                 .then(literal("play")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicname", StringArgumentType.word())
+                                .suggests(Commands.cinematics_suggestions)
                                 .then(io.papermc.paper.command.brigadier.Commands.argument("players", ArgumentTypes.players())
                                         .executes(ctx->{
                                             String cName = ctx.getArgument("cinematicname", String.class);
@@ -316,6 +318,7 @@ public class CinematicMainCommand extends ReferibleCommand {
                 )
                 .then(literal("delete")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("cinematicName", StringArgumentType.word())
+                                .suggests(Commands.cinematics_suggestions)
                                 .executes(ctx->{
                                     String fileName = ctx.getArgument("cinematicName", String.class);
                                     new CinematicMainCommand(ctx, fileName);

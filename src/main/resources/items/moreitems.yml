@@ -1,0 +1,46 @@
+# Here you can save items with the advantage that you can have any items related to what you want to do
+# You can create as many files as you want as long as you follow the normal structure like this file
+# To get any item from here you should use /du item get filename.itemname
+# for example: /du item get moreitems.BreezeTrick
+#
+# If you want to save items here, you should use /du item save filename.itemname
+#for example: /du item save moreitems.test
+Items:
+  BreezeTrick:
+    Material: BREEZE_ROD
+    Glider: true
+    Enchantment_glint_override: true
+    Hide_tooltip: true
+    Fire_resistant: true
+    Enchantable: 200
+    Jukebox_playable: minecraft:pigstep
+    Model: resourcepack:model
+    ToolTip_style: namespace:path
+    UseCooldown:
+      cooldown_group: key:value
+      cooldown_seconds: 1.5
+    Equippable:
+      slot: HEAD
+      equip_sound: BLOCK.AMETHYST_BLOCK.HIT
+      asset_id: resourcepack:model #Uses a resource pack model, in a namespacedkey way
+      dispensable: true
+      equip_on_interact: true #for mobs
+      swappable: false
+      damage_on_hurt: false
+    Tool:
+      damage_per_block: 2
+      default_mining_speed: 3.5
+      rules:
+        rule_1:
+          correct_for_drops: true
+          speed: 25
+          applies:
+            - "NETHERITE_BLOCK"
+            - "DIAMOND_BLOCK"
+            - "GOLD_BLOCK"
+        rule_2:
+          correct_for_drops: false
+          speed: 10.5
+          applies:
+            - "OBSIDIAN"
+            - "BEACON"

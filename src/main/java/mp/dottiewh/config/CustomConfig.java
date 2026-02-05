@@ -74,6 +74,9 @@ public class CustomConfig {
         }
         return fileConfiguration;
     }
+    public File getFile(){
+        return file;
+    }
 
     public boolean reloadConfig() {
         if (fileConfiguration == null) {

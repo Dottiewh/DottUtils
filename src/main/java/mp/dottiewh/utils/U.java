@@ -21,6 +21,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 
@@ -30,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static mp.dottiewh.DottUtils.getPlugin;
 import static mp.dottiewh.DottUtils.prefix;
@@ -173,6 +175,10 @@ public class U { //Stands for utils
                 name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name
         );
         return lista;
+    }
+    public static String removeYmlFormat(String s){
+        if (s.endsWith(".yml")) s=s.substring(0, s.length()-4);
+        return s;
     }
 
     public static void noPvP(EntityDamageByEntityEvent event) {
@@ -323,6 +329,10 @@ public class U { //Stands for utils
         if(!(mapaRepetitivoActionBar.containsKey(uuid))) return;
         BukkitRunnable runnable = mapaRepetitivoActionBar.remove(uuid);
         runnable.cancel();
+    }
+
+    public static void runTaskLater(Consumer<? super BukkitTask> consumer, long delay){
+        Bukkit.getScheduler().runTaskLater(DottUtils.getPlugin(), consumer, delay);
     }
 
     public static void countdownForAll(Plugin pl, int segundos, String format){ // Segundos restantes: 77

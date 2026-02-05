@@ -8,3 +8,7 @@ Items:
     Enchants:
       sharpness: 5
       knockback: 2
+    CustomData:
+      onAttack:
+        effectapply: "SLOWNESS;100;0"
+        particles: "LAVA;1;2;1;0.1;25"

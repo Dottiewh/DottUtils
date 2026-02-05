@@ -1,22 +1,22 @@
 package mp.dottiewh.commands;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.CinematicMainCommand;
+import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.aliasCommands.*;
 import mp.dottiewh.commands.noaliasCommands.*;
 import mp.dottiewh.config.CustomConfig;
+import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.items.ItemMainCommand;
+import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.commands.noaliasCommands.backcore.BackCommand;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTime;
@@ -26,7 +26,6 @@ import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCancel;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaDeny;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,6 +51,11 @@ public class Commands {
     protected Player classTarget;
     protected boolean allGood;
     //
+    protected static SuggestionProvider<CommandSourceStack> item_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> item_suggestions_files;
+    protected static SuggestionProvider<CommandSourceStack> music_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> cinematics_suggestions;
+
     protected CustomConfig interalItemsCustomConfig=DottUtils.ymlInternalItems;
 
     protected Commands(){
@@ -91,72 +95,9 @@ public class Commands {
         this.plugin=DottUtils.getPlugin();
     }
 
-    //==================
-    public static void regNoAliasCommands(Plugin plugin){
-        List<LiteralArgumentBuilder<CommandSourceStack>> listaLiterals = new LinkedList<>();
-
-        listaLiterals.add(Status.getLiteralBuilder());
-        listaLiterals.add(Repair.getLiteralBuilder("repair"));
-        listaLiterals.add(Repair.getLiteralBuilder("fix"));
-        listaLiterals.add(Jump.getLiteralBuilder());
-        listaLiterals.add(Heal.getLiteralBuilder());
-        listaLiterals.add(Gm.getLiteralBuilder());
-        listaLiterals.add(Fly.getLiteralBuilder());
-        listaLiterals.add(Feed.getLiteralBuilder());
-        listaLiterals.add(Countdown.getLiteralBuilder());
-        listaLiterals.add(Coordenadas.getLiteralBuilder("coords"));
-        listaLiterals.add(Coordenadas.getLiteralBuilder("coordenadas"));
-        listaLiterals.add(Tpa.getLiteralBuilder());
-        listaLiterals.add(TpaAccept.getLiteralBuilder());
-        listaLiterals.add(TpaCancel.getLiteralBuilder());
-        listaLiterals.add(TpaDeny.getLiteralBuilder());
-        listaLiterals.add(PlayTime.getLiteralBuilder());
-        listaLiterals.add(BackCommand.getLiteralBuilder());
-        //=========
-        listaLiterals.add(AdminChat.getLiteralBuilder("adminchat"));
-        listaLiterals.add(AdminChat.getLiteralBuilder("achat"));
-        listaLiterals.add(AdminChat.getLiteralBuilder("ac"));
-
-        //
-        for(LiteralArgumentBuilder<CommandSourceStack> litBuilder : listaLiterals){
-            plugin.getLifecycleManager().registerEventHandler(
-                    LifecycleEvents.COMMANDS,
-                    event->{
-                        event.registrar().register(
-                                litBuilder.build(),
-                                "No Alias DottUtils command."
-                        );
-                    }
-            );
-        }
-    }
     //
-    public static LiteralArgumentBuilder<CommandSourceStack> createAlias(Plugin pl, String name){
-        return literal(name)
-                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
-                .then(Admin.getLiteralBuilder())
-                .then(Reload.getLiteralBuilder())
-                .then(Help.getLiteralBuilder())
-                //
-                .then(AdminChat.getLiteralBuilder("adminchat"))
-                .then(AdminChat.getLiteralBuilder("achat"))
-                .then(AdminChat.getLiteralBuilder("ac"))
-                //
-                .then(Whitelist.getLiteralBuilder())
-                .then(Pvp.getLiteralBuilder())
-                .then(NoFall.getLiteralBuilder())
 
-                .then(TellRaw.getLiteralBuilder())
-                //
-                .then(ItemMainCommand.getLiteralBuilder())
-                //
-                .then(MusicMainCommand.getLiteralBuilder())
-                //
-                .then(CinematicMainCommand.getLiteralBuilder())
-                //-------
-                ;
-    }
-
+    //
     protected static Player getPlayerFromCtx(CommandContext<CommandSourceStack> ctx){
         PlayerSelectorArgumentResolver resolver =
                 ctx.getArgument("player", PlayerSelectorArgumentResolver.class);

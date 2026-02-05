@@ -3,7 +3,11 @@ package mp.dottiewh;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
+import mp.dottiewh.commands.BrigadierManager;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.listeners.dependency.DiscordSRVListener;
+import mp.dottiewh.listeners.entity.*;
+import mp.dottiewh.listeners.player.*;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
 import mp.dottiewh.commands.Commands;
@@ -154,6 +158,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         }
         MusicConfig.initMusicConfig();
         MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
+        // brigadier
+        BrigadierManager.reloadBrigadier();
     }
     private void regEvents(){
         regFormat(new ChatListener());
@@ -168,6 +174,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new PlayerInteractListener());
         regFormat(new PlayerInventoryItemClickListener());
         regFormat(new PlayerItemDropListener());
+        regFormat(new EntityDeathListener());
+        regFormat(new EntityBowShotListener());
+        regFormat(new PlayerFishListener());
 
         if (discordCase){
             DiscordSRV.api.subscribe(discordsrvListener);
@@ -218,15 +227,15 @@ public class DottUtils extends JavaPlugin implements Listener {
                 LifecycleEvents.COMMANDS,
                 event->{
                     event.registrar().register(
-                        Commands.createAlias(this, "du").build(),
+                            BrigadierManager.createAlias(this, "du").build(),
                             "main command alias"
                     );
                     event.registrar().register(
-                            Commands.createAlias(this, "dottutils").build(),
+                            BrigadierManager.createAlias(this, "dottutils").build(),
                             "main command"
                     );
                 }
         );
-        Commands.regNoAliasCommands(this);
+        BrigadierManager.regNoAliasCommands(this);
     }
 }

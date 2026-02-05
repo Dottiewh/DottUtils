@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.entity;
 
 
 import mp.dottiewh.utils.U;

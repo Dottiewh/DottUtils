@@ -13,6 +13,7 @@
           - #### /du item give (Nombre del item) (Jugador) _(Opcional: Cantidad)_
           - #### /du item delete (Nombre del item)
           - #### /du item list
+
 ### En Items.yml
 #### _un ejemplo sería:_ 
 ####
@@ -47,6 +48,104 @@
     - #### **operation:** Tipo de operación con el que se tratará el value, tiene que estar registrado en: [Spigot - ATTRIBUTE.OPERATION](https://jd.papermc.io/paper/1.21.8/org/bukkit/attribute/AttributeModifier.Operation.html)
     - #### **slot:** Representa donde hará efecto el atributo, puede ser cualquiera de: [Spigot - EQUIPMENTSLOTGROUP](https://jd.papermc.io/paper/1.21.8/org/bukkit/inventory/EquipmentSlotGroup.html)
 
+#### _Otro ejemplo_
+####
+```
+    Items:
+      BreezeTrick:
+          Material: BREEZE_ROD
+          Glider: true
+          Enchantment_glint_override: true
+          Hide_tooltip: true
+          Fire_resistant: true
+          Enchantable: 200
+          Jukebox_playable: minecraft:pigstep
+          Model: resourcepack:model
+          ToolTip_style: namespace:path
+          UseCooldown:
+            cooldown_group: key:value
+            cooldown_seconds: 1.5
+          Equippable:
+            slot: HEAD
+            equip_sound: BLOCK.AMETHYST_BLOCK.HIT
+            asset_id: resourcepack:model #Uses a resource pack model, in a namespacedkey way
+            dispensable: true
+            equip_on_interact: true #for mobs
+            swappable: false
+            damage_on_hurt: false
+          Tool:
+            damage_per_block: 2
+            default_mining_speed: 3.5
+            rules:
+              rule_1:
+                correct_for_drops: true
+                speed: 25
+                applies:
+                - "NETHERITE_BLOCK"
+                - "DIAMOND_BLOCK"
+                - "GOLD_BLOCK"
+              rule_2:
+                correct_for_drops: false
+                speed: 10.5
+                applies:
+                - "OBSIDIAN"
+                - "BEACON"
+```           
+#### **Glider** _(true/false)_
+- #### Define si actuará como si fuera una elytra.
+#### **Enchantment_glint_override** _(true/false)_
+- #### Define si tendrá el glow de un encantamiento.
+#### **Fire_resistant** _(true/false)_
+- #### Define si es resistente al fuego.
+#### **Enchantable** _(entero)_
+- #### Entre mayor encantabilidad, mejores encantamientos le saldrán.
+#### **Jukebox_playable**
+- #### Define si se reproducirá una canción al interactuar con un jukebox.
+- #### Sigue con el formato key:value
+#### **Model**
+- #### El modelo que usará el objeto, apto para resourcepacks.
+- #### Usa el formato key:value
+#### **ToolTip_style**
+- #### El estilo o fondo que usará el objeto en el background/frame, apto para resourcepacks.
+- #### Usa el formato key:value
+#### **UseCooldown**
+- #### cooldown_group
+  - #### Los items que estén en el mismo grupo, compartiran el cooldown.
+- #### cooldown_seconds
+  - #### Tiempo en segundos que durará el cooldown.
+### Equippable
+- #### slot
+  - #### Cualquier slot de [Spigot - EquipmentSlot](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/EquipmentSlot.html).
+- #### equip_sound
+  - #### Cualquier sonido de [MC Sounds - Sounds](https://minecraftsounds.com/).
+- #### asset_id
+  - #### Modelo que se verá, apto para resource packs
+  - #### Usa el formato key:value
+- #### dispensable _(true/false)_
+  - #### Define si al usar un dispensador, te equipará el item.
+- #### equip_on_interact _(true/false)_
+  - #### Define si le puedes equipar el item a los mobs al interactuar con ellos.
+- #### swappable _(true/false)_
+  - #### Define si puedes equiparte el item al interactuar con él.
+- #### damage_on_hurt _(true/false)_
+  - #### Define si se le gastará durabilidad al tomar daño.
+### Tool
+  - #### damage_per_block
+    - #### Durabilidad que se le gastará al item por defecto al romper un bloque.
+  - #### default_mining_speed
+    - #### Velocidad por defecto al romper un bloque
+    - #### Es un multiplicador, es decir, un "2" romperá los bloques el doble de rápido. (1=default)
+  ### rules
+  - #### rule_1 (Es un nombre subjetivo para destacar una regla)
+    - #### correct_for_drops (true/false)
+      - #### Define si te darán los items al romper tales bloques.
+    - #### speed
+      - #### Actua de la misma forma que default_mining_speed, pero con tales bloques.
+    - #### applies
+      - #### Define la lista de bloques a los que les afecta la data.
+      - #### Puede ser cualquiera de [Spigot - Materials](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
+
+#
 #### _Otro ejemplo_
 #### 
     Items:
@@ -108,9 +207,59 @@
   - **amplifier:** El nivel.
 #### **TeleportRandomly:** Poner en diameter: un rango de cuando te puede tpear.
 #### **PlaySound:** Sonido que se hará AL CONSUMIR, acepta: [Spigot - Sounds](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html).
+#
+#### _Otro ejemplo_
+```
+Items:
+  test:
+    Material: DIAMOND_SWORD
+    Name: '&9&lWow.'
+    Lore:
+      - '&cTest!'
+      - '&eLine 2!'
+    Enchants:
+      sharpness: 5
+      knockback: 2
+    CustomData:
+      onAttack:
+        effectapply: SLOWNESS;100;1
+        particles: DUST;0;10
+  bow:
+    Material: BOW
+    Name: '&d&lCustom bow!'
+    CustomData:
+      onShot:
+        particles: END_ROD;1;2;1;0;5;true
+  fishing_rod:
+    Material: FISHING_ROD
+    Name: '&d&lCustom Rod!'
+    Enchantment_glint_override: true
+    CustomData:
+      onFish:
+        particles: END_ROD;1;2;1;0.1;5;false
 
+```
+### Resumen de CustomData
+#### onAttack/onShot/onFish _(Generalistas)_
+- #### effectapply:
+  - #### No aplica para onFish.
+  - #### Efecto a aplicar
+  - #### Usa el formato de ID;DURATION;AMPLIFIER | _(duration en ticks)_
+  - #### O también usa el formato ID;DURATION;AMPLIFIER;AMBIENT;PARTICLES;ICON | _(ambient, particles y icon son un boolean, ósea true or false)_
+  - #### Cualquiera de [Spigot - Effects](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html).
+#### particles:
+  - #### Particulas a aplicar
+  - #### Cualquiera de [Spigot - Particles](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html)
+  - #### Sigue el formato de ID;offsetX;offsetY;offsetZ;speed;amount;force 
+  - #### SI ES DUST
+    - #### Sigue el formato de DUST;red;green;blue;offsetX;offsetY;offsetZ;size;amount;force
+- #### SI ES TRAIL
+  - #### Sigue el formato de TRAIL;red;green;blue;offsetX;offsetY;offsetZ;duration;amount;force
+
+#
 ### **IMPORTANTE:** 
 - #### _NO CAMBIAR MAYÚSCULAS DE (LITERALMENTE, NO ME REFIERO A SUS VALORES): "Material, Name, Lore, Enchants, Attributes, value, operation, slot, Food, always_eatable", "nutrition", "saturation", "seconds", "animation", "sound", "consumeparticles", etc_
 - #### Básicamente, no jugar mucho con las mayúsculas donde NO debes introducir valores, y son de ESTRUCTURA.
+
 
 ## 30/08/2025
