@@ -3,6 +3,7 @@ package mp.dottiewh;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
+import mp.dottiewh.commands.BrigadierManager;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.listeners.dependency.DiscordSRVListener;
 import mp.dottiewh.listeners.entity.*;
@@ -158,7 +159,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         MusicConfig.initMusicConfig();
         MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
         // brigadier
-        Commands.reloadBrigadier();
+        BrigadierManager.reloadBrigadier();
     }
     private void regEvents(){
         regFormat(new ChatListener());
@@ -226,15 +227,15 @@ public class DottUtils extends JavaPlugin implements Listener {
                 LifecycleEvents.COMMANDS,
                 event->{
                     event.registrar().register(
-                        Commands.createAlias(this, "du").build(),
+                            BrigadierManager.createAlias(this, "du").build(),
                             "main command alias"
                     );
                     event.registrar().register(
-                            Commands.createAlias(this, "dottutils").build(),
+                            BrigadierManager.createAlias(this, "dottutils").build(),
                             "main command"
                     );
                 }
         );
-        Commands.regNoAliasCommands(this);
+        BrigadierManager.regNoAliasCommands(this);
     }
 }

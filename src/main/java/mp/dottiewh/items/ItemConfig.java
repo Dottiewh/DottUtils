@@ -11,7 +11,7 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.commands.Commands;
+import mp.dottiewh.commands.BrigadierManager;
 import mp.dottiewh.items.exceptions.*;
 import mp.dottiewh.utils.ItemUtils;
 import mp.dottiewh.utils.U;
@@ -37,12 +37,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.tag.DamageTypeTags;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+
+import static java.util.Arrays.asList;
 
 
 public class ItemConfig{
@@ -717,7 +718,7 @@ public class ItemConfig{
         if(dataString.isEmpty()) return null;
         String[] outputArray = dataString.split(";");
         boolean simple = outputArray.length<=3;
-        List<String> outputList = new ArrayList<>(Arrays.asList(outputArray));
+        List<String> outputList = new ArrayList<>(asList(outputArray));
 
         String effectTypeString = outputList.removeFirst().toLowerCase();
         Registry<@NotNull PotionEffectType> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.MOB_EFFECT);
@@ -755,9 +756,9 @@ public class ItemConfig{
             tempConfig = new CustomConfig(fileName+".yml", "items", DottUtils.getInstance(), false);
             tempConfig.registerConfig();
             if(!tempConfig.getFile().exists()) throw new InvalidItemFile("El file "+fileName+" no existe al intentar borrar "+name+"!");
-            itemcfg=tempConfig.getConfig();
 
-        }else itemcfg = tempConfig.getConfig();
+        }
+        itemcfg=tempConfig.getConfig();
 
         if (!itemcfg.contains(path, false)){
             throw new InvalidItemConfigException(path, "Tu path no existe.");
@@ -765,7 +766,7 @@ public class ItemConfig{
 
         itemcfg.set(path, null);
         tempConfig.saveConfig();
-        Commands.reloadBrigadierItems();
+        BrigadierManager.reloadBrigadierItems();
     }
 
     @NotNull
@@ -798,6 +799,22 @@ public class ItemConfig{
 
         return itemList;
     }
+    @NotNull
+    public static List<String> getItemFiles(){
+        List<String> list = new LinkedList<>();
+
+        File itemFolder = new File(plugin.getDataFolder(), File.separator+"items");
+        if(!itemFolder.exists()) return list;
+        String[] fileNames = itemFolder.list();
+        if(fileNames==null) return list;
+
+        List<String> files = Arrays.asList(fileNames);
+        files.replaceAll(s->
+                s.endsWith(".yml") ? s.substring(0, s.length() - 4) : s
+        );
+        return files;
+    }
+
     @Nullable
     public static ItemStack getInternalItem(@NotNull String itemName){
         ItemStack toDeliver;

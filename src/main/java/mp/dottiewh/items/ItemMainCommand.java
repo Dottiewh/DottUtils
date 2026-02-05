@@ -92,6 +92,10 @@ public class ItemMainCommand extends ReferibleCommand {
                 senderMessageIPr("&cSi estás muy seguro de que existe borralo manualmente.");
                 return;
             }
+            if(nameArray[1].isEmpty()){
+                senderMessageIPr("&cIntroduce un id valido para borrar tu item!");
+                return;
+            }
             name=nameArray[1];
             fileName=nameArray[0];
         }
@@ -126,6 +130,10 @@ public class ItemMainCommand extends ReferibleCommand {
             String[] nameArray = name.split("\\.", 2);
             if(nameArray[1].contains(".")){
                 senderMessageIPr("&cEl id de tu item no puede contener un '&4.&c'. ("+nameArray[1]+")");
+                return;
+            }
+            if(nameArray[1].isEmpty()){
+                senderMessageIPr("&cIntroduce un id para guardar tu item!");
                 return;
             }
             ItemConfig.saveItem(nameArray[1], item, nameArray[0]);
@@ -282,6 +290,7 @@ public class ItemMainCommand extends ReferibleCommand {
         return literal("item")
                 .then(literal("save")
                         .then(io.papermc.paper.command.brigadier.Commands.argument("itemName", StringArgumentType.word())
+                                .suggests(item_suggestions_files)
                                 .executes(ctx -> {
                                     String item = ctx.getArgument("itemName", String.class);
                                     new ItemMainCommand(ctx,"save", false,0 ,item);

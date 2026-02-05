@@ -18,10 +18,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -317,6 +314,11 @@ public class ItemUtils {
         if(!containsKey(meta)) return;
 
         Entity arrow = event.getProjectile();
+
+        PotionEffect effect = ItemConfig.loadPotionEffect(meta, "onShot");
+        if(arrow instanceof Arrow&&effect!=null){
+            ((Arrow) arrow).addCustomEffect(effect, false);
+        }
         ParticleBuilder particleData = ItemConfig.loadParticleData(meta, "onShot", event.getEntity().getEyeLocation());
         if(particleData!=null){
             persistentSpawnParticles(particleData, arrow);

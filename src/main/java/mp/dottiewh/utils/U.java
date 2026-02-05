@@ -176,6 +176,10 @@ public class U { //Stands for utils
         );
         return lista;
     }
+    public static String removeYmlFormat(String s){
+        if (s.endsWith(".yml")) s=s.substring(0, s.length()-4);
+        return s;
+    }
 
     public static void noPvP(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return; //victim

@@ -224,10 +224,25 @@ Items:
       onAttack:
         effectapply: SLOWNESS;100;1
         particles: DUST;0;10
+  bow:
+    Material: BOW
+    Name: '&d&lCustom bow!'
+    CustomData:
+      onShot:
+        particles: END_ROD;1;2;1;0;5;true
+  fishing_rod:
+    Material: FISHING_ROD
+    Name: '&d&lCustom Rod!'
+    Enchantment_glint_override: true
+    CustomData:
+      onFish:
+        particles: END_ROD;1;2;1;0.1;5;false
+
 ```
 ### Resumen de CustomData
-#### onAttack
+#### onAttack/onShot/onFish _(Generalistas)_
 - #### effectapply:
+  - #### No aplica para onFish.
   - #### Efecto a aplicar
   - #### Usa el formato de ID;DURATION;AMPLIFIER | _(duration en ticks)_
   - #### O también usa el formato ID;DURATION;AMPLIFIER;AMBIENT;PARTICLES;ICON | _(ambient, particles y icon son un boolean, ósea true or false)_
@@ -240,6 +255,7 @@ Items:
     - #### Sigue el formato de DUST;red;green;blue;offsetX;offsetY;offsetZ;size;amount;force
 - #### SI ES TRAIL
   - #### Sigue el formato de TRAIL;red;green;blue;offsetX;offsetY;offsetZ;duration;amount;force
+
 #
 ### **IMPORTANTE:** 
 - #### _NO CAMBIAR MAYÚSCULAS DE (LITERALMENTE, NO ME REFIERO A SUS VALORES): "Material, Name, Lore, Enchants, Attributes, value, operation, slot, Food, always_eatable", "nutrition", "saturation", "seconds", "animation", "sound", "consumeparticles", etc_

@@ -52,6 +52,7 @@ public class Commands {
     protected boolean allGood;
     //
     protected static SuggestionProvider<CommandSourceStack> item_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> item_suggestions_files;
     protected static SuggestionProvider<CommandSourceStack> music_suggestions;
     protected static SuggestionProvider<CommandSourceStack> cinematics_suggestions;
 
@@ -94,105 +95,8 @@ public class Commands {
         this.plugin=DottUtils.getPlugin();
     }
 
-    //==================
-    public static void regNoAliasCommands(Plugin plugin){
-        List<LiteralArgumentBuilder<CommandSourceStack>> listaLiterals = new LinkedList<>();
-
-        listaLiterals.add(Status.getLiteralBuilder());
-        listaLiterals.add(Repair.getLiteralBuilder("repair"));
-        listaLiterals.add(Repair.getLiteralBuilder("fix"));
-        listaLiterals.add(Jump.getLiteralBuilder());
-        listaLiterals.add(Heal.getLiteralBuilder());
-        listaLiterals.add(Gm.getLiteralBuilder());
-        listaLiterals.add(Fly.getLiteralBuilder());
-        listaLiterals.add(Feed.getLiteralBuilder());
-        listaLiterals.add(Countdown.getLiteralBuilder());
-        listaLiterals.add(Coordenadas.getLiteralBuilder("coords"));
-        listaLiterals.add(Coordenadas.getLiteralBuilder("coordenadas"));
-        listaLiterals.add(Tpa.getLiteralBuilder());
-        listaLiterals.add(TpaAccept.getLiteralBuilder());
-        listaLiterals.add(TpaCancel.getLiteralBuilder());
-        listaLiterals.add(TpaDeny.getLiteralBuilder());
-        listaLiterals.add(PlayTime.getLiteralBuilder());
-        listaLiterals.add(BackCommand.getLiteralBuilder());
-        //=========
-        listaLiterals.add(AdminChat.getLiteralBuilder("adminchat"));
-        listaLiterals.add(AdminChat.getLiteralBuilder("achat"));
-        listaLiterals.add(AdminChat.getLiteralBuilder("ac"));
-
-        //
-        for(LiteralArgumentBuilder<CommandSourceStack> litBuilder : listaLiterals){
-            plugin.getLifecycleManager().registerEventHandler(
-                    LifecycleEvents.COMMANDS,
-                    event->{
-                        event.registrar().register(
-                                litBuilder.build(),
-                                "No Alias DottUtils command."
-                        );
-                    }
-            );
-        }
-    }
     //
-    public static LiteralArgumentBuilder<CommandSourceStack> createAlias(Plugin pl, String name){
-        return literal(name)
-                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
-                .then(Admin.getLiteralBuilder())
-                .then(Reload.getLiteralBuilder())
-                .then(Help.getLiteralBuilder())
-                //
-                .then(AdminChat.getLiteralBuilder("adminchat"))
-                .then(AdminChat.getLiteralBuilder("achat"))
-                .then(AdminChat.getLiteralBuilder("ac"))
-                //
-                .then(Whitelist.getLiteralBuilder())
-                .then(Pvp.getLiteralBuilder())
-                .then(NoFall.getLiteralBuilder())
 
-                .then(TellRaw.getLiteralBuilder())
-                //
-                .then(ItemMainCommand.getLiteralBuilder())
-                //
-                .then(MusicMainCommand.getLiteralBuilder())
-                //
-                .then(CinematicMainCommand.getLiteralBuilder())
-                //-------
-                ;
-    }
-    //
-    public static void reloadBrigadier(){
-        reloadBrigadierItems();
-        reloadBrigadierMusics();
-        reloadBrigadierCinematics();
-
-    }
-    public static void reloadBrigadierItems(){
-        item_suggestions = (ctx, builder) ->{
-            addSuggestion(builder, ItemConfig.getItems());
-            return builder.buildFuture();
-        };
-    }
-    public static void reloadBrigadierMusics(){
-        music_suggestions = (ctx, builder) ->{
-            addSuggestion(builder, MusicConfig.getMusicList());
-            return builder.buildFuture();
-        };
-    }
-    public static void reloadBrigadierCinematics(){
-        cinematics_suggestions = (ctx, builder) ->{
-            addSuggestion(builder, CinematicsConfig.getCinematicsNameNotNull());
-
-            return builder.buildFuture();
-        };
-    }
-    private static void addSuggestion(SuggestionsBuilder builder, Collection<String> collection){
-        String remaining = builder.getRemaining().toLowerCase();
-        for(String id : collection){
-            if (id.toLowerCase().startsWith(remaining)) {
-                builder.suggest(id);
-            }
-        }
-    }
     //
     protected static Player getPlayerFromCtx(CommandContext<CommandSourceStack> ctx){
         PlayerSelectorArgumentResolver resolver =
