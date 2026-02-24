@@ -4,7 +4,11 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -115,7 +119,7 @@ public class U { //Stands for utils
         String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
         targetMessageNP(sender, prefix+mensaje);
     }
-    public static void mensajeDebugConsole(String mensaje){
+    public static void mensajeDebugConsole(String mensaje) {
         mensajeDebug(mensaje, Bukkit.getConsoleSender());
     }
 
@@ -133,8 +137,21 @@ public class U { //Stands for utils
     public static String componentToStringMsg(Component component){
         return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
+    public static String componentToStringMsgRaw(Component component){
+        return PlainTextComponentSerializer.plainText().serialize(component);
+    }
     public static Component componentColor(String mensaje){
         return LegacyComponentSerializer.legacy('&').deserialize(mensaje);
+    }
+    public static Component componentColorRaw(String s){
+        return Component.text(s);
+    }
+    public static Component componentColorHex(String msg, String hex){
+        if(!hex.startsWith("#")) hex="#"+hex;
+        return Component.text(msg).color(TextColor.fromHexString(hex));
+    }
+    public static Component componentColorHexMini(String msg){
+        return MiniMessage.miniMessage().deserialize(msg);
     }
     public static void showAllStatus(){
         boolean noFallS = Config.getNoFallStatus(), wlS = Config.getWhiteListStatus();

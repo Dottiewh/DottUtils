@@ -302,6 +302,14 @@ public class MusicConfig {
         if(displayName==null||author==null) return null;
         return titleFormat+displayName+" &8- "+authorFormat+author;
     }
+    @Nullable
+    public static String getDisplayNameAndAuthorHex(@NotNull ConfigurationSection mainSec, String titleHex, String middleHex, String authorHex){
+
+        String displayName = mainSec.getString("Title", null);
+        String author = mainSec.getString("Author", null);
+        if(displayName==null||author==null) return null;
+        return "<b><color:"+titleHex+">"+displayName+"</color></b> <color:"+middleHex+">-</color>"+" <color:"+authorHex+"><b>"+author+"</b></color>";
+    }
     @NotNull
     public static int getTicksDuration(@NotNull ConfigurationSection structureSection){
 
@@ -369,6 +377,7 @@ public class MusicConfig {
             newFile.createNewFile();
         }catch (IOException e){
             U.mensajeConsolaNP(e.toString());
+            return;
         }
         U.mensajeConsolaNP("&eArchivo creado");
 

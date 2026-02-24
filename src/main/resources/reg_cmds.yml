@@ -1,0 +1,18 @@
+# Tells if a command should be registered to evade conflicts with others plugins.
+# Only can be applied to no alias commands
+# A restart needs to be done so actions can be applied
+
+back: true
+playtime: true
+tpa: true # And all alias
+coords: true
+countdown: true
+feed: true
+fly: true
+gm: true
+heal: true
+jump: true
+repair: true
+status: true
+
+adminchat: true

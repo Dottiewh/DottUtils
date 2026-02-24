@@ -3,7 +3,7 @@
 - #### /du cinematic
     - #### Soporta delay entre keyframes customizables. (x⋲N / x>0)
     - #### Soporta titles de por medio
-    - #### Tiene algunos problemas con chunks no lodeados, en consecuencia, también al cambiar de mundos.
+    - #### Tiene algunos problemas con chunks no cargados, en consecuencia, también al cambiar de mundos.
         - ## Su uso:
             - #### /du cinematic delete (Nombre de la cinemática)
             - #### /du cinematic list
@@ -31,7 +31,7 @@ Period: 15
         - end
 ```
 ### Period
-- #### Vendria a ser el tiempo en ticks antes de tepear la camara al siguiente keyframe.
+- #### Vendría a ser el tiempo en ticks antes de tepear la camara al siguiente keyframe.
 - #### **Tiene** que ser mayor a 0.
 - #### Se recomienda un número no tan bajo para no spamear el yml, puesto que, al reproducir la animación NO se verá más fluído en la mayoría de los casos.
 
@@ -39,7 +39,7 @@ Period: 15
 - #### world;313.16;67.33;159.16;39.65;14.4
   - #### Usa el formato de x;y;z;yaw;pitch
 - #### end
-  - #### Decalara el final de la cinemática.
+  - #### Declara el final de la cinemática.
 - ### OPCIONES OPCIONALES Y MANUALES.
   - ##### Puedes editar el yml para agregarle funciones, ejemplos:
   - #### **title**

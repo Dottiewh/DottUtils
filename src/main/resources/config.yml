@@ -1,9 +1,13 @@
 debug_mode: false #may post lots of spam
 
+# Performance options
+load_cache_async: true # Applies for menú things like Musics
+# Game things
 pvp: true
 pvp_bypass: false # If true, admins can attack other victims even with pvp turned off
 whitelist_active: false
 no_fall: false
+item_display: true # If true, players may do <item> to display their main hand item.
 max_itemgive_amount: 250
 
 tpa_active: true

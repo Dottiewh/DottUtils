@@ -1,4 +1,4 @@
-package mp.dottiewh.listeners;
+package mp.dottiewh.listeners.chat;
 
 import mp.dottiewh.commands.aliasCommands.AdminChat;
 import org.bukkit.event.EventHandler;

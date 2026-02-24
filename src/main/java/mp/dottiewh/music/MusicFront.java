@@ -74,7 +74,6 @@ public class MusicFront extends MusicMainCommand{
         Inventory inv = createInventory(p, "&8Musicas registradas &d"+page, 36);
 
         //ITEMS REGISTRAR
-        int slot=0;
         List<Component> loreList = new ArrayList<>();
 
         loreList.add(U.componentColor("&8--------------"));
@@ -82,24 +81,27 @@ public class MusicFront extends MusicMainCommand{
         loreList.add(U.componentColor("&7Click Izquierdo &8- &fReproducir SIN loop"));
         loreList.add(U.componentColor("&7Shift + Click Derecho &8- &fReproducir a todos CON loop"));
         loreList.add(U.componentColor("&7Shift + Click Izquierdo &8- &fReproducir a todos SIN loop"));
+
+        int slot=0;
         for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
             List<Component> loreListCopy = new ArrayList<>(loreList);
 
             String songName = musicArray.get(i);
-            LegacyMusic music = new LegacyMusic(songName, "&f&l", "&e&o");
+            LegacyMusic music = LegacyMusic.getFromCache(songName);
+            if(music==null) continue;
 
             int tickDuration = music.getTicksDuration();
             String formattedDuration = timeFormat(tickDuration/20d);
             loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
             String titleAndAuthor = music.getTitleAndAuthor();
-            if(titleAndAuthor==null) titleAndAuthor=songName;
+            if(titleAndAuthor==null) titleAndAuthor="<b><color:#bb67e6>"+songName+"</color></b>";
 
             loreListCopy.addFirst(U.componentColor("&7"+songName));
 
             ItemStack item = new ItemStack(music.getDisplayMaterial());
             ItemMeta meta = item.getItemMeta();
 
-            meta.displayName(U.componentColor("&f&l"+titleAndAuthor));
+            meta.displayName(U.componentColorHexMini(titleAndAuthor));
             meta.lore(loreListCopy);
 
             U.setPersistentDataContainerValue(meta, "musicFrontInternal", "plays_"+songName);
@@ -108,6 +110,7 @@ public class MusicFront extends MusicMainCommand{
             inv.setItem(slot, item);
             slot++;
         }
+
         for(int i=27;i<36;i++){
             inv.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
         }

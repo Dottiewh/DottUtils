@@ -40,7 +40,7 @@
 - #### **DiamanteMagico:** Es el id con el que se registra el objeto.
 - #### **Material:** Es cualquier material que esté en: [Spigot - MATERIAL](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
 - #### **Name:** Recomendando poner entre " ", es el nombre con el que se ve en el juego, acepta codigos de colores básicos.
-- #### **Lore:** Cada lista (-), es una linea independiente. Recomendado poner entre " ", y acepta codigos de colores básicos.
+- #### **Lore:** Cada lista (-), es una línea independiente. Recomendado poner entre " ", y acepta codigos de colores básicos.
 - #### **Enchants:** Cada valor que derive de este, es un encantamiento. Valores aceptados: [Spigot - ENCHANTMENT](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html)
   - #### Formato: "_(Encantamiento)_: _(Nivel)_"
 - #### **Attributes:** Se divide en atributos registrados en [Spigot - ATTRIBUTE](https://jd.papermc.io/paper/1.21.8/org/bukkit/attribute/Attribute.html), con la estructura de:
@@ -110,7 +110,7 @@
 - #### Usa el formato key:value
 #### **UseCooldown**
 - #### cooldown_group
-  - #### Los items que estén en el mismo grupo, compartiran el cooldown.
+  - #### Los items que estén en el mismo grupo, compartirán el cooldown.
 - #### cooldown_seconds
   - #### Tiempo en segundos que durará el cooldown.
 ### Equippable
@@ -262,4 +262,5 @@ Items:
 - #### Básicamente, no jugar mucho con las mayúsculas donde NO debes introducir valores, y son de ESTRUCTURA.
 
 
-## 30/08/2025
+## 23/02/2026
+#### _Lo de CustomData vendrá en la update 1.2.3_

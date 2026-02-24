@@ -19,7 +19,7 @@ public class NBSutils {
             return decodeNBS(new FileInputStream(songFile), songFile);
         } catch (FileNotFoundException e) {
             U.printException(e);
-            U.mensajeConsolaNP("&c--File hasn't been found--");
+            U.mensajeConsolaNP("&cNo se ha encontrado el archivo "+songFile.getName());
             //System.out.println("not found the file");
         }
         return null;

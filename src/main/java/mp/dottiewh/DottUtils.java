@@ -5,16 +5,17 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.BrigadierManager;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.listeners.chat.ChatListener;
+import mp.dottiewh.listeners.chat.ServerCommandListener;
 import mp.dottiewh.listeners.dependency.DiscordSRVListener;
 import mp.dottiewh.listeners.entity.*;
 import mp.dottiewh.listeners.player.*;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
-import mp.dottiewh.commands.Commands;
+import mp.dottiewh.music.classes.LegacyMusic;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.listeners.*;
 import mp.dottiewh.libs.bstats.Metrics;
 import org.bukkit.*;
 import org.bukkit.plugin.Plugin;
@@ -49,6 +50,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlInternalItems;
     public static File folderCinematic;
     public static File folderMusic;
+    private static boolean cacheAsync=true;
 
     public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
@@ -160,6 +162,10 @@ public class DottUtils extends JavaPlugin implements Listener {
         MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
         // brigadier
         BrigadierManager.reloadBrigadier();
+
+        // cache
+        cacheAsync = Config.getBoolean("load_cache_async", true);
+        LegacyMusic.loadCache();
     }
     private void regEvents(){
         regFormat(new ChatListener());
@@ -237,5 +243,8 @@ public class DottUtils extends JavaPlugin implements Listener {
                 }
         );
         BrigadierManager.regNoAliasCommands(this);
+    }
+    public static boolean isCacheAsync(){
+        return cacheAsync;
     }
 }

@@ -23,7 +23,10 @@ public class Tpa extends Commands {
 
     @Override
     protected void run() {
-        this.player = (Player) sender;
+        if(player.getUniqueId().equals(classTarget.getUniqueId())){
+            TpaCore.senderMsgPr("&cNo puedes enviarte un tpa a ti mismo!", sender);
+            return;
+        }
         Player target = classTarget;
         String tName = target.getName();
 

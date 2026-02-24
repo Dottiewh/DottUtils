@@ -4,6 +4,7 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.commands.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -12,6 +13,9 @@ import java.util.List;
 public class Config {
     private static CustomConfig config;
     private static CustomConfig configLists;
+
+    //private static CustomConfig regCmdConfig;
+
     private static List<String> admins;
     private static List<String> whitelist;
     private static boolean whitelistStatus;
@@ -19,6 +23,11 @@ public class Config {
     private static boolean noFallStatus;
 
 
+    //----registered commands----
+
+    /*public static boolean getRegCmdStatus(String cmd, boolean def){
+        return getRegCmdStatus(regCmdConfig.getConfig(), cmd, def);
+    }*/
 
     //------config--------
     public static void configInit(){
