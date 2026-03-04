@@ -1,6 +1,7 @@
 package mp.dottiewh.commands.noaliasCommands.backcore;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.config.Config;
 import mp.dottiewh.utils.Crypto;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.CustomConfig;
@@ -32,6 +33,16 @@ public class BackUtils {
         U.targetMessageNP(player, "&6Tu punto de muerte se ha guardado! Usa &e/back");
         U.targetMessageNP(player, "&6Coords: &c"+U.truncar(x, 2)+", "+U.truncar(y, 2)+", "+U.truncar(z, 2));
         addDeathLoc(name, x, y, z ,world, uuid);
+
+        int delay = Config.getInt("back_expire_time", 300);
+        if(delay>0){
+            U.runTaskLater(t->{
+                delDeathLoc(name);
+                if(player.isOnline()){
+                    backSendMsg("&eTu último back ha expirado!", player);
+                }
+            }, delay);
+        }
     }
     public static void addDeathLoc(Player player){
         Location location = player.getLocation();
@@ -112,6 +123,13 @@ public class BackUtils {
         ConfigurationSection sectionM = getMainSection();
         sectionM.set(name, null);
 
+        getBackList().saveConfig();
+    }
+    public static void delAllDeathLoc(){
+        ConfigurationSection sectionM = getMainSection();
+        for(String s : sectionM.getKeys(false)){
+            sectionM.set(s, null);
+        }
         getBackList().saveConfig();
     }
     public static void movementManagement(PlayerMoveEvent event, Player player){

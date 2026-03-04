@@ -18,6 +18,8 @@ back_active: true
 back_encrypt_mode: 0 #0 None, 1 Basic, 2 Advanced | WARNING: changing the mode may interfer with saved backs.
 add_encrypt_mode_to_save: true
 delay_onback: 100 #Ticks
+back_expires_on_stop: false # if false, some backs may never expire, be caution!
+back_expire_time: 300 # Seconds (-1 for never)
 
 default_music_volume: 1 # integer between 0-2
 # only for discordSRV compability

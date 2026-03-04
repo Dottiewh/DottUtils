@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.BrigadierManager;
+import mp.dottiewh.commands.noaliasCommands.backcore.BackUtils;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.listeners.chat.ChatListener;
 import mp.dottiewh.listeners.chat.ServerCommandListener;
@@ -79,6 +80,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         metrics.shutdown();
         CinematicsConfig.onDisableCheck();
         U.cleanOnDisable();
+        if(Config.getBoolean("back_expires_on_stop", false)){
+            BackUtils.delAllDeathLoc();
+        }
 
         if (ymlConfig != null) {
             ymlConfig.saveConfig();

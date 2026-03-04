@@ -28,6 +28,8 @@ public class TpaCore {
         BukkitRunnable task = new BukkitRunnable() {
             @Override
             public void run() {
+                if(!(from.isOnline()&&to.isOnline())) return;
+
                 if(Config.getBoolean("save_back_when_tpa")){
                     BackUtils.addDeathLoc(from);
                 }
