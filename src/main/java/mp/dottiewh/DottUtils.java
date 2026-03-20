@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.BrigadierManager;
+import mp.dottiewh.commands.noaliasCommands.CustomSpawn;
 import mp.dottiewh.commands.noaliasCommands.backcore.BackUtils;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.listeners.chat.ChatListener;
@@ -150,6 +151,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         Config.configInit();
         ItemConfig.itemConfigInit();
 
+        //debug
+        U.debugMode = Config.getBoolean("debug_mode", false);
+        U.debugPrefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
 
         //cinematics related
         folderCinematic = new File(instance.getDataFolder(), "cinematics");
@@ -164,6 +168,15 @@ public class DottUtils extends JavaPlugin implements Listener {
         }
         MusicConfig.initMusicConfig();
         MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
+
+        // custom spawn
+        boolean isCustomSpawnEnabled = Config.getBoolean("custom_spawn_ft_enabled", false);
+        if(isCustomSpawnEnabled){
+            CustomConfig ymlCustomSpawn = new CustomConfig("customspawns.yml", "util", instance, false); // true?
+            ymlCustomSpawn.registerConfig();
+            CustomSpawn.config = ymlCustomSpawn;
+            CustomSpawn.onReload();
+        }
         // brigadier
         BrigadierManager.reloadBrigadier();
 
@@ -187,6 +200,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new EntityDeathListener());
         regFormat(new EntityBowShotListener());
         regFormat(new PlayerFishListener());
+        regFormat(new PlayerRespawnListener());
 
         if (discordCase){
             DiscordSRV.api.subscribe(discordsrvListener);

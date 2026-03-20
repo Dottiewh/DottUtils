@@ -1,0 +1,8 @@
+# option disabled by default, enable it in config
+
+Locations:
+  spawn_1: world;100;100;100;0;0
+  spawn_2: world;-100;100;-100
+Players:
+  spawn_1:
+    - Dottiewh

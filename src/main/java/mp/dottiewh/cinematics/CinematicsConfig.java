@@ -70,7 +70,7 @@ public class CinematicsConfig {
             return;
         }
         if(checkFileExists(fileName)){
-            cineMsg("&cYa existe una cinematica con ese nombre, borrala en tus archivos.", p);
+            cineMsg("&cYa existe una cinemática con ese nombre, borrala en tus archivos.", p);
             return;
         }if(!itemCheck(p)){
             cineMsg("&cLiberate los espacios de la hotbar para grabar!", p);
@@ -283,8 +283,9 @@ public class CinematicsConfig {
     }
 
     private static boolean checkFileExists(String name){
-        CustomConfig config = getFile(name, false);
-        return !(config==null);
+        //CustomConfig config = getFile(name, false);
+        File file = new File(DottUtils.folderCinematic, name+".yml");
+        return file.exists();
     }
 
     //------------REPRODUCE THINSG---------------------
@@ -305,7 +306,9 @@ public class CinematicsConfig {
         }
         return result;
     }
-    //natural=false -> ONLY INTERNAL
+    /**
+     * @param natural =false -> ONLY INTERNAL
+     */
     public static void reproduceCinematic(Player p, String fileName, boolean clonePlayer, boolean natural) throws CinematicFileDontExist{
         CustomConfig config = getFile(fileName, false);
         if (!(checkFileExists(fileName)) || config == null){
@@ -415,7 +418,7 @@ public class CinematicsConfig {
                     @Override
                     public void run() {
                         if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
-                        if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
+                        //if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
                         int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
 
 

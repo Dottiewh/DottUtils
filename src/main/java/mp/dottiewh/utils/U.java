@@ -50,6 +50,9 @@ public class U { //Stands for utils
     private static final Map<UUID, BukkitRunnable> mapaRepetitivoActionBar = new HashMap<>();
     private static final Map<UUID, List<ItemDisplay>> mapaEntityScreen = new HashMap<>();
 
+    public static boolean debugMode = false;
+    public static String debugPrefix = "&8&l[&4&lDU &c&lDebug&8&l] &e"; // def
+
     //--------------------------Métodos Útiles-----------------------------------
     public static void targetMessage(Player target, String mensaje){
         target.sendMessage(U.mensajeConPrefix(mensaje));
@@ -90,12 +93,17 @@ public class U { //Stands for utils
         }
     }
 
-    // INCLUYENDO MIN Y MAX
+    /**
+     * INCLUYENDO MIN Y MAX
+     */
     public static int getRandomInt(int min, int max){
         Random random = new Random();
         return random.nextInt((max-min)+1)+min;
     }
-    // NO INCLUYE MAX, se queda en max-0,00...001
+
+    /**
+     * NO INCLUYE MAX, se queda en max-0,00...001
+     */
     public static double getRandomDouble(double min, double max){
         Random random = new Random();
         return random.nextDouble(max-min)+min;
@@ -115,9 +123,8 @@ public class U { //Stands for utils
     }
 
     public static void mensajeDebug(String mensaje, CommandSender sender){
-        if(!Config.getBoolean("debug_mode", false)) return;
-        String prefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
-        targetMessageNP(sender, prefix+mensaje);
+        if(!debugMode) return;
+        targetMessageNP(sender, debugPrefix+mensaje);
     }
     public static void mensajeDebugConsole(String mensaje) {
         mensajeDebug(mensaje, Bukkit.getConsoleSender());

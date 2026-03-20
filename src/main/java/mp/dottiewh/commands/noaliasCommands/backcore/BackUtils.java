@@ -41,7 +41,7 @@ public class BackUtils {
                 if(player.isOnline()){
                     backSendMsg("&eTu último back ha expirado!", player);
                 }
-            }, delay);
+            }, delay*20L);
         }
     }
     public static void addDeathLoc(Player player){
