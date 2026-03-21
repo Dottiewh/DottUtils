@@ -25,10 +25,59 @@ import java.io.IOException;
 import java.util.*;
 
 public class MusicConfig {
+    protected static class SoundEvent{
+        int tick;
+        Player player;
+        Sound sound;
+        float volume, pitch;
+        float panning;
+        boolean isStereo;
+
+        public SoundEvent(int tick, Player player, Sound sound, float volume, float pitch, float panning) {
+            this.tick = tick;
+            this.player = player;
+            this.sound = sound;
+            this.volume = volume;
+            this.pitch = pitch;
+            this.panning=panning;
+            this.isStereo = panning !=100;
+        }
+        public void playSound(){
+            Location playerLoc = player.getLocation();
+            if(isStereo) playerLoc=resolveLocPanning();
+
+            player.playSound(playerLoc, sound, volume, pitch);
+        }
+
+        @NotNull
+        public Location resolveLocPanning(){
+            Location finalLoc;
+
+            Location feetLoc = player.getLocation(); // = actual loc
+            Location playerLoc = player.getEyeLocation();
+            org.bukkit.util.Vector forward = playerLoc.getDirection().setY(0).normalize(); // ignorar pitch si quieres plano horizontal
+            org.bukkit.util.Vector right = forward.clone().crossProduct(new org.bukkit.util.Vector(0,1,0)).normalize();
+            org.bukkit.util.Vector left  = right.clone().multiply(-1);
+
+            double offset = ((panning%100)/100.0)*2; // distancia lateral
+            if(panning==0||panning==200) offset=2;
+
+
+            if(panning>100){ //right
+                finalLoc = feetLoc.clone().add(right.multiply(offset));
+            }else if(panning<100){ // left
+                finalLoc= feetLoc.clone().add(left.multiply(offset));
+            }else finalLoc=player.getLocation();
+
+            return finalLoc;
+        }
+    }
+
     private static Plugin pl;
     private static File mFolder;
     private static DottUtils instance;
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
+    private final static Map<UUID, List<BukkitRunnable>> mTimerRunnableList = new HashMap<>();
 
     private static float volume = 1;
     public enum MusicRoundType {
@@ -48,16 +97,45 @@ public class MusicConfig {
 
         runnable.runTaskLater(pl, delay);
     }
+    private static void addRunnableTimer(UUID uuid, BukkitRunnable timer, int delay, long period){
+        //stopTimerAndClean(uuid);
+        mTimerRunnableList.computeIfAbsent(uuid, k -> new ArrayList<>()).add(timer);
+
+        timer.runTaskTimer(pl, delay, period);
+    }
+    private static void stopTimerAndClean(UUID uuid){
+        List<BukkitRunnable> timerList = mTimerRunnableList.get(uuid);
+        if(timerList==null) return;
+
+        for(BukkitRunnable timer : timerList){
+            if(!timer.isCancelled()) timer.cancel();
+        }
+
+        U.mensajeDebugConsole("CLEAN!");
+        mTimerRunnableList.remove(uuid);
+    }
+
     public static void stopMusicTasks(){
-        Iterator<Map.Entry<UUID, List<BukkitRunnable>>> it =
+        Iterator<Map.Entry<UUID, List<BukkitRunnable>>> runnableIt =
                 mRunnableList.entrySet().iterator();
 
-        while (it.hasNext()) {
-            Map.Entry<UUID, List<BukkitRunnable>> entry = it.next();
+        while (runnableIt.hasNext()) {
+            Map.Entry<UUID, List<BukkitRunnable>> entry = runnableIt.next();
             for (BukkitRunnable runnable : entry.getValue()) {
                 runnable.cancel();
             }
-            it.remove();
+            runnableIt.remove();
+        }
+        //
+        Iterator<Map.Entry<UUID, List<BukkitRunnable>>> timerIt =
+                mTimerRunnableList.entrySet().iterator();
+
+        while (timerIt.hasNext()) {
+            Map.Entry<UUID, List<BukkitRunnable>> entry = timerIt.next();
+            for (BukkitRunnable runnable : entry.getValue()) {
+                runnable.cancel();
+            }
+            timerIt.remove();
         }
     }
 
@@ -68,6 +146,7 @@ public class MusicConfig {
         for (BukkitRunnable runnable : list) {
             runnable.cancel();
         }
+        stopTimerAndClean(uuid);
     }
 
     public static void reproduceToAll(String song, boolean loop){
@@ -185,6 +264,7 @@ public class MusicConfig {
         int accumuledDelay = 0; // in ticks
 
         for(int i=0;i<repeatTimes;i++){
+            List<SoundEvent> soundEvents = new ArrayList<>();
 
             for(String input : section.getStringList(sectionName)){
 
@@ -224,46 +304,39 @@ public class MusicConfig {
                 float vol = Float.parseFloat(sVol);
                 float pitch = Float.parseFloat(sPitch);
 
+                //=============
+                Location finalLoc = player.getLocation();
+                float finalVol = vol*(volume*0.125f);
 
-                BukkitRunnable runnable = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        float finalVol = vol*(volume*0.125f);
-                        if(isStereo){
-                            if(panning==100){
-                                player.playSound(player, sound, finalVol, pitch);
-                                return;
-                            }
 
-                            Location feetLoc = player.getLocation();
-                            Location playerLoc = player.getEyeLocation();
-                            org.bukkit.util.Vector forward = playerLoc.getDirection().setY(0).normalize(); // ignorar pitch si quieres plano horizontal
-                            org.bukkit.util.Vector right = forward.clone().crossProduct(new org.bukkit.util.Vector(0,1,0)).normalize();
-                            org.bukkit.util.Vector left  = right.clone().multiply(-1);
+                //player.playSound(player, sound, finalVol, pitch);
+                soundEvents.add(new SoundEvent(accumuledDelay, player, sound, finalVol, pitch, panning));
+                //===============
 
-                            double offset = ((panning%100)/100.0)*2; // distancia lateral
-                            if(panning==0||panning==200) offset=2;
-
-                            Location finalLoc;
-                            if(panning>100){ //right
-                                finalLoc = feetLoc.clone().add(right.multiply(offset));
-                            }else if(panning<100){ // left
-                                finalLoc= feetLoc.clone().add(left.multiply(offset));
-                            }else{
-                                finalLoc=feetLoc;
-                            }
-
-                            player.playSound(finalLoc, sound, finalVol, pitch);
-                            return;
-                        }
-
-                        player.playSound(player, sound, finalVol, pitch);
-
-                    }
-                };
-
-                addRunnable(player.getUniqueId(), runnable, accumuledDelay);
             }
+
+            BukkitRunnable timerRunnable = new BukkitRunnable() {
+                int currentTick = 0, index=0;
+
+                @Override
+                public void run() {
+                    while (index<soundEvents.size() && soundEvents.get(index).tick == currentTick){
+                        SoundEvent e = soundEvents.get(index);
+                        e.playSound();
+
+                        index++;
+                        U.mensajeDebugConsole(index+" | "+currentTick);
+                    }
+
+                    currentTick++;
+
+                    if(index>= soundEvents.size()){
+                        cancel();
+                        U.mensajeDebugConsole("cancelando");
+                    }
+                }
+            };
+            addRunnableTimer(player.getUniqueId(), timerRunnable, 0, 1L);
         }
     }
 
