@@ -2,6 +2,7 @@ package mp.dottiewh.listeners.player;
 
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
+import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,5 +18,6 @@ public class PlayerQuitListener implements Listener {
         U.stopForceBlackScreen(uuid); // to be sure
         CinematicsConfig.checkAndStop(uuid);
         CinematicsConfig.stopReproducing(uuid);
+        MusicConfig.stopMusicTasks(uuid);
     }
 }

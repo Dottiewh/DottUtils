@@ -167,7 +167,7 @@ public class DottUtils extends JavaPlugin implements Listener {
             folderMusic.mkdirs();
         }
         MusicConfig.initMusicConfig();
-        MusicConfig.setVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
+        MusicConfig.setGlobalVolume(ymlConfig.getConfig().getInt("default_music_volume", 1));
 
         // custom spawn
         boolean isCustomSpawnEnabled = Config.getBoolean("custom_spawn_ft_enabled", false);

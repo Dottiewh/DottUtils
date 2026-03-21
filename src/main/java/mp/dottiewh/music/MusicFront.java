@@ -3,7 +3,6 @@ package mp.dottiewh.music;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.commands.Commands;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.music.classes.LegacyMusic;
@@ -11,7 +10,6 @@ import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,12 +18,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 public class MusicFront extends MusicMainCommand{
     Player player;
@@ -159,7 +154,7 @@ public class MusicFront extends MusicMainCommand{
         }else{
             overRideVolLore=new ArrayList<>(volLore);
         }
-        overRideVolLore.add(U.componentColor("&eVol: &f"+U.truncar(MusicConfig.getVolume(), 2)));
+        overRideVolLore.add(U.componentColor("&eVol: &f"+U.truncar(MusicConfig.getGlobalVolume(), 2)));
         volMeta.lore(overRideVolLore);
         volItem.setItemMeta(volMeta);
 

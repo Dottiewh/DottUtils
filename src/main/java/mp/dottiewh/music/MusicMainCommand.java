@@ -115,13 +115,13 @@ public class MusicMainCommand extends ReferibleCommand {
         senderMessageMPr("&aLista de musicas registradas: &f"+musicList);
     }
     private static void setVolume(CommandSender sender, float f){
-        float oldValue = MusicConfig.getVolume();
-        MusicConfig.setVolume(f);
-        senderMessageMPr(sender, "&aHas cambiado el volumen general de las músicas, tal que &6"+oldValue+" &8-> &6"+MusicConfig.getVolume());
+        float oldValue = MusicConfig.getGlobalVolume();
+        MusicConfig.setGlobalVolume(f);
+        senderMessageMPr(sender, "&aHas cambiado el volumen general de las músicas, tal que &6"+oldValue+" &8-> &6"+MusicConfig.getGlobalVolume());
 
     }
     private static void getVolume(CommandSender sender){
-        senderMessageMPr(sender, "&aEl volumen actual es de: &e"+ MusicConfig.getVolume());
+        senderMessageMPr(sender, "&aEl volumen actual es de: &e"+ MusicConfig.getGlobalVolume());
     }
     private static void importCommand(CommandSender sender, String fileName, MusicConfig.MusicRoundType roundType){
         MusicConfig.importNBSFile(fileName, roundType);

@@ -45,8 +45,9 @@ public class MusicConfig {
         public void playSound(){
             Location playerLoc = player.getLocation();
             if(isStereo) playerLoc=resolveLocPanning();
+            float finalVol = this.volume*(globalVolume*0.2f);
 
-            player.playSound(playerLoc, sound, volume, pitch);
+            player.playSound(playerLoc, sound, SoundCategory.RECORDS, finalVol, pitch);
         }
 
         @NotNull
@@ -79,7 +80,7 @@ public class MusicConfig {
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
     private final static Map<UUID, List<BukkitRunnable>> mTimerRunnableList = new HashMap<>();
 
-    private static float volume = 1;
+    private static float globalVolume = 1;
     public enum MusicRoundType {
         FLOOR,
         NORMAL,
@@ -193,7 +194,7 @@ public class MusicConfig {
             }
         };
 
-
+        CustomConfig c = getFile(songName);
         for(String sPart : strSection.getKeys(false)){
             boolean isLast = (i==totalParts);
             ConfigurationSection partSection = strSection.getConfigurationSection(sPart);
@@ -207,7 +208,7 @@ public class MusicConfig {
                 @Override
                 public void run() {
                     for(String sSection : partSection.getStringList("section_list")){
-                        sectionLoad(songName, sSection, duration, player);
+                        sectionLoad(songName, sSection, duration, player, c);
                     }
 
                 }
@@ -226,10 +227,12 @@ public class MusicConfig {
         }
     }
 
-    private static void sectionLoad(String songName, String sectionName, int totalTicks, Player player){
+    private static void sectionLoad(String songName, String sectionName, int totalTicks, Player player, CustomConfig c){
         if(totalTicks<=0) totalTicks=1;
 
-        CustomConfig c = getFile(songName);
+        if(c==null){
+            throw new MusicSectionEmpty(songName+".Sections", "No se ha podido entrar en el yml de la canción, estará corrupta?");
+        }
         ConfigurationSection section = c.getConfig().getConfigurationSection(songName+".Sections");
         if(section==null){
             throw new MusicSectionEmpty(songName+".Sections", "No se ha podido entrar en Sections, no existe Sections en tu canción?");
@@ -263,8 +266,9 @@ public class MusicConfig {
 
         int accumuledDelay = 0; // in ticks
 
+        List<SoundEvent> soundEvents = new ArrayList<>();
         for(int i=0;i<repeatTimes;i++){
-            List<SoundEvent> soundEvents = new ArrayList<>();
+
 
             for(String input : section.getStringList(sectionName)){
 
@@ -306,38 +310,37 @@ public class MusicConfig {
 
                 //=============
                 Location finalLoc = player.getLocation();
-                float finalVol = vol*(volume*0.125f);
 
 
                 //player.playSound(player, sound, finalVol, pitch);
-                soundEvents.add(new SoundEvent(accumuledDelay, player, sound, finalVol, pitch, panning));
+                soundEvents.add(new SoundEvent(accumuledDelay, player, sound, vol, pitch, panning));
                 //===============
 
             }
 
-            BukkitRunnable timerRunnable = new BukkitRunnable() {
-                int currentTick = 0, index=0;
-
-                @Override
-                public void run() {
-                    while (index<soundEvents.size() && soundEvents.get(index).tick == currentTick){
-                        SoundEvent e = soundEvents.get(index);
-                        e.playSound();
-
-                        index++;
-                        U.mensajeDebugConsole(index+" | "+currentTick);
-                    }
-
-                    currentTick++;
-
-                    if(index>= soundEvents.size()){
-                        cancel();
-                        U.mensajeDebugConsole("cancelando");
-                    }
-                }
-            };
-            addRunnableTimer(player.getUniqueId(), timerRunnable, 0, 1L);
         }
+        BukkitRunnable timerRunnable = new BukkitRunnable() {
+            int currentTick = 0, index=0;
+
+            @Override
+            public void run() {
+                while (index<soundEvents.size() && soundEvents.get(index).tick == currentTick){
+                    SoundEvent e = soundEvents.get(index);
+                    e.playSound();
+
+                    index++;
+                    //U.mensajeDebugConsole(index+" | "+currentTick+" ||| "+e.volume);
+                }
+
+                currentTick++;
+
+                if(index>= soundEvents.size()){
+                    cancel();
+                    U.mensajeDebugConsole("cancelando");
+                }
+            }
+        };
+        addRunnableTimer(player.getUniqueId(), timerRunnable, 0, 1L);
     }
 
     public static CustomConfig getFile(String name){
@@ -411,22 +414,22 @@ public class MusicConfig {
         }
         return material;
     }
-    public static void setVolume(float vol){
+    public static void setGlobalVolume(float vol){
         if(vol>2){
-            volume=2;
+            globalVolume =2;
             return;
         }
         if(vol<0){
-            volume=0;
+            globalVolume =0;
             return;
         }
-        volume=vol;
+        globalVolume =vol;
     }
     public static void addVolume(float f){
-        setVolume(volume+f);
+        setGlobalVolume(globalVolume +f);
     }
-    static float getVolume(){
-        return volume;
+    static float getGlobalVolume(){
+        return globalVolume;
     }
     //
     public static void importNBSFile(String fileName) throws MusicFileRelatedException {
