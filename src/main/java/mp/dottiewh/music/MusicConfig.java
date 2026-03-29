@@ -428,7 +428,7 @@ public class MusicConfig {
     public static void addVolume(float f){
         setGlobalVolume(globalVolume +f);
     }
-    static float getGlobalVolume(){
+    public static float getGlobalVolume(){
         return globalVolume;
     }
     //

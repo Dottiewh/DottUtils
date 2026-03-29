@@ -190,7 +190,7 @@ public class NBSutils {
     private static short readShort(DataInputStream dataInputStream) throws IOException {
         int byte1 = dataInputStream.readUnsignedByte();
         int byte2 = dataInputStream.readUnsignedByte();
-        return (short) (byte1 + (byte2 << 8));
+        return (short) (byte1 + (byte2 << 8)); // 0000 xxxx + yyyy 0000
     }
 
     private static int readInt(DataInputStream dataInputStream) throws IOException {

@@ -1,10 +1,12 @@
-package mp.dottiewh.music;
+package mp.dottiewh.music.front;
 
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
+import mp.dottiewh.music.MusicConfig;
+import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.music.classes.LegacyMusic;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
@@ -24,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicFront extends MusicMainCommand{
+public class MusicFront extends MusicMainCommand {
     Player player;
     private static final CustomConfig ymlItem = DottUtils.ymlInternalItems;
 
