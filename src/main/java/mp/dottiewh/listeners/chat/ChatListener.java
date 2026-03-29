@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 public class ChatListener implements Listener {
+    private static boolean isItemDisplayActive = false;
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
@@ -23,7 +24,7 @@ public class ChatListener implements Listener {
 
     public void itemDisplay(AsyncChatEvent event){
         if(event.isCancelled()) return;
-        if(!Config.getBoolean("item_display", true)) return;
+        if(!isItemDisplayActive) return;
         Component message = event.message();
         String rawMessage = U.componentToStringMsgRaw(message);
         if(!rawMessage.contains("<item>")) return;
@@ -37,5 +38,8 @@ public class ChatListener implements Listener {
         Component toGive = message.replaceText(builder-> builder.matchLiteral("<item>").replacement(component));
 
         event.message(toGive);
+    }
+    public static void setItemDisplayOnChat(boolean b){
+        isItemDisplayActive = b;
     }
 }

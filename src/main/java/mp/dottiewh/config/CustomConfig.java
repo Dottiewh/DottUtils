@@ -95,4 +95,33 @@ public class CustomConfig {
         }
         return true;
     }
+
+    //---------
+    public static void registerDefFile(String fileName, String folderName, DottUtils instance, boolean newFile){
+        String path = folderName+"/"+fileName;
+        registerDefFile(path, instance, newFile);
+    }
+
+    /**
+     * @param path uses "/" as separator
+     */
+    public static void registerDefFile(String path, DottUtils instance, boolean newFile){
+        File file;
+        path = path.replace("/", File.separator);
+
+        file = new File(instance.getDataFolder(), path);
+
+        if(!file.exists()){
+            if(newFile){
+                try{
+                    file.createNewFile();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }else{
+                instance.saveResource(path, false);
+            }
+
+        }
+    }
 }

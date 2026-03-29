@@ -164,7 +164,7 @@ public class BrigadierManager extends Commands{
         return def;
     }
     public static CustomConfig getRegCmdFileConfig(){
-        CustomConfig registerConfig = new CustomConfig("reg_cmds.yml", null, DottUtils.getInstance(), true);
+        CustomConfig registerConfig = new CustomConfig("reg_cmds.yml", null, DottUtils.getInstance(), false);
         registerConfig.registerConfig();
         return registerConfig;
     }

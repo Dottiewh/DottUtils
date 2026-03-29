@@ -386,7 +386,9 @@ public class CinematicsConfig {
 
         List<BukkitRunnable> lRunnables = new ArrayList<>();
 
-        for(String input : config.getConfig().getStringList("Locations")){
+        List<String> inputList = config.getConfig().getStringList("Locations");
+        int totalInputs = inputList.size();
+        for(String input : inputList){
             if(checkFileExists(input)){
                 BukkitRunnable bringToAnotherRunnable = new BukkitRunnable() {
                     @Override
@@ -400,69 +402,75 @@ public class CinematicsConfig {
                 break;
             }
 
-            if(input.equalsIgnoreCase("end")){
-                BukkitRunnable finalTask = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        stopReproducing(uuid);
+            try{
+                if(input.equalsIgnoreCase("end")||totalInputs==count+1){
+                    BukkitRunnable finalTask = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            stopReproducing(uuid);
+                        }
+                    };
+                    finalTask.runTaskLater(plugin, count*period);
+                    lRunnables.add(finalTask);
+                    break;
+                }
+                //
+                String[] aI = input.split(";"); // stands for arrayInput
+                if(aI[0].equalsIgnoreCase("title")){ // title0;mensaje1;submensaje2;10;20;10
+                    BukkitRunnable task = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
+                            //if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
+                            int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
+
+
+                            U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);
+                        }
+                    };
+                    task.runTaskLater(plugin, count*period);
+                    lRunnables.add(task);
+                    continue;
+                }
+
+                World world = Bukkit.getWorld(aI[0]);
+                double x = Double.parseDouble(aI[1]), y = Double.parseDouble(aI[2]), z = Double.parseDouble(aI[3]);
+                float yaw = Float.parseFloat(aI[4]), pitch = Float.parseFloat(aI[5]);
+
+                Location loc = new Location(world, x, y, z, yaw, pitch);
+
+                if(count==0){
+                    p.setSpectatorTarget(null);
+                    textDisplay.teleport(loc);
+
+                    if(npcToDeliver!=null){
+                        if(!(npcToDeliver.getWorld().equals(world))){
+                            npcToDeliver.remove();
+                        }
                     }
-                };
-                finalTask.runTaskLater(plugin, count*period);
-                lRunnables.add(finalTask);
-                break;
-            }
-            //
-            String[] aI = input.split(";"); // stands for arrayInput
-            if(aI[0].equalsIgnoreCase("title")){ // title0;mensaje1;submensaje2;10;20;10
+
+                    loc.subtract(0, 1.6, 1);
+                    p.teleport(loc);
+                    count++;
+                    continue;
+                }
+                // MAINNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
                 BukkitRunnable task = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (aI[2].equalsIgnoreCase("null")) aI[2] = "";
-                        //if(aI[1].equalsIgnoreCase("chile")) aI[1] = "\uE120";
-                        int fadeIn=Integer.parseInt(aI[3]), stay=Integer.parseInt(aI[4]), fadeOut=Integer.parseInt(aI[5]);
-
-
-                        U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);
+                        p.setSpectatorTarget(null);
+                        textDisplay.teleportAsync(loc);
+                        p.setSpectatorTarget(textDisplay);
                     }
                 };
+
                 task.runTaskLater(plugin, count*period);
                 lRunnables.add(task);
-                continue;
+            } catch (Exception e) {
+                stopReproducing(uuid);
+                U.printException(e);
+                return;
             }
-
-            World world = Bukkit.getWorld(aI[0]);
-            double x = Double.parseDouble(aI[1]), y = Double.parseDouble(aI[2]), z = Double.parseDouble(aI[3]);
-            float yaw = Float.parseFloat(aI[4]), pitch = Float.parseFloat(aI[5]);
-
-            Location loc = new Location(world, x, y, z, yaw, pitch);
-
-            if(count==0){
-                p.setSpectatorTarget(null);
-                textDisplay.teleport(loc);
-
-                if(npcToDeliver!=null){
-                    if(!(npcToDeliver.getWorld().equals(world))){
-                        npcToDeliver.remove();
-                    }
-                }
-
-                loc.subtract(0, 1.6, 1);
-                p.teleport(loc);
-                count++;
-                continue;
-            }
-            // MAINNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-            BukkitRunnable task = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    p.setSpectatorTarget(null);
-                    textDisplay.teleport(loc);
-                    p.setSpectatorTarget(textDisplay);
-                }
-            };
-
-            task.runTaskLater(plugin, count*period);
-            lRunnables.add(task);
             count++;
         }
 
@@ -523,11 +531,13 @@ public class CinematicsConfig {
 
         // STOP TASK AND REMOVE
         List<BukkitRunnable> lRunnables = mapaPlayerReproduce.remove(uuid);
-        Iterator<BukkitRunnable> it = lRunnables.iterator();
-        while(it.hasNext()){
-            BukkitRunnable task = it.next();
-            task.cancel();
-            it.remove();
+        if(lRunnables!=null){
+            Iterator<BukkitRunnable> it = lRunnables.iterator();
+            while(it.hasNext()){
+                BukkitRunnable task = it.next();
+                task.cancel();
+                it.remove();
+            }
         }
         // misc
         U.unHidePlayerForAll(player);
