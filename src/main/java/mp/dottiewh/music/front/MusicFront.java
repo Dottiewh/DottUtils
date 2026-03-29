@@ -18,6 +18,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +65,7 @@ public class MusicFront extends MusicMainCommand{
     }
     private static Inventory loadSavesInventory(Player p, int page){
         int maxSize = page*27;
-        List<String> musicArray = MusicConfig.getMusicList();
-        boolean nextPage = maxSize<musicArray.size();
+        boolean nextPage = maxSize<MusicConfig.getMusicList().size();
 
         Inventory inv = createInventory(p, "&8Musicas registradas &d"+page, 36);
 
@@ -77,34 +78,7 @@ public class MusicFront extends MusicMainCommand{
         loreList.add(U.componentColor("&7Shift + Click Derecho &8- &fReproducir a todos CON loop"));
         loreList.add(U.componentColor("&7Shift + Click Izquierdo &8- &fReproducir a todos SIN loop"));
 
-        int slot=0;
-        for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
-            List<Component> loreListCopy = new ArrayList<>(loreList);
-
-            String songName = musicArray.get(i);
-            LegacyMusic music = LegacyMusic.getFromCache(songName);
-            if(music==null) continue;
-
-            int tickDuration = music.getTicksDuration();
-            String formattedDuration = timeFormat(tickDuration/20d);
-            loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
-            String titleAndAuthor = music.getTitleAndAuthor();
-            if(titleAndAuthor==null) titleAndAuthor="<b><color:#bb67e6>"+songName+"</color></b>";
-
-            loreListCopy.addFirst(U.componentColor("&7"+songName));
-
-            ItemStack item = new ItemStack(music.getDisplayMaterial());
-            ItemMeta meta = item.getItemMeta();
-
-            meta.displayName(U.componentColorHexMini(titleAndAuthor));
-            meta.lore(loreListCopy);
-
-            U.setPersistentDataContainerValue(meta, "musicFrontInternal", "plays_"+songName);
-            item.setItemMeta(meta);
-
-            inv.setItem(slot, item);
-            slot++;
-        }
+        addMusicListToInv(inv, page, loreList, "plays_");
 
         for(int i=27;i<36;i++){
             inv.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
@@ -139,6 +113,52 @@ public class MusicFront extends MusicMainCommand{
         p.openInventory(inv);
         return inv;
     }
+    //
+
+    /**
+     * @param inv slots >= 27
+     * @param page >= 1
+     * @param loreForSongs El lore que ocupará cada item
+     * @param dataPKey Pondrá un data_persistent_key al meta de cada item del tipo dataPKey+songName.
+     *                 Por ejemplo dataPKey = plays_ | plays_test
+     * @return ¡El inventario introducido, pero este YA está cambiado!
+     */
+    @NotNull
+    private static Inventory addMusicListToInv(@NotNull Inventory inv, int page, @Nullable List<Component> loreForSongs, @Nullable String dataPKey){
+        int maxSize = page*27;
+        List<String> musicArray = MusicConfig.getMusicList();
+
+        int slot=0;
+        for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
+            List<Component> loreListCopy = (loreForSongs!=null) ? new ArrayList<>(loreForSongs) : new ArrayList<>();
+
+            String songName = musicArray.get(i);
+            LegacyMusic music = LegacyMusic.getFromCache(songName);
+            if(music==null) continue;
+
+            int tickDuration = music.getTicksDuration();
+            String formattedDuration = timeFormat(tickDuration/20d);
+            loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
+            String titleAndAuthor = music.getTitleAndAuthor();
+            if(titleAndAuthor==null) titleAndAuthor="<b><color:#bb67e6>"+songName+"</color></b>";
+
+            loreListCopy.addFirst(U.componentColor("&7"+songName));
+
+            ItemStack item = new ItemStack(music.getDisplayMaterial());
+            ItemMeta meta = item.getItemMeta();
+
+            meta.displayName(U.componentColorHexMini(titleAndAuthor));
+            meta.lore(loreListCopy);
+
+            if(dataPKey!=null) U.setPersistentDataContainerValue(meta, "musicFrontInternal", dataPKey+songName);
+            item.setItemMeta(meta);
+
+            inv.setItem(slot, item);
+            slot++;
+        }
+        return inv;
+    }
+    //
     private static Inventory loadSettingsInventory(Player p){
         Inventory inv = createInventory(p, "&6Reproductor General", 9);
 
@@ -262,11 +282,14 @@ public class MusicFront extends MusicMainCommand{
     }
     //
     private static ItemStack getGoBackArrow(){
+        return getGoBackArrow("go_back");
+    }
+    private static ItemStack getGoBackArrow(@NotNull String dataPKey){
         ItemStack head = ItemConfig.loadItem("music_gotomenu", ymlItem);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("MHF_ArrowLeft"));
 
-        U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", "go_back");
+        U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", dataPKey);
         head.setItemMeta(skullMeta);
         return head;
     }
