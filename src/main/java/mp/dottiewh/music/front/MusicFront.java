@@ -9,6 +9,7 @@ import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.music.classes.LegacyMusic;
 import mp.dottiewh.utils.U;
+import mp.dottiewh.utils.inventorys.CustomInventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -25,12 +26,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class MusicFront extends MusicMainCommand {
     Player player;
     private static final CustomConfig ymlItem = DottUtils.ymlInternalItems;
 
-    static void buildFront(CommandContext<CommandSourceStack> ctx){
+    public static void buildFront(CommandContext<CommandSourceStack> ctx){
         new MusicFront(ctx);
     }
     private MusicFront(CommandContext<CommandSourceStack> ctx){
@@ -52,206 +54,11 @@ public class MusicFront extends MusicMainCommand {
 
     //
     private static void openMenu(Player player){
-        Inventory inv = createInventory(player, "&f&lMenú", 9);
-        ItemStack saves = ItemConfig.loadItem("music_menu_saves", ymlItem);
-        int savesAmount = MusicConfig.getMusicList().size();
-        if(savesAmount>99) savesAmount=99;
-        saves.setAmount(savesAmount);
-
-        ItemStack options = ItemConfig.loadItem("music_menu_options", ymlItem);
-
-        inv.setItem(1, saves);
-        inv.setItem(7, options);
-
-        player.openInventory(inv);
-    }
-    private static Inventory loadSavesInventory(Player p, int page){
-        int maxSize = page*27;
-        boolean nextPage = maxSize<MusicConfig.getMusicList().size();
-
-        Inventory inv = createInventory(p, "&8Musicas registradas &d"+page, 36);
-
-        //ITEMS REGISTRAR
-        List<Component> loreList = new ArrayList<>();
-
-        loreList.add(U.componentColor("&8--------------"));
-        loreList.add(U.componentColor("&7Click Derecho &8- &fReproducir CON loop"));
-        loreList.add(U.componentColor("&7Click Izquierdo &8- &fReproducir SIN loop"));
-        loreList.add(U.componentColor("&7Shift + Click Derecho &8- &fReproducir a todos CON loop"));
-        loreList.add(U.componentColor("&7Shift + Click Izquierdo &8- &fReproducir a todos SIN loop"));
-
-        addMusicListToInv(inv, page, loreList, "plays_");
-
-        for(int i=27;i<36;i++){
-            inv.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
-        }
-
-        if(page>1){ // get back page
-            ItemStack head = ItemConfig.loadItem("music_saves_previouspage", ymlItem);
-            SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("MHF_ArrowLeft"));
-
-            U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", "page_"+(page-1));
-            head.setItemMeta(skullMeta);
-
-            inv.setItem(30, head);
-        }
-        if(nextPage){
-            ItemStack head = ItemConfig.loadItem("music_saves_nextpage", ymlItem);
-            SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("MHF_ArrowRight"));
-
-            U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", "page_"+(page+1));
-            head.setItemMeta(skullMeta);
-
-            inv.setItem(32, head);
-        }
-        ItemStack goBackMenu = getGoBackArrow();
-        inv.setItem(27, goBackMenu);
-
-        ItemStack stopMusic = ItemConfig.loadItem("music_saves_stopmusic", ymlItem);
-        inv.setItem(35, stopMusic);
-
-        p.openInventory(inv);
-        return inv;
-    }
-    //
-
-    /**
-     * @param inv slots >= 27
-     * @param page >= 1
-     * @param loreForSongs El lore que ocupará cada item
-     * @param dataPKey Pondrá un data_persistent_key al meta de cada item del tipo dataPKey+songName.
-     *                 Por ejemplo dataPKey = plays_ | plays_test
-     * @return ¡El inventario introducido, pero este YA está cambiado!
-     */
-    @NotNull
-    private static Inventory addMusicListToInv(@NotNull Inventory inv, int page, @Nullable List<Component> loreForSongs, @Nullable String dataPKey){
-        int maxSize = page*27;
-        List<String> musicArray = MusicConfig.getMusicList();
-
-        int slot=0;
-        for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
-            List<Component> loreListCopy = (loreForSongs!=null) ? new ArrayList<>(loreForSongs) : new ArrayList<>();
-
-            String songName = musicArray.get(i);
-            LegacyMusic music = LegacyMusic.getFromCache(songName);
-            if(music==null) continue;
-
-            int tickDuration = music.getTicksDuration();
-            String formattedDuration = timeFormat(tickDuration/20d);
-            loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
-            String titleAndAuthor = music.getTitleAndAuthor();
-            if(titleAndAuthor==null) titleAndAuthor="<b><color:#bb67e6>"+songName+"</color></b>";
-
-            loreListCopy.addFirst(U.componentColor("&7"+songName));
-
-            ItemStack item = new ItemStack(music.getDisplayMaterial());
-            ItemMeta meta = item.getItemMeta();
-
-            meta.displayName(U.componentColorHexMini(titleAndAuthor));
-            meta.lore(loreListCopy);
-
-            if(dataPKey!=null) U.setPersistentDataContainerValue(meta, "musicFrontInternal", dataPKey+songName);
-            item.setItemMeta(meta);
-
-            inv.setItem(slot, item);
-            slot++;
-        }
-        return inv;
-    }
-    //
-    private static Inventory loadSettingsInventory(Player p){
-        Inventory inv = createInventory(p, "&6Reproductor General", 9);
-
-        ItemStack goBackHead = getGoBackArrow();
-        inv.setItem(0, goBackHead);
-
-        ItemStack volItem = ItemConfig.loadItem("music_options_volume", DottUtils.ymlInternalItems);
-        ItemMeta volMeta = volItem.getItemMeta();
-        List<Component> volLore = volMeta.lore();
-        List<Component> overRideVolLore;
-        if(volLore==null){
-            overRideVolLore=new ArrayList<>();
-        }else{
-            overRideVolLore=new ArrayList<>(volLore);
-        }
-        overRideVolLore.add(U.componentColor("&eVol: &f"+U.truncar(MusicConfig.getGlobalVolume(), 2)));
-        volMeta.lore(overRideVolLore);
-        volItem.setItemMeta(volMeta);
-
-        ItemStack reloadItem = ItemConfig.getInternalItem("music_options_reload", Material.WRITABLE_BOOK,
-                "&e&lRecargar la config", null, "musicFrontInternal", "options_reload");
-
-        inv.setItem(3, volItem);
-        inv.setItem(7, reloadItem);
-
-        p.openInventory(inv);
-        return inv;
-    }
-    //
-    private static Inventory createInventory(Player player, String t, int size){
-        Component title = U.componentColor(musicPrefix.replace(" ", "")+" "+t);
-        return Bukkit.createInventory(player, size, title);
-    }
-    //
-    public static void onInvClick(InventoryClickEvent event){
-        if(!(event.getWhoClicked() instanceof Player p)) return;
-        if(!p.hasPermission("DottUtils.music")) return;
-        //U.mensajeDebug("MusicFront.onInv", p);
-        InventoryView invView = event.getView();
-
-        String title = musicPrefix.replace(" ", "");
-        Component invTitleComponent = invView.title();
-        String[] invTitle = U.componentToStringMsg(invTitleComponent).split(" ", 2);
-
-        if(!(title.equals(invTitle[0]))){
-            //U.mensajeDebug("no conciden titles "+ Arrays.toString(invTitle) +" | "+title, p);
-            return;
-        }
-
-        event.setCancelled(true);
-
-        ItemStack item = event.getCurrentItem();
-        if(item==null) return;
-        //
-        String itemType = U.getPersistentDataContainerValue(item.getItemMeta(), "musicFrontInternal");
-        if(itemType==null) return;
-
-        ClickType clickType = event.getClick();
-        //pages
-        if(itemType.startsWith("page")){
-            String[] output = itemType.split("_");
-            loadSavesInventory(p, Integer.parseInt(output[1]));
-            return;
-        }
-        if(itemType.startsWith("plays")){
-            String[] output = itemType.split("_", 2);
-            switchPlayType(p, output[1], clickType);
-            return;
-        }
-
-        // gui things
-        switch (itemType){
-            case("menu_saves")-> loadSavesInventory(p, 1);
-            case("menu_options")-> loadSettingsInventory(p);
-            //
-            case"go_back"-> openMenu(p);
-            case "options_volume"->{
-                switchOptionMusic(clickType);
-                loadSettingsInventory(p);
-            }
-            case "options_reload"-> U.targetCommand(p, "du reload");
-            case "saves_stopmusic"->switchStopMusic(p, clickType);
-
-            //
-            default -> {
-                U.mensajeConsola("&citemType al clickear en un menu de musica está raro! "+itemType);
-            }
-        }
+        MusicMenus.getMainInventory().createInventoryAndOpen(player);
     }
 
-    private static void switchPlayType(Player p, String songName, ClickType clickType){
+
+    static void switchPlayType(Player p, String songName, ClickType clickType){
         switch(clickType){
             case ClickType.RIGHT->{
                 U.targetCommand(p, "du music play "+songName+" "+p.getName()+" true");
@@ -270,37 +77,91 @@ public class MusicFront extends MusicMainCommand {
             }
         }
     }
-    private static void switchOptionMusic(ClickType clickType){
+    static void switchVolumeMusicOption(ClickType clickType){
         switch (clickType){
             case RIGHT, SHIFT_RIGHT -> MusicConfig.addVolume(0.05f);
             case LEFT, SHIFT_LEFT -> MusicConfig.addVolume(-0.05f);
         }
     }
-    private static void switchStopMusic(Player p, ClickType clickType){
+    static void switchStopMusic(Player p, ClickType clickType){
         switch (clickType){
             case RIGHT, LEFT -> U.targetCommand(p, "du music stop");
             case SHIFT_RIGHT, SHIFT_LEFT -> U.targetCommand(p, "du music stop @a");
         }
     }
-    //
-    private static ItemStack getGoBackArrow(){
-        return getGoBackArrow("go_back");
-    }
-    private static ItemStack getGoBackArrow(@NotNull String dataPKey){
-        ItemStack head = ItemConfig.loadItem("music_gotomenu", ymlItem);
-        SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-        skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("MHF_ArrowLeft"));
-
-        U.setPersistentDataContainerValue(skullMeta, "musicFrontInternal", dataPKey);
-        head.setItemMeta(skullMeta);
-        return head;
-    }
-    private static String timeFormat(double segundos){
+    public static String timeFormat(double segundos){
         if(segundos<60) return U.truncar(segundos, 2)+"s";
 
-        int minutos = U.removeDecimals(segundos/60d);
-        int segundosSobrantes = (int) segundos%60;
+        int minutos = 0;
 
-        return minutos+"m "+segundosSobrantes+"s";
+        while(segundos>=60){
+            segundos-=60;
+            minutos++;
+        }
+
+        return minutos+"m "+U.removeDecimals(segundos)+"s";
+    }
+
+    //----------------------------------------------
+    /**
+     * @param inv slots >= 27
+     * @param page >= 1
+     * @param loreForSongs El lore que ocupará cada item
+     * @param dataPKey Pondrá un data_persistent_key al meta de cada item del tipo dataPKey+songName.
+     *                 Por ejemplo dataPKey = plays_ | plays_test
+     * @return ¡El inventario introducido, pero este YA está cambiado!
+     */
+    public static CustomInventory addMusicSaves(@NotNull CustomInventory inv, int page, @Nullable List<Component> loreForSongs, @Nullable String dataPKey){
+        return addMusicSaves(inv, page, loreForSongs, dataPKey, null);
+    }
+    /**
+     * @param inv slots >= 27
+     * @param page >= 1
+     * @param loreForSongs El lore que ocupará cada item
+     * @param stringConsumer Pondrá un BiConsumer asignado a cada canción, tal que
+     *                       InventoryClickEvent será el evento en sí y
+     *                       el nombre de la canción será el string que alimente.
+     * @return ¡El inventario introducido, pero este YA está cambiado!
+     */
+    public static CustomInventory addMusicSaves(@NotNull CustomInventory inv, int page, @Nullable List<Component> loreForSongs, @Nullable BiConsumer<InventoryClickEvent, String> stringConsumer){
+        return addMusicSaves(inv, page, loreForSongs, null, stringConsumer);
+    }
+    public static CustomInventory addMusicSaves(@NotNull CustomInventory inv, int page, @Nullable List<Component> loreForSongs, @Nullable String dataPKey, @Nullable BiConsumer<InventoryClickEvent, String> biConsumer){
+        int maxSize = page*27;
+        List<String> musicArray = MusicConfig.getMusicList();
+
+        int slot=0;
+        for(int i=(page-1)*27;(i<maxSize)&&(i<musicArray.size());i++){
+            List<Component> loreListCopy = (loreForSongs!=null) ? new ArrayList<>(loreForSongs) : new ArrayList<>();
+
+            String songName = musicArray.get(i);
+            LegacyMusic music = LegacyMusic.getFromCache(songName);
+            if(music==null) continue;
+
+            int tickDuration = music.getTicksDuration();
+            String formattedDuration = MusicFront.timeFormat(tickDuration/20d);
+            loreListCopy.addFirst(U.componentColor("&6Duración: &e"+tickDuration+" &7("+formattedDuration+")"));
+            String titleAndAuthor = music.getTitleAndAuthor();
+            if(titleAndAuthor==null) titleAndAuthor="<b><color:#bb67e6>"+songName+"</color></b>";
+
+            loreListCopy.addFirst(U.componentColor("&7"+songName));
+
+            ItemStack item = new ItemStack(music.getDisplayMaterial());
+            ItemMeta meta = item.getItemMeta();
+
+            meta.displayName(U.componentColorHexMini(titleAndAuthor));
+            meta.lore(loreListCopy);
+
+            if(dataPKey!=null) U.setPersistentDataContainerValue(meta, "musicFrontInternal", dataPKey+songName);
+
+            item.setItemMeta(meta);
+
+            inv.setItem(slot, item);
+            if(biConsumer!=null){
+                inv.setItemTask(slot, e-> biConsumer.accept(e, songName));
+            }
+            slot++;
+        }
+        return inv;
     }
 }

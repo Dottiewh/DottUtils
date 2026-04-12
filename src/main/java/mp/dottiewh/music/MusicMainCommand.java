@@ -23,7 +23,7 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class MusicMainCommand extends ReferibleCommand {
     private static final Logger log = LoggerFactory.getLogger(MusicMainCommand.class);
-    protected static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
+    public static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
     String type, songName;
     boolean loop;
 

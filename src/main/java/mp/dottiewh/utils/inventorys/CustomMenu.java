@@ -16,6 +16,9 @@ public class CustomMenu {
     public CustomInventory getChild(String key){
         return childs.get(key);
     }
+    public void addChild(String key, CustomInventory inv){
+        childs.put(key ,inv);
+    }
 
     public CustomInventory getMainMenu(){
         return mainMenu;
