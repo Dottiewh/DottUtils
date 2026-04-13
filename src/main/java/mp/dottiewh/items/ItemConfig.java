@@ -878,4 +878,23 @@ public class ItemConfig{
         U.mensajeConsolaNP("&eNo existía el item interno &4"+itemName+" &eregenerando automaticamente...");
         return itemDefault;
     }
+
+    public static void checkDefaultInternalItems(){
+        CustomConfig ymlInternalItems = DottUtils.ymlInternalItems;
+        final HashMap<String, ItemStack> registeredItems = new HashMap<>();
+
+        ConfigurationSection itemsSection = ymlInternalItems.getConfig().getConfigurationSection("Items");
+        if(itemsSection==null){
+            U.mensajeConsola("&cNo se ha podido verificar los items internos por defecto. No existe Items. ?");
+            return;
+        }
+
+        for(String id : itemsSection.getKeys(false)){
+            ItemStack item = getInternalItem(id);
+            if(item==null) continue;
+            registeredItems.put(id, item);
+        }
+
+
+    }
 }
