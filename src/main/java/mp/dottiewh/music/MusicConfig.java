@@ -4,11 +4,9 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.music.exceptions.*;
-import mp.dottiewh.music.classes.Layer;
-import mp.dottiewh.music.classes.Music;
+import mp.dottiewh.music.classes.*;
 import mp.dottiewh.music.classes.Note;
-import mp.dottiewh.music.classes.ResolvedNote;
+import mp.dottiewh.music.exceptions.*;
 import mp.dottiewh.utils.NBSutils;
 import mp.dottiewh.utils.U;
 import org.bukkit.*;
@@ -207,8 +205,13 @@ public class MusicConfig {
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    for(String sSection : partSection.getStringList("section_list")){
-                        sectionLoad(songName, sSection, duration, player, c);
+                    try{
+                        for(String sSection : partSection.getStringList("section_list")){
+                            sectionLoad(songName, sSection, duration, player, c);
+                        }
+                    }catch(Exception e){
+                        U.printException(e);
+                        stopMusicTasks(player.getUniqueId());
                     }
 
                 }
@@ -566,6 +569,7 @@ public class MusicConfig {
         //======================
         customConfigNewFile.saveConfig();
         U.mensajeConsolaNP("&aSe ha importado "+fileName+" correctamente! &8| &6RoundType: &e"+roundType);
+        LegacyMusic.loadCache();
     }
 
     private static int normalizeTempo(float tempo, MusicRoundType roundType){

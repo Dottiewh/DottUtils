@@ -46,7 +46,7 @@ public class LegacyMusic {
         //U.mensajeDebugConsole(this.toString());
     }
 
-    public static void loadCache(){
+    public synchronized static void loadCache(){
         cacheMap.clear();
         U.mensajeDebugConsole("Caché Started - MUSIC");
         List<String> musicList = MusicConfig.getMusicList();

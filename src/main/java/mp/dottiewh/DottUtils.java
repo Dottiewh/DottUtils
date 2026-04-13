@@ -66,6 +66,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         );
 
         initCustomConfig();
+        registerDefaultFiles();
         checkSoftDependencys();
         regEvents();
         registrarComandos();
@@ -155,6 +156,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         U.debugMode = Config.getBoolean("debug_mode", false);
         U.debugPrefix = U.getMsgPath("debug_prefix", "&8&l[&4&lDU &c&lDebug&8&l] &e");
 
+        // chat
+        ChatListener.setItemDisplayOnChat(Config.getBoolean("item_display", true));
+
         //cinematics related
         folderCinematic = new File(instance.getDataFolder(), "cinematics");
         if(!folderCinematic.exists()){
@@ -184,6 +188,17 @@ public class DottUtils extends JavaPlugin implements Listener {
         cacheAsync = Config.getBoolean("load_cache_async", true);
         LegacyMusic.loadCache();
     }
+    private void registerDefaultFiles(){
+        // items folder
+        CustomConfig.registerDefFile("customitems.yml", "items", this, false);
+        CustomConfig.registerDefFile("moreitems.yml", "items", this, false);
+        // musics folder
+        CustomConfig.registerDefFile("demo.yml", "musics", this, false);
+        CustomConfig.registerDefFile("musics/import/README.txt", this, false);
+        // util
+        CustomConfig.registerDefFile("customspawns.yml", "util", this, false);
+    }
+
     private void regEvents(){
         regFormat(new ChatListener());
         regFormat(new EntityAttackListener());
