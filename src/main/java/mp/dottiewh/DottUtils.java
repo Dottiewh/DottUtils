@@ -192,6 +192,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         // items folder
         CustomConfig.registerDefFile("customitems.yml", "items", this, false);
         CustomConfig.registerDefFile("moreitems.yml", "items", this, false);
+
+        ItemConfig.checkDefaultInternalItems();
         // musics folder
         CustomConfig.registerDefFile("demo.yml", "musics", this, false);
         CustomConfig.registerDefFile("musics/import/README.txt", this, false);
