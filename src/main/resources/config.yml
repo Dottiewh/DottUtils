@@ -21,7 +21,7 @@ delay_onback: 100 #Ticks
 back_expires_on_stop: false # if false, some backs may never expire, be caution!
 back_expire_time: 300 # Seconds (-1 for never)
 
-default_music_volume: 1 # integer between 0-2
+default_music_volume: 1 # float between 0-2
 
 # These are some custom features, but aren't recommended to be used
 custom_spawn_ft_enabled: false

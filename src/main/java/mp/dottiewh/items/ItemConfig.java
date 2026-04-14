@@ -747,7 +747,8 @@ public class ItemConfig{
         FileConfiguration itemcfg = configItem.getConfig();
         return itemcfg.contains(path, false);
     }
-    public static void removeItem(String name, @Nullable String fileName){
+
+    public static void removeItem(String name, @Nullable String fileName) throws InvalidItemConfigException{
         String path = "Items."+name;
         FileConfiguration itemcfg =null;
         CustomConfig tempConfig = configItem;
@@ -767,6 +768,20 @@ public class ItemConfig{
         itemcfg.set(path, null);
         tempConfig.saveConfig();
         BrigadierManager.reloadBrigadierItems();
+    }
+    public static void removeItem(String name, CustomConfig config) throws InvalidItemConfigException{
+        String path = "Items."+name;
+        FileConfiguration itemcfg;
+        CustomConfig tempConfig = config;
+
+        itemcfg=tempConfig.getConfig();
+
+        if (!itemcfg.contains(path, false)){
+            throw new InvalidItemConfigException(path, "Tu path no existe.");
+        }
+
+        itemcfg.set(path, null);
+        tempConfig.saveConfig();
     }
 
     @NotNull
@@ -877,5 +892,44 @@ public class ItemConfig{
         saveItem(itemName, itemDefault, DottUtils.ymlInternalItems, pDataKey);
         U.mensajeConsolaNP("&eNo existía el item interno &4"+itemName+" &eregenerando automaticamente...");
         return itemDefault;
+    }
+
+    public static void checkDefaultInternalItems(){
+        CustomConfig ymlInternalItems = DottUtils.ymlInternalItems;
+        final LinkedHashMap<String, ItemStack> registeredItems = new LinkedHashMap<>();
+
+        ConfigurationSection itemsSection = ymlInternalItems.getConfig().getConfigurationSection("Items");
+        if(itemsSection==null){
+            U.mensajeConsola("&cNo se ha podido verificar los items internos por defecto. No existe Items. ?");
+            return;
+        }
+
+        for(String id : itemsSection.getKeys(false)){
+            U.mensajeDebugConsole("Guardando a los "+id);
+
+            ItemStack item = getInternalItem(id);
+            if(item==null) continue;
+            registeredItems.put(id, item);
+        }
+
+        //Plugin plugin = DottUtils.getPlugin();
+
+        //String path = "util"+File.separator+"internalitems.yml";
+        ymlInternalItems.getFile().delete();
+        ymlInternalItems = new CustomConfig("internalitems.yml", "util", DottUtils.getInstance(), false);
+        ymlInternalItems.registerConfig(); DottUtils.ymlInternalItems = ymlInternalItems;
+
+        //if(true) return;
+        for(Map.Entry<String, ItemStack> entry : registeredItems.entrySet()){
+            String itemId = entry.getKey();
+            try{
+                removeItem(itemId, ymlInternalItems);
+            } catch (InvalidItemConfigException e) {
+                continue;
+            }
+
+            saveItem(itemId, entry.getValue(), ymlInternalItems, null);
+            U.mensajeDebugConsole("Salvando a "+itemId);
+        }
     }
 }

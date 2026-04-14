@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSele
 import mp.dottiewh.commands.Commands;
 import mp.dottiewh.commands.ReferibleCommand;
 import mp.dottiewh.items.exceptions.ItemSectionEmpty;
+import mp.dottiewh.music.front.MusicFront;
 import mp.dottiewh.utils.U;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,7 +23,7 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class MusicMainCommand extends ReferibleCommand {
     private static final Logger log = LoggerFactory.getLogger(MusicMainCommand.class);
-    protected static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
+    public static String musicPrefix = "&d&l[&9&lMusica&d&l] ";
     String type, songName;
     boolean loop;
 
