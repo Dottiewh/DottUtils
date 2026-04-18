@@ -13,7 +13,6 @@ import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,7 +71,7 @@ public class MusicConfig {
         }
     }
 
-    private static Plugin pl;
+    private static org.bukkit.plugin.Plugin pl;
     private static File mFolder;
     private static DottUtils instance;
     private final static Map<UUID, List<BukkitRunnable>> mRunnableList = new HashMap<>();
@@ -87,8 +86,8 @@ public class MusicConfig {
 
     public static void initMusicConfig(){
         mFolder = DottUtils.folderMusic;
-        instance=DottUtils.getInstance();
-        pl=DottUtils.getPlugin();
+        instance= DottUtils.getInstance();
+        pl= DottUtils.getPlugin();
         MusicMainCommand.setMusicPrefix(U.getMsgPath("music_prefix", "&d&l[&9&lMusica&d&l] "));
     }
     private static void addRunnable(UUID uuid, BukkitRunnable runnable, int delay){
@@ -372,6 +371,9 @@ public class MusicConfig {
         U.removeYmlFormat(list);
         return list;
     }
+    public static boolean existsMusic(String id){
+        return getMusicList().contains(id);
+    }
 
     @Nullable
     public static String getDisplayNameAndAuthor(@NotNull ConfigurationSection mainSec, String titleFormat, String authorFormat){
@@ -389,7 +391,6 @@ public class MusicConfig {
         if(displayName==null||author==null) return null;
         return "<b><color:"+titleHex+">"+displayName+"</color></b> <color:"+middleHex+">-</color>"+" <color:"+authorHex+"><b>"+author+"</b></color>";
     }
-    @NotNull
     public static int getTicksDuration(@NotNull ConfigurationSection structureSection){
 
         int tickCount=0;

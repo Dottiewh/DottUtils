@@ -11,7 +11,6 @@ import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.items.ItemConfig;
-import mp.dottiewh.listeners.entity.EntityBowShotListener;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -29,7 +28,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class ItemUtils {
-    private static final Plugin plugin = DottUtils.getPlugin();
+    private static final org.bukkit.plugin.Plugin plugin = DottUtils.getPlugin();
     private static final String pluginKey = plugin.getName().toLowerCase();
 
     public static EquipmentSlotGroup getSlotFromString(String slot) {

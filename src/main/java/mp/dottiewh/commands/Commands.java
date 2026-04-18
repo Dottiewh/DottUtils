@@ -1,42 +1,22 @@
 package mp.dottiewh.commands;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.DottUtils;
-import mp.dottiewh.cinematics.CinematicMainCommand;
-import mp.dottiewh.cinematics.CinematicsConfig;
-import mp.dottiewh.commands.aliasCommands.*;
-import mp.dottiewh.commands.noaliasCommands.*;
 import mp.dottiewh.config.CustomConfig;
-import mp.dottiewh.items.ItemConfig;
-import mp.dottiewh.items.ItemMainCommand;
-import mp.dottiewh.music.MusicConfig;
-import mp.dottiewh.music.MusicMainCommand;
-import mp.dottiewh.commands.noaliasCommands.backcore.BackCommand;
-import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTime;
-import mp.dottiewh.commands.noaliasCommands.tpacore.Tpa;
-import mp.dottiewh.commands.noaliasCommands.tpacore.TpaAccept;
-import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCancel;
-import mp.dottiewh.commands.noaliasCommands.tpacore.TpaDeny;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
-import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class Commands {
     private static final Logger log = LoggerFactory.getLogger(Commands.class);
@@ -47,7 +27,7 @@ public class Commands {
     //
     protected CommandSender sender;
     protected String stringInput;
-    protected Plugin plugin;
+    protected org.bukkit.plugin.Plugin plugin;
     protected Player classTarget;
     protected boolean allGood;
     //
@@ -56,7 +36,7 @@ public class Commands {
     protected static SuggestionProvider<CommandSourceStack> music_suggestions;
     protected static SuggestionProvider<CommandSourceStack> cinematics_suggestions;
 
-    protected CustomConfig interalItemsCustomConfig=DottUtils.ymlInternalItems;
+    protected CustomConfig interalItemsCustomConfig= DottUtils.ymlInternalItems;
 
     protected Commands(){
     }
@@ -77,7 +57,7 @@ public class Commands {
     protected Commands(CommandContext<CommandSourceStack> ctx, boolean target){
         this.sender=ctx.getSource().getSender();
         this.stringInput =ctx.getInput();
-        this.plugin=DottUtils.getPlugin();
+        this.plugin= DottUtils.getPlugin();
         this.allGood=true;
         if(target){
             Player p = getPlayerFromCtx(ctx);
@@ -92,7 +72,7 @@ public class Commands {
     protected Commands(CommandContext<CommandSourceStack> ctx){
         this.sender=ctx.getSource().getSender();
         this.stringInput =ctx.getInput();
-        this.plugin=DottUtils.getPlugin();
+        this.plugin= DottUtils.getPlugin();
     }
 
     //

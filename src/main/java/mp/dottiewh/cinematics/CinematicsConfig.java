@@ -2,11 +2,9 @@ package mp.dottiewh.cinematics;
 
 import com.destroystokyo.paper.SkinParts;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.cinematics.exceptions.*;
 import mp.dottiewh.commands.BrigadierManager;
-import mp.dottiewh.commands.Commands;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.utils.U;
@@ -21,10 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -39,7 +35,7 @@ public class CinematicsConfig {
     }
 
     private static final DottUtils instance = DottUtils.getInstance();
-    private static final Plugin plugin = DottUtils.getPlugin();
+    private static final org.bukkit.plugin.Plugin plugin = DottUtils.getPlugin();
 
     private static final List<UUID> listaCooldown = new LinkedList<>();
     private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
@@ -174,6 +170,10 @@ public class CinematicsConfig {
     //
     public static void stopRegister(Player p){
         UUID uuid = p.getUniqueId();
+        if(mapaPlayerStatus.containsKey(uuid) && mapaPlayerStatus.get(uuid).equals(Status.PAUSED)){
+            cineMsg("&cDebes des-pausar tu grabación antes de acabarla!", p);
+            return;
+        }
         checkAndStop(uuid);
         cineMsg("&aSe ha mandado la orden de dejar de registrar cinemáticas.", p);
     }

@@ -4,7 +4,6 @@ import mp.dottiewh.DottUtils;
 import mp.dottiewh.commands.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

@@ -5,7 +5,6 @@ import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.MusicMainCommand;
-import mp.dottiewh.music.classes.LegacyMusic;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.utils.inventorys.CustomInventory;
 import mp.dottiewh.utils.inventorys.CustomMenu;
@@ -13,19 +12,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MusicMenus extends MusicMainCommand{
     private static final CustomConfig ymlItem = DottUtils.ymlInternalItems;

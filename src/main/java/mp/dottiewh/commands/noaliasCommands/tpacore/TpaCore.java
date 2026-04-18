@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -19,7 +18,7 @@ public class TpaCore {
     private static final Map<String, BukkitRunnable> hashMapOfFinalStep = new HashMap<>();
 
 
-    public static void addTpRequest(String nameFrom, String nameTo, Plugin plugin){
+    public static void addTpRequest(String nameFrom, String nameTo, org.bukkit.plugin.Plugin plugin){
         Player from = Bukkit.getPlayerExact(nameFrom);
         Player to = Bukkit.getPlayerExact(nameTo);
         if (from==null||to==null) throw new IllegalArgumentException("Alguno de los dos inputs es null.");
@@ -44,7 +43,7 @@ public class TpaCore {
         putAndCooldown(from, bothNames, task, plugin);
 
     }
-    private static void putAndCooldown(Player playerFrom, String bothNames, BukkitRunnable task, Plugin plugin){
+    private static void putAndCooldown(Player playerFrom, String bothNames, BukkitRunnable task, org.bukkit.plugin.Plugin plugin){
         long cooldown = Config.getLong("petition_active_for", 60)*20;
         hashMap.put(bothNames, task);
         String from = bothNames.split(";")[0];

@@ -2,11 +2,9 @@ package mp.dottiewh.utils;
 
 import mp.dottiewh.DottUtils;
 import mp.dottiewh.config.Config;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -21,7 +19,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -359,13 +356,13 @@ public class U { //Stands for utils
         Bukkit.getScheduler().runTaskLater(DottUtils.getPlugin(), consumer, delay);
     }
 
-    public static void countdownForAll(Plugin pl, int segundos, String format){ // Segundos restantes: 77
+    public static void countdownForAll(org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
         stopAllCountdowns();
         for(Player p : Bukkit.getOnlinePlayers()){
             countdownForTarget(p, pl, segundos, format);
         }
     }
-    public static void countdownForTarget(Player p, Plugin pl, int segundos, String format){ // Segundos restantes: 77
+    public static void countdownForTarget(Player p, org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
         UUID uuid = p.getUniqueId();
         stopCountdownTarget(uuid);
         stopStaticActionBar(uuid);
@@ -423,21 +420,21 @@ public class U { //Stands for utils
         }
     }
 
-    public static void blackScreenForAll(Plugin plugin, boolean forceIt){
+    public static void blackScreenForAll(org.bukkit.plugin.Plugin plugin, boolean forceIt){
         for(Player p : Bukkit.getOnlinePlayers()){
             blackScreen(plugin, p, forceIt);
         }
     }
-    public static void blackScreenForAll(Plugin plugin, boolean forceIt, int time){
+    public static void blackScreenForAll(org.bukkit.plugin.Plugin plugin, boolean forceIt, int time){
         for(Player p : Bukkit.getOnlinePlayers()){
             blackScreen(plugin, p, forceIt, time);
         }
     }
-    public static void blackScreen(Plugin plugin, Player player, boolean forceIt){
+    public static void blackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt){
         sendTitleTarget(player, "\uE123", null, 20, 9999999, 20);
         coreBlackScreen(plugin, player, forceIt);
     }
-    public static void blackScreen(Plugin plugin, Player player, boolean forceIt, int time){
+    public static void blackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt, int time){
         time = time*20;
         sendTitleTarget(player, "\uE123", null, 20, time, 20);
         coreBlackScreen(plugin, player, forceIt);
@@ -446,7 +443,7 @@ public class U { //Stands for utils
         }, time);
     }
     //
-    private static void coreBlackScreen(Plugin plugin, Player player, boolean forceIt){
+    private static void coreBlackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt){
         stopForceBlackScreen(player.getUniqueId()); //just in case
         addPotionEffect(PotionEffectType.DARKNESS, player, PotionEffect.INFINITE_DURATION, 0, true, false, false);
         if(forceIt){
@@ -472,7 +469,7 @@ public class U { //Stands for utils
     }
 
 
-    private static void forceBlackOut(Plugin plugin, Player player){
+    private static void forceBlackOut(org.bukkit.plugin.Plugin plugin, Player player){
         AttributeInstance attr = player.getAttribute(Attribute.CAMERA_DISTANCE);
         if(attr!=null){
             attr.setBaseValue(1);

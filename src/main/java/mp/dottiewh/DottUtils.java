@@ -20,7 +20,6 @@ import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.libs.bstats.Metrics;
 import org.bukkit.*;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 
@@ -31,7 +30,7 @@ import java.io.File;
 
 public class DottUtils extends JavaPlugin implements Listener {
     private static DottUtils instance;
-    private static Plugin plugin;
+    private static org.bukkit.plugin.Plugin plugin;
     private File adminFile;
     //private FileConfiguration adminConfig;
     //private BukkitTask repetitivo;
@@ -243,7 +242,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static DottUtils getInstance(){
         return instance;
     }
-    public static Plugin getPlugin(){
+    public static org.bukkit.plugin.Plugin getPlugin(){
         return plugin;
     }
     private void checkVersion(){

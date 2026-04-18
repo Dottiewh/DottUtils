@@ -1,16 +1,21 @@
 package mp.dottiewh.api;
 
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.api.directors.DuCinematicsDirector;
+import mp.dottiewh.api.directors.DuItemsDirector;
+import mp.dottiewh.api.directors.DuMusicsDirector;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.config.Config;
+import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,10 +26,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class DuApiManager {
-    Plugin plugin;
+    org.bukkit.plugin.Plugin plugin;
     String prefix;
 
-    public DuApiManager(Plugin plugin, String prefix) {
+    public DuApiManager(org.bukkit.plugin.Plugin plugin, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
 
@@ -172,31 +177,65 @@ public class DuApiManager {
         U.stopAllCountdowns();
     }
 
+
+    public DuMusicsDirector getMusicDirector(){
+        return new DuMusicsDirector();
+    }
+    /** Use DuMusicsDirector with getMusicDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void playSong(String song, Player player, boolean loop){
         MusicConfig.reproduceTo(song, player, loop);
     }
+    /** Use DuMusicsDirector with getMusicDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void playSongForAll(String song, boolean loop){
         MusicConfig.reproduceToAll(song, loop);
     }
-
+    /** Use DuMusicsDirector with getMusicDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void stopSong(){
         MusicConfig.stopMusicTasks();
     }
+    /** Use DuMusicsDirector with getMusicDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void stopSong(UUID uuid){
         MusicConfig.stopMusicTasks(uuid);
     }
-
+    //======================================
+    public DuCinematicsDirector getCinematicsDirector(){
+        return new DuCinematicsDirector();
+    }
+    /** Use DuCinematicsDirector with getCinematicsDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void playCinematic(Player p, String fileName, boolean clonePlayer){
         CinematicsConfig.reproduceCinematic(p, fileName, clonePlayer, true);
     }
+    /** Use DuCinematicsDirector with getCinematicsDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void playCinematicForAll(String fileName, boolean clonePlayer){
         CinematicsConfig.reproduceCinematicForAll(fileName, clonePlayer);
     }
+    /** Use DuCinematicsDirector with getCinematicsDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void stopCinematic(UUID uuid){
         CinematicsConfig.stopReproducing(uuid);
     }
+    /** Use DuCinematicsDirector with getCinematicsDirector() method instead
+     */
+    @Deprecated(since = "1.2.3")
     public void stopCinematicForAll(){
         CinematicsConfig.stopReproducingForAll();
+    }
+
+    public DuItemsDirector getItemsDirector(){
+        return new DuItemsDirector();
     }
 
     public void blackScreen(Player p, boolean forceIt){
@@ -217,8 +256,14 @@ public class DuApiManager {
     public void stopBlackScreenForAll(){
         U.stopBlackScreenForAll();
     }
+    //
 
-
+    /**
+     * Remember to do cConfig.registerConfig(); later!
+     */
+    public CustomConfig createCustomConfig(@NotNull String fileName, @Nullable String folderName, boolean newFile){
+        return new CustomConfig(fileName, folderName, plugin, newFile);
+    }
     //
     public String getPrefix(){return prefix;}
 }

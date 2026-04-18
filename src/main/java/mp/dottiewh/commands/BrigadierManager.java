@@ -15,15 +15,12 @@ import mp.dottiewh.commands.noaliasCommands.tpacore.Tpa;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaAccept;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCancel;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaDeny;
-import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.items.ItemMainCommand;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.MusicMainCommand;
 import mp.dottiewh.utils.U;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -33,7 +30,7 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 
 public class BrigadierManager extends Commands{
     //==================
-    public static void regNoAliasCommands(Plugin plugin){
+    public static void regNoAliasCommands(org.bukkit.plugin.Plugin plugin){
         List<LiteralArgumentBuilder<CommandSourceStack>> listaLiterals = new LinkedList<>();
         CustomConfig cConfig = getRegCmdFileConfig();
 
@@ -79,7 +76,7 @@ public class BrigadierManager extends Commands{
         }
     }
     //
-    public static LiteralArgumentBuilder<CommandSourceStack> createAlias(Plugin pl, String name){
+    public static LiteralArgumentBuilder<CommandSourceStack> createAlias(org.bukkit.plugin.Plugin pl, String name){
         return literal(name)
                 .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
                 .then(Admin.getLiteralBuilder())

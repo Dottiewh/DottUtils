@@ -5,19 +5,27 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 
 public class CustomConfig {
-    private DottUtils plugin;
+    private Plugin plugin;
     private String fileName;
     private FileConfiguration fileConfiguration = null;
     private File file = null;
     private String folderName;
     private boolean newFile;
 
-    public CustomConfig(String fileName, String folderName, DottUtils plugin, boolean newFile){
+    public CustomConfig(@NotNull String fileName, @Nullable String folderName, DottUtils plugin, boolean newFile){
+        this.fileName = fileName;
+        this.folderName = folderName;
+        this.plugin = plugin;
+        this.newFile = newFile;
+    }
+    public CustomConfig(@NotNull String fileName, @Nullable String folderName, Plugin plugin, boolean newFile){
         this.fileName = fileName;
         this.folderName = folderName;
         this.plugin = plugin;
@@ -98,24 +106,24 @@ public class CustomConfig {
     }
 
     //---------
-    public static void registerDefFile(String fileName, String folderName, Plugin pl, boolean newFile){
+    public static void registerDefFile(String fileName, String folderName, org.bukkit.plugin.Plugin pl, boolean newFile){
         String path = folderName+"/"+fileName;
         registerDefFile(path, pl, newFile, false);
     }
-    public static void registerDefFile(String fileName, String folderName, Plugin pl, boolean newFile, boolean replace){
+    public static void registerDefFile(String fileName, String folderName, org.bukkit.plugin.Plugin pl, boolean newFile, boolean replace){
         String path = folderName+"/"+fileName;
         registerDefFile(path, pl, newFile, false);
     }
     /**
      * @param path uses "/" as separator
      */
-    public static void registerDefFile(String path, Plugin pl, boolean newFile){
+    public static void registerDefFile(String path, org.bukkit.plugin.Plugin pl, boolean newFile){
         registerDefFile(path, pl, newFile, false);
     }
     /**
      * @param path uses "/" as separator
      */
-    public static void registerDefFile(String path, Plugin pl, boolean newFile, boolean replace){
+    public static void registerDefFile(String path, org.bukkit.plugin.Plugin pl, boolean newFile, boolean replace){
         File file;
         path = path.replace("/", File.separator);
 
@@ -139,7 +147,7 @@ public class CustomConfig {
      * ONLY USE IT, IF YOU'RE 100% PERCENT SURE THAT path = file path.
      * @param path / replaces with File.separator.
      */
-    public static void registerDefFile(String path, File file, Plugin pl, boolean newFile, boolean replace){
+    public static void registerDefFile(String path, File file, org.bukkit.plugin.Plugin pl, boolean newFile, boolean replace){
         path = path.replace("/", File.separator);
 
         if(!file.exists()){
@@ -158,7 +166,7 @@ public class CustomConfig {
     /**
      * @param path uses "/" as separator
      */
-    public static File getFile(String path, Plugin pl){
+    public static File getFile(String path, org.bukkit.plugin.Plugin pl){
         path = path.replace("/", File.separator);
 
         return new File(pl.getDataFolder(), path);

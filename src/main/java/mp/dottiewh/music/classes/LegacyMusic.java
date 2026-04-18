@@ -7,7 +7,6 @@ import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +22,7 @@ public class LegacyMusic {
     Material displayMaterial;
 
     private static final HashMap<String, LegacyMusic> cacheMap = new HashMap<>();
-    protected static final Plugin plugin = DottUtils.getPlugin();
+    protected static final org.bukkit.plugin.Plugin plugin = DottUtils.getPlugin();
 
     public LegacyMusic(String songName, String titleHex, String middleHex, String authorHex) throws MusicSectionEmpty{
 

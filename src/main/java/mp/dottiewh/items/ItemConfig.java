@@ -33,7 +33,6 @@ import org.bukkit.inventory.meta.components.*;
 import io.papermc.paper.datacomponent.item.Consumable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.tag.DamageTypeTags;
@@ -49,14 +48,14 @@ import static java.util.Arrays.asList;
 public class ItemConfig{
     //private static CustomConfig configMsg;
     private static CustomConfig configItem;
-    private static Plugin plugin;
+    private static org.bukkit.plugin.Plugin plugin;
     //private static String prefix;
 
 
     public static void itemConfigInit(){
         //configMsg = DottUtils.getRegisteredMsgConfig();
         configItem = DottUtils.getRegisteredItemConfig();
-        plugin=DottUtils.getPlugin();
+        plugin= DottUtils.getPlugin();
         //prefix = U.getMsgPath("item_prefix");
     }
 
@@ -316,7 +315,7 @@ public class ItemConfig{
     }
 
     @NotNull
-    public static ItemStack loadItem(@NotNull String name, @Nullable String fileName){
+    public static ItemStack loadItem(@NotNull String name, @Nullable String fileName) throws InvalidItemConfigException{
         if(fileName!=null){
             CustomConfig customConfig = new CustomConfig(fileName+".yml", "items", DottUtils.getInstance(), false);
             customConfig.registerConfig();
@@ -327,7 +326,7 @@ public class ItemConfig{
     }
 
     @NotNull
-    public static ItemStack loadItem(@NotNull String name, @NotNull CustomConfig iConfig) throws InvalidItemConfigException, MissingMaterialException{ //path something like = Items.ItemName
+    public static ItemStack loadItem(@NotNull String name, @NotNull CustomConfig iConfig) throws InvalidItemConfigException{ //path something like = Items.ItemName
         boolean modifyData = false;
         Consumable consToAdd = null;
         
