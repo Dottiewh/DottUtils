@@ -163,6 +163,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         if(!folderCinematic.exists()){
             folderCinematic.mkdirs();
         }
+        CinematicsConfig.hidePlayerOnCinematic = Config.getBoolean("hide_player_on_cinematic", false);
 
         //music related
         folderMusic = new File(instance.getDataFolder(), "musics");

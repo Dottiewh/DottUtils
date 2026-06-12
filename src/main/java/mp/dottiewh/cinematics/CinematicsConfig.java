@@ -37,6 +37,8 @@ public class CinematicsConfig {
     private static final DottUtils instance = DottUtils.getInstance();
     private static final org.bukkit.plugin.Plugin plugin = DottUtils.getPlugin();
 
+    public static boolean hidePlayerOnCinematic = false;
+
     private static final List<UUID> listaCooldown = new LinkedList<>();
     private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
     private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
@@ -361,7 +363,7 @@ public class CinematicsConfig {
 
         if(natural) mapaPlayerData.put(uuid, entryToDeliver); // DATA IMPORTANTE
 
-        U.hidePlayerForAll(p);
+        if(hidePlayerOnCinematic) U.hidePlayerForAll(p);
         p.setGameMode(GameMode.SPECTATOR);
 
         // textDisplay
@@ -540,7 +542,7 @@ public class CinematicsConfig {
             }
         }
         // misc
-        U.unHidePlayerForAll(player);
+        if(online&&player.isInvisible()) U.unHidePlayerForAll(player);
     }
     public static boolean deleteCinematic(String fileName) throws CinematicFileDontExist{
         File archivo = getFileRaw(fileName, false);

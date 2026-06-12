@@ -24,6 +24,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -51,13 +53,13 @@ public class U { //Stands for utils
     public static String debugPrefix = "&8&l[&4&lDU &c&lDebug&8&l] &e"; // def
 
     //--------------------------Métodos Útiles-----------------------------------
-    public static void targetMessage(Player target, String mensaje){
+    public static void targetMessage(@NotNull Player target, @NotNull String mensaje){
         target.sendMessage(U.mensajeConPrefix(mensaje));
     }
-    public static void targetMessageNP(Player target, String mensaje){
+    public static void targetMessageNP(@NotNull Player target, @NotNull String mensaje){
         target.sendMessage(U.mensajeConColor(mensaje));
     }
-    public static void targetMessageNP(CommandSender target, String mensaje){
+    public static void targetMessageNP(@NotNull CommandSender target, @NotNull String mensaje){
         target.sendMessage(U.mensajeConColor(mensaje));
     }
     // all in ticks
@@ -81,7 +83,7 @@ public class U { //Stands for utils
         return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
 
-    public static void playsoundTarget(Player p, Sound sound, float vol, float pitch){
+    public static void playsoundTarget(@NotNull Player p, Sound sound, float vol, float pitch){
         p.playSound(p, sound, vol, pitch);
     }
     public static void playsoundForAll(Sound sound, float vol, float pitch){
@@ -106,10 +108,10 @@ public class U { //Stands for utils
         return random.nextDouble(max-min)+min;
     }
 
-    public static Component mensajeConPrefix(String mensaje){
+    public static @NotNull Component mensajeConPrefix(@NotNull String mensaje){
         return componentColor(prefix+mensaje);
     }
-    public static Component mensajeConColor(String mensaje){
+    public static @NotNull Component mensajeConColor(@NotNull String mensaje){
         return componentColor(mensaje);
     }
     public static void mensajeConsola(String mensaje){
@@ -119,42 +121,42 @@ public class U { //Stands for utils
         Bukkit.getConsoleSender().sendMessage(componentColor(mensaje));
     }
 
-    public static void mensajeDebug(String mensaje, CommandSender sender){
+    public static void mensajeDebug(@NotNull String mensaje, @NotNull CommandSender sender){
         if(!debugMode) return;
         targetMessageNP(sender, debugPrefix+mensaje);
     }
-    public static void mensajeDebugConsole(String mensaje) {
+    public static void mensajeDebugConsole(@NotNull String mensaje) {
         mensajeDebug(mensaje, Bukkit.getConsoleSender());
     }
 
     @Nullable
-    public static String getPersistentDataContainerValue(ItemMeta meta, String key){
+    public static String getPersistentDataContainerValue(@NotNull ItemMeta meta, @NotNull String key){
         NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
 
         return meta.getPersistentDataContainer().get(nKey, PersistentDataType.STRING);
     }
-    public static void setPersistentDataContainerValue(ItemMeta meta, String key, String value){
+    public static void setPersistentDataContainerValue(@NotNull ItemMeta meta, @NotNull String key, @NotNull String value){
         NamespacedKey nKey = new NamespacedKey(DottUtils.getPlugin(), key);
         meta.getPersistentDataContainer().set(nKey, PersistentDataType.STRING, value);
     }
 
-    public static String componentToStringMsg(Component component){
+    public static @NotNull String componentToStringMsg(@NotNull Component component){
         return LegacyComponentSerializer.legacyAmpersand().serialize(component);
     }
-    public static String componentToStringMsgRaw(Component component){
+    public static @NotNull String componentToStringMsgRaw(@NotNull Component component){
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
-    public static Component componentColor(String mensaje){
+    public static @NotNull Component componentColor(@NotNull String mensaje){
         return LegacyComponentSerializer.legacy('&').deserialize(mensaje);
     }
-    public static Component componentColorRaw(String s){
+    public static Component componentColorRaw(@NotNull String s){
         return Component.text(s);
     }
-    public static Component componentColorHex(String msg, String hex){
+    public static Component componentColorHex(@NotNull String msg, @NotNull String hex){
         if(!hex.startsWith("#")) hex="#"+hex;
         return Component.text(msg).color(TextColor.fromHexString(hex));
     }
-    public static Component componentColorHexMini(String msg){
+    public static Component componentColorHexMini(@NotNull String msg){
         return MiniMessage.miniMessage().deserialize(msg);
     }
     public static void showAllStatus(){
@@ -171,19 +173,19 @@ public class U { //Stands for utils
 
     }
     //---------------no fall management---------
-    public static void noFall_add(Player player){
+    public static void noFall_add(@NotNull Player player){
         UUID uuid = player.getUniqueId();
         listaNoFall.add(uuid);
     }
-    public static void noFall_remove(Player player){
+    public static void noFall_remove(@NotNull Player player){
         UUID uuid = player.getUniqueId();
         listaNoFall.remove(uuid);
     }
-    public static boolean noFall_check(Player player){
+    public static boolean noFall_check(@NotNull Player player){
         UUID uuid = player.getUniqueId();
         return listaNoFall.contains(uuid);
     }
-    public static void noFall_core(EntityDamageEvent event){
+    public static void noFall_core(@NotNull EntityDamageEvent event){
         if (!(event.getEntity() instanceof Player player)) return;
         if (noFall_check(player)){
             event.setCancelled(true);
@@ -191,18 +193,19 @@ public class U { //Stands for utils
         }
     }
     //-------------other-------------------
-    public static List<String> removeYmlFormat(List<String> lista){
+    @Contract("_ -> param1")
+    public static @NotNull List<String> removeYmlFormat(@NotNull List<String> lista){
         lista.replaceAll(name ->
                 name.endsWith(".yml") ? name.substring(0, name.length() - 4) : name
         );
         return lista;
     }
-    public static String removeYmlFormat(String s){
+    public static @NotNull String removeYmlFormat(@NotNull String s){
         if (s.endsWith(".yml")) s=s.substring(0, s.length()-4);
         return s;
     }
 
-    public static void noPvP(EntityDamageByEntityEvent event) {
+    public static void noPvP(@NotNull EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return; //victim
         if (!(event.getDamager() instanceof Player damager)) return; //damager
 
@@ -215,7 +218,7 @@ public class U { //Stands for utils
 
         event.setCancelled(true);
     }
-    public static void noFall(EntityDamageEvent event) {
+    public static void noFall(@NotNull EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!Config.getNoFallStatus()) return; //si esta en false el no fall se devuelve
 
@@ -223,10 +226,12 @@ public class U { //Stands for utils
 
         event.setCancelled(true);
     }
-    public static String getMsgPath(String path){
+    @Nullable
+    public static String getMsgPath(@NotNull String path){
         return DottUtils.ymlMessages.getConfig().getString(path,  null);
     }
-    public static String getMsgPath(String path, String def){
+    @Nullable
+    public static String getMsgPath(@NotNull String path, String def){
         String toGive = DottUtils.ymlMessages.getConfig().getString(path, null);
         if (toGive==null){
             DottUtils.ymlMessages.getConfig().set(path, def);
@@ -239,7 +244,7 @@ public class U { //Stands for utils
     public static int getIntConfigPath (String path){
         return DottUtils.ymlConfig.getConfig().getInt(path);
     }
-    public static void printException(Exception e){
+    public static void printException(@NotNull Exception e){
         U.mensajeConsolaNP("&c"+e.toString());
         U.mensajeConsolaNP("&4"+Arrays.toString(e.getStackTrace()));
     }
@@ -255,6 +260,7 @@ public class U { //Stands for utils
         double dToGive = truncar(value,0);
         return (int) dToGive;
     }
+    @Nullable
     public static String getLastVersionGithub(){
         try{
             HttpClient client = HttpClient.newHttpClient();
@@ -282,12 +288,12 @@ public class U { //Stands for utils
         }
     }
 
-    public static void hidePlayerForAll(Player p){
+    public static void hidePlayerForAll(@NotNull Player p){
         for(Player pOthers : Bukkit.getOnlinePlayers()){
             pOthers.hidePlayer(DottUtils.getPlugin(), p);
         }
     }
-    public static void unHidePlayerForAll(Player p){
+    public static void unHidePlayerForAll(@NotNull Player p){
         for(Player pOthers : Bukkit.getOnlinePlayers()){
             pOthers.showPlayer(DottUtils.getPlugin(), p);
         }
@@ -301,7 +307,7 @@ public class U { //Stands for utils
         return (n%2 == 0);
     }
 
-    public static void addPotionEffect(PotionEffectType effect, Player p, int ticks, int amplifier, boolean ambient, boolean particles, boolean icon){
+    public static void addPotionEffect(PotionEffectType effect, @NotNull Player p, int ticks, int amplifier, boolean ambient, boolean particles, boolean icon){
         PotionEffect potionEffect = new PotionEffect(effect, ticks, amplifier, ambient, particles, icon);
         p.addPotionEffect(potionEffect);
     }
@@ -312,15 +318,15 @@ public class U { //Stands for utils
         }
     }
 
-    public static void actionBarForAll(String msg){
+    public static void actionBarForAll(@NotNull String msg){
         for(Player p : Bukkit.getOnlinePlayers()){
             actionBar(p, msg);
         }
     }
-    public static void actionBar(Player p, String msg){
+    public static void actionBar(@NotNull Player p, @NotNull String msg){
         p.sendActionBar(componentColor(msg));
     }
-    public static void staticActionBar(Player p, String msg){
+    public static void staticActionBar(@NotNull Player p, @NotNull  String msg){
         UUID uuid = p.getUniqueId();
         stopStaticActionBar(uuid);
         stopCountdownTarget(uuid);
@@ -335,7 +341,7 @@ public class U { //Stands for utils
         repetitive.runTaskTimer(DottUtils.getPlugin(), 0L, 20L);
         mapaRepetitivoActionBar.put(uuid, repetitive);
     }
-    public static void staticActionBarForAll(String msg){
+    public static void staticActionBarForAll(@NotNull String msg){
         for(Player p : Bukkit.getOnlinePlayers()){
             staticActionBar(p, msg);
         }
@@ -352,7 +358,7 @@ public class U { //Stands for utils
         runnable.cancel();
     }
 
-    public static void runTaskLater(Consumer<? super BukkitTask> consumer, long delay){
+    public static void runTaskLater(@NotNull Consumer<? super BukkitTask> consumer, long delay){
         Bukkit.getScheduler().runTaskLater(DottUtils.getPlugin(), consumer, delay);
     }
 
@@ -362,7 +368,7 @@ public class U { //Stands for utils
             countdownForTarget(p, pl, segundos, format);
         }
     }
-    public static void countdownForTarget(Player p, org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
+    public static void countdownForTarget(@NotNull Player p, org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
         UUID uuid = p.getUniqueId();
         stopCountdownTarget(uuid);
         stopStaticActionBar(uuid);
@@ -430,11 +436,11 @@ public class U { //Stands for utils
             blackScreen(plugin, p, forceIt, time);
         }
     }
-    public static void blackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt){
+    public static void blackScreen(org.bukkit.plugin.Plugin plugin, @NotNull Player player, boolean forceIt){
         sendTitleTarget(player, "\uE123", null, 20, 9999999, 20);
         coreBlackScreen(plugin, player, forceIt);
     }
-    public static void blackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt, int time){
+    public static void blackScreen(org.bukkit.plugin.Plugin plugin, @NotNull Player player, boolean forceIt, int time){
         time = time*20;
         sendTitleTarget(player, "\uE123", null, 20, time, 20);
         coreBlackScreen(plugin, player, forceIt);
@@ -443,7 +449,7 @@ public class U { //Stands for utils
         }, time);
     }
     //
-    private static void coreBlackScreen(org.bukkit.plugin.Plugin plugin, Player player, boolean forceIt){
+    private static void coreBlackScreen(org.bukkit.plugin.Plugin plugin, @NotNull Player player, boolean forceIt){
         stopForceBlackScreen(player.getUniqueId()); //just in case
         addPotionEffect(PotionEffectType.DARKNESS, player, PotionEffect.INFINITE_DURATION, 0, true, false, false);
         if(forceIt){
@@ -453,7 +459,7 @@ public class U { //Stands for utils
         }
     }
 
-    public static void stopBlackScreen(Player p){
+    public static void stopBlackScreen(@NotNull Player p){
         sendTitleTarget(p, "", null, 0, 5, 0);
         p.removePotionEffect(PotionEffectType.DARKNESS);
         stopForceBlackScreen(p.getUniqueId()); // just to be sure
@@ -469,7 +475,7 @@ public class U { //Stands for utils
     }
 
 
-    private static void forceBlackOut(org.bukkit.plugin.Plugin plugin, Player player){
+    private static void forceBlackOut(org.bukkit.plugin.Plugin plugin, @NotNull Player player){
         AttributeInstance attr = player.getAttribute(Attribute.CAMERA_DISTANCE);
         if(attr!=null){
             attr.setBaseValue(1);

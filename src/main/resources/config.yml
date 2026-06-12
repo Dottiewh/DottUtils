@@ -23,6 +23,8 @@ back_expire_time: 300 # Seconds (-1 for never)
 
 default_music_volume: 1 # float between 0-2
 
+hide_player_on_cinematic: false # if true, people in mid of a cinematic we'll not even appear in the tab.
+
 # These are some custom features, but aren't recommended to be used
 custom_spawn_ft_enabled: false
 custom_spawn_forcetp: false

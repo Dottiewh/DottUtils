@@ -5,6 +5,9 @@ import mp.dottiewh.commands.aliasCommands.AdminChat;
 import mp.dottiewh.utils.U;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,10 +73,12 @@ public class Config {
         }
         return toGive;
     }
-    public static String getString(String path){
+    @Nullable
+    public static String getString(@NotNull String path){
         return DottUtils.ymlConfig.getConfig().getString(path,  null);
     }
-    public static String getString(String path, String def){
+    @UnknownNullability
+    public static String getString(@NotNull String path, String def){
         String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
         if (toGive==null){
             DottUtils.ymlConfig.getConfig().set(path, def);
@@ -83,10 +88,10 @@ public class Config {
         }
         return toGive;
     }
-    public static boolean getBoolean(String path){
+    public static boolean getBoolean(@NotNull String path){
         return DottUtils.ymlConfig.getConfig().getBoolean(path,  false);
     }
-    public static boolean getBoolean(String path, boolean def){
+    public static boolean getBoolean(@NotNull String path, boolean def){
         Object got = DottUtils.ymlConfig.getConfig().get(path);
         boolean success = (got instanceof Boolean);
 
@@ -158,7 +163,10 @@ public class Config {
         return true;
     }
     //-
-    public static boolean addWhitelist(String newBlanco){ // boolean = Was successful?
+    /**
+     * @return true if the operation took effect!
+     */
+    public static boolean addWhitelist(@NotNull String newBlanco){ // boolean = Was successful?
         if (whitelist.contains(newBlanco)) return false;
 
         whitelist.add(newBlanco);
@@ -166,7 +174,10 @@ public class Config {
         configLists.saveConfig();
         return true;
     }
-    public static boolean removeWhitelist(String oldBlanco){ // boolean = Was successful?
+    /**
+     * @return true if the operation took effect!
+     */
+    public static boolean removeWhitelist(@NotNull String oldBlanco){ // boolean = Was successful?
         if (!whitelist.contains(oldBlanco)) return false;
 
         for (String blanco : new ArrayList<>(whitelist)) { // borrar repetidos en caso de
@@ -194,6 +205,9 @@ public class Config {
     public static boolean getPvPStatus(){
         return pvpStatus;
     }
+    /**
+     * @return true if the operation took effect!
+     */
     public static boolean onPvP(){ // boolean = Was successful?
         if (getPvPStatus()) return false;
 
@@ -202,6 +216,9 @@ public class Config {
         pvpStatus = true;
         return true;
     }
+    /**
+     * @return True if the operation took effect!
+     */
     public static boolean offPvP(){ // boolean = Was successful?
         if (!getPvPStatus()) return false;
 
@@ -214,6 +231,9 @@ public class Config {
     public static boolean getNoFallStatus(){
         return noFallStatus;
     }
+    /**
+     * @return true if the operation took effect!
+     */
     public static boolean onNoFall(){ // boolean = Was successful?
         if (getNoFallStatus()) return false;
 
@@ -222,6 +242,10 @@ public class Config {
         noFallStatus = true;
         return true;
     }
+
+    /**
+     * @return true if the operation took effect!
+     */
     public static boolean offNoFall(){ // boolean = Was successful?
         if (!getNoFallStatus()) return false;
 
