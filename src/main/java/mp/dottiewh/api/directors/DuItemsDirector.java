@@ -19,10 +19,16 @@ public class DuItemsDirector {
     public void saveItem(@NotNull String name, @NotNull ItemStack item, CustomConfig customConfig) throws InvalidItemConfigException {
         ItemConfig.saveItem(name, item, customConfig, null);
     }
+    /*
+    Loads an item from the main plugin DottUtils files.
+     */
     @NotNull
-    public ItemStack getItem(@NotNull String name, @Nullable String fileName) throws InvalidItemConfigException{
+    public ItemStack loadItem(@NotNull String name, @Nullable String fileName) throws InvalidItemConfigException{
         return ItemConfig.loadItem(name, fileName);
     }
+    /*
+    Loads an item from a custom config file, it can be from your plugin.
+     */
     @NotNull
     public ItemStack loadItem(@NotNull String name, @NotNull CustomConfig customConfig) throws InvalidItemConfigException { //path something like = Items.ItemName
         return ItemConfig.loadItem(name, customConfig);

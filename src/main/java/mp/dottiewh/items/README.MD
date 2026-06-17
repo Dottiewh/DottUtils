@@ -260,7 +260,3 @@ Items:
 ### **IMPORTANTE:** 
 - #### _NO CAMBIAR MAYÚSCULAS DE (LITERALMENTE, NO ME REFIERO A SUS VALORES): "Material, Name, Lore, Enchants, Attributes, value, operation, slot, Food, always_eatable", "nutrition", "saturation", "seconds", "animation", "sound", "consumeparticles", etc_
 - #### Básicamente, no jugar mucho con las mayúsculas donde NO debes introducir valores, y son de ESTRUCTURA.
-
-
-## 23/02/2026
-#### _Lo de CustomData vendrá en la update 1.2.3_

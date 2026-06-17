@@ -1,19 +1,16 @@
-# V (1.2.2)
+# V (1.2.3)
 
 ## Implementamos:
-- #### Bug fixes and improves.
-- #### Comandos de /feed, /heal, /repair
-- #### Integración de api, pero no disponible para público general.
-- #### Comando /countdown
-- #### Sistema de cinematicas accesible mediante /du cinematic
-- #### Sistema de musica accesible mendiante /du music
-- #### Comando /fly
-- #### Comando /du tellraw
-- #### Los comandos ahora tienen tabcomplete
-- #### Opción debug en config.yml
+- #### Bug fixes and improves
+- #### Compatibilidad con .nbs en el apartado de música
+- #### Bstats añadido
+- #### Más opciones de data en los items customs
+- #### Los comandos ahora se pueden desactivar
+- #### Añadidos a la api y documentación interna
+- #### Optimizaciones generales
 ## Requisitos:
 - #### Paper _(o algun fork)_.
-- #### TESTEADO EN LA ÚLTIMA VERSIÓN (1.21.11)
+- #### TESTEADO EN LA VERSIÓN (1.21.11 y parcialmente 21.1.2) 
 - #### Se conoce incompatibilidad con algunas funciones a partir de la 1.21.9 para abajo.
 
 ## Guía de /du **item**

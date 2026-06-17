@@ -58,7 +58,17 @@ public class Help extends Commands {
     private void msg2(){
         senderMessageNP("&8&lComando: &f/du item");
         senderMessageNP("&7&lUsos: &esave, get, give, delete &e&o[del]&e, list");
-
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du cinematic");
+        senderMessageNP("&7&lUsos: &erecord, play, stop, list, delete");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du music");
+        senderMessageNP("&7&lUsos: &eplay, stop, volume, list, menu, import");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du tellraw [mensaje]");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du cmdSequence");
+        senderMessageNP("&7&lUsos: &erun");
         //
         senderMessageNP("&8&l-&f&l2/2&8&l---------------------------------------");
     }

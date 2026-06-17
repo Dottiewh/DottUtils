@@ -11,7 +11,7 @@ Items:
         particles: "END_ROD;1;2;1;0.1;10"
   fishing_rod:
     Material: FISHING_ROD
-    Name: '&d&lCustom bow!'
+    Name: '&d&lCustom rod!'
     Enchantment_glint_override: true
     CustomData:
       onFish:
