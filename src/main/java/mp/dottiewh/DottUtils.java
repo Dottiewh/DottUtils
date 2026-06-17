@@ -49,6 +49,7 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static CustomConfig ymlPlayTime;
     public static CustomConfig ymlMusic;
     public static CustomConfig ymlInternalItems;
+    public static CustomConfig ymlCommandSequences;
     public static File folderCinematic;
     public static File folderMusic;
     private static boolean cacheAsync=true;
@@ -137,6 +138,8 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlBackList = new CustomConfig("backlist.yml", "util", instance, false);
         ymlPlayTime = new CustomConfig("playtimes.yml", "util", instance, false);
         ymlInternalItems = new CustomConfig("internalitems.yml", "util", instance, false);
+        ymlCommandSequences = new CustomConfig("commandsequence.yml", "util", instance, false);
+
 
         ymlMessages.registerConfig();
         ymlConfig.registerConfig();
@@ -145,6 +148,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         ymlBackList.registerConfig();
         ymlPlayTime.registerConfig();
         ymlInternalItems.registerConfig();
+        ymlCommandSequences.registerConfig();
         //
         prefix = ymlMessages.getConfig().getString("prefix");
 

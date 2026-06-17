@@ -35,6 +35,7 @@ public class Commands {
     protected static SuggestionProvider<CommandSourceStack> item_suggestions_files;
     protected static SuggestionProvider<CommandSourceStack> music_suggestions;
     protected static SuggestionProvider<CommandSourceStack> cinematics_suggestions;
+    protected static SuggestionProvider<CommandSourceStack> commandSequence_suggestions;
 
     protected CustomConfig interalItemsCustomConfig= DottUtils.ymlInternalItems;
 

@@ -98,6 +98,9 @@ public class BrigadierManager extends Commands{
                 .then(MusicMainCommand.getLiteralBuilder())
                 //
                 .then(CinematicMainCommand.getLiteralBuilder())
+                //
+
+                .then(CommandSequence.getLiteralBuilder())
                 //-------
                 ;
     }
@@ -106,7 +109,7 @@ public class BrigadierManager extends Commands{
         reloadBrigadierItems();
         reloadBrigadierMusics();
         reloadBrigadierCinematics();
-
+        reloadBrigadierCommandSequence();
     }
     public static void reloadBrigadierItems(){
         item_suggestions = (ctx, builder) ->{
@@ -132,6 +135,13 @@ public class BrigadierManager extends Commands{
     public static void reloadBrigadierCinematics(){
         cinematics_suggestions = (ctx, builder) ->{
             addSuggestion(builder, CinematicsConfig.getCinematicsNameNotNull());
+
+            return builder.buildFuture();
+        };
+    }
+    public static void reloadBrigadierCommandSequence(){
+        commandSequence_suggestions = (ctx, builder) ->{
+            addSuggestion(builder, CommandSequence.getCommandSequences());
 
             return builder.buildFuture();
         };
