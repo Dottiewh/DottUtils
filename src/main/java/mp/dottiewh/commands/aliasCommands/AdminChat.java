@@ -2,13 +2,12 @@ package mp.dottiewh.commands.aliasCommands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.api.events.DiscordGuildMessageReceivedEvent;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
+
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import mp.dottiewh.commands.Commands;
 import mp.dottiewh.DottUtils;
+import mp.dottiewh.utils.DiscordUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import org.bukkit.Bukkit;
@@ -31,6 +30,8 @@ public class AdminChat extends Commands {
     String input;
     private static final String[] comandosProtegidos = {"du ac toggle", "du adminchat toggle", "du achat toggle",
         "ac toggle", "achat toggle", "adminchat toggle"};
+
+    public static boolean discordChannelSet = false;
 
     //normal case (/du ac)
     public AdminChat(CommandContext<CommandSourceStack> ctx, String input, Boolean isNoOpCase) {
@@ -120,8 +121,8 @@ public class AdminChat extends Commands {
         senderMessage("&4Te has salido del canal de Admins!");
         // Messages to others
         sendACMsg(dName, acPrefix+"&eSe ha salido &f"+dName+" &edel canal de admins.", false);
-        if(DottUtils.discordCase) {
-            sendMsgToAdminChatDS(dName, ":red_circle: Se ha salido **" + dName + "** del canal de admins.", false);
+        if(passedDiscordCommonChecks()) {
+            DiscordUtils.sendMsgToAdminChatDS(dName, ":red_circle: Se ha salido **" + dName + "** del canal de admins.", false);
         }
     }
     private void join(){
@@ -132,8 +133,8 @@ public class AdminChat extends Commands {
         }
         //
         sendACMsg(dName, acPrefix+"&eSe ha vuelto a unir &f"+dName+" &eal canal de admins.", false);
-        if(DottUtils.discordCase){
-            sendMsgToAdminChatDS(dName, ":green_circle: Se ha vuelto a unir **"+dName+"** al canal de admins.", false);
+        if(passedDiscordCommonChecks()){
+            DiscordUtils.sendMsgToAdminChatDS(dName, ":green_circle: Se ha vuelto a unir **"+dName+"** al canal de admins.", false);
         }
         //
         acIsJoined.replace(dName, false, true);
@@ -159,8 +160,8 @@ public class AdminChat extends Commands {
 
         sendACMsg(name, msg, true);
         consoleCore(name, msg);
-        if(DottUtils.discordCase){
-            sendMsgToAdminChatDS(name, msg, true);
+        if(passedDiscordCommonChecks()){
+            DiscordUtils.sendMsgToAdminChatDS(name, msg, true);
         }
 
         if (Boolean.FALSE.equals(acIsJoined.get(name))){
@@ -168,7 +169,7 @@ public class AdminChat extends Commands {
             player.sendMessage(U.mensajeConColor(acPrefix+"&e&lIntenta: &e/du ac join &8|&e /du ac toggle"));
         }
     }
-    private static void consoleCore(String by, String msg){
+    public static void consoleCore(String by, String msg){
 
         if (Boolean.FALSE.equals(acIsJoined.get("Console"))) return;
 
@@ -188,46 +189,15 @@ public class AdminChat extends Commands {
 
         console.sendMessage(U.mensajeConColor("&eTienes el modo Admin chat activado! &6Puedes usar /du ac toggle."));
         sendACMsg("Console", input, true);
-        sendMsgToAdminChatDS("Console", input, true);
+        if(passedDiscordCommonChecks()) DiscordUtils.sendMsgToAdminChatDS("Console", input, true);
         consoleCore("Console", input);
 
     }
-    public static void discordChatCoreFromDiscord(DiscordGuildMessageReceivedEvent event){
-        TextChannel channel = event.getChannel();
-        String channelID = channel.getId();
-        String expectedChannelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
-
-        if(!channelID.equalsIgnoreCase(expectedChannelID)) return;
-        String name = event.getAuthor().getDisplayName();
-        String msg = event.getMessage().getContentRaw();
-
-        name = "&4{&cDiscord&4} &7"+name;
-        sendACMsg(name, msg, true);
-        consoleCore(name, msg);
-    }
-    public static void sendMsgToAdminChatDS(String name, String msg, boolean withPrefix){
-        String channelID = DottUtils.ymlConfig.getConfig().getString("discord_adminchat_channel");
-        if (channelID==null){
-            U.mensajeConsolaNP("No hay channel id");
-            return;
-        }
-
-        TextChannel textChannel = DiscordSRV.getPlugin().getJda().getTextChannelById(channelID);
-        if (textChannel==null){
-            U.mensajeConsolaNP("&cTu id &e"+channelID+" &ces invalida!");
-            return;
-        }
 
 
-        if(withPrefix){
-            textChannel.sendMessage(name+" » "+msg).queue();
-        }else{
-            textChannel.sendMessage(msg).queue();
-        }
-    }
 
     //---
-    private static void sendACMsg(String name, String msg, boolean withPrefix){
+    public static void sendACMsg(String name, String msg, boolean withPrefix){
         for (String adm : Config.getAdminList()) {
             Player target = Bukkit.getPlayerExact(adm);
             if (target != null && target.isOnline()) {
@@ -246,6 +216,10 @@ public class AdminChat extends Commands {
 
     public static void acPrefixReload(){
         acPrefix = U.getMsgPath("adminchat_prefix");
+    }
+
+    private static boolean passedDiscordCommonChecks(){
+        return DottUtils.isDiscordSrvAvailable() && DiscordUtils.isAdminChannelSet();
     }
 
     //

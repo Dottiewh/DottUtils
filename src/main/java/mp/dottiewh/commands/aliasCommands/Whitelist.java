@@ -64,13 +64,13 @@ public class Whitelist extends Commands {
     }
 
     private void add(){
-        if (!checkOfUser()) return;
+        //if (!checkOfUser()) return;
 
         Config.addWhitelist(nameInput);
         senderMessage("&aHas añadido a &f"+nameInput+"&a a la lista de &fBlanca&a!");
     }
     private  void remove(){
-        if (!checkOfUser()) return;
+        //if (!checkOfUser()) return;
 
         Config.removeWhitelist(nameInput);
         senderMessage("&cHas removido a &f"+nameInput+"&c de la lista de &fBlanca&c!");
@@ -82,7 +82,7 @@ public class Whitelist extends Commands {
     }
 
     //-------------------------
-    private boolean checkOfUser(){
+    /*private boolean checkOfUser(){
         if (args.length<3){
             senderMessage("&cPor favor añade un nombre.");
             return false;
@@ -90,7 +90,7 @@ public class Whitelist extends Commands {
 
         this.nameInput=args[2];
         return true;
-    }
+    }*/
 
     public static void checkWhitelist(AsyncPlayerPreLoginEvent event){
         String name = event.getName();

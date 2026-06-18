@@ -5,6 +5,7 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.*;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import mp.dottiewh.commands.aliasCommands.AdminChat;
+import mp.dottiewh.utils.DiscordUtils;
 import org.bukkit.plugin.Plugin;
 
 // Para ver ejemplos revisar https://github.com/DiscordSRV/DiscordSRV-ApiTest/blob/master/src/main/java/com/discordsrv/apitest/DiscordSRVListener.java
@@ -22,7 +23,7 @@ public class DiscordSRVListener {
         DiscordUtil.getJda().addEventListener(new JDAListener(plugin));
 
         // ... we can also do anything other than listen for events with JDA now,
-        AdminChat.sendMsgToAdminChatDS("", "**-------:green_circle: Admin Chat funcionando-------**", false);
+        DiscordUtils.sendMsgToAdminChatDS("", "**-------:green_circle: Admin Chat funcionando-------**", false);
         // see https://ci.dv8tion.net/job/JDA/javadoc/ for JDA's javadoc
         // see https://github.com/DV8FromTheWorld/JDA/wiki for JDA's wiki
     }
@@ -30,6 +31,6 @@ public class DiscordSRVListener {
     @Subscribe(priority = ListenerPriority.MONITOR)
     public void discordMessageReceived(DiscordGuildMessageReceivedEvent event) {
         //MENSAJE DEL DISCORD
-        AdminChat.discordChatCoreFromDiscord(event);
+        DiscordUtils.discordChatCoreFromDiscord(event);
     }
 }

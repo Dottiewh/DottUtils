@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.commands.BrigadierManager;
+import mp.dottiewh.commands.aliasCommands.AdminChat;
 import mp.dottiewh.commands.noaliasCommands.CustomSpawn;
 import mp.dottiewh.commands.noaliasCommands.backcore.BackUtils;
 import mp.dottiewh.items.ItemConfig;
@@ -15,6 +16,7 @@ import mp.dottiewh.listeners.player.*;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.commands.noaliasCommands.playtimecore.PlayTimeManagement;
 import mp.dottiewh.music.classes.LegacyMusic;
+import mp.dottiewh.utils.DiscordUtils;
 import mp.dottiewh.utils.U;
 import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
@@ -54,7 +56,6 @@ public class DottUtils extends JavaPlugin implements Listener {
     public static File folderMusic;
     private static boolean cacheAsync=true;
 
-    public static boolean discordCase;
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
 
     public void onEnable(){
@@ -89,9 +90,9 @@ public class DottUtils extends JavaPlugin implements Listener {
         if (ymlConfig != null) {
             ymlConfig.saveConfig();
         }
-        if (discordCase){
+        try{
             DiscordSRV.api.unsubscribe(discordsrvListener);
-        }
+        } catch (NoClassDefFoundError ignored){}
 
         Bukkit.getConsoleSender().sendMessage(
                 ChatColor.translateAlternateColorCodes('&',prefix+"&c&lHa sido desactivado. &c["+version+"]")
@@ -223,7 +224,7 @@ public class DottUtils extends JavaPlugin implements Listener {
         regFormat(new PlayerFishListener());
         regFormat(new PlayerRespawnListener());
 
-        if (discordCase){
+        if(isDiscordSrvAvailable()){
             DiscordSRV.api.subscribe(discordsrvListener);
         }
     }
@@ -233,15 +234,17 @@ public class DottUtils extends JavaPlugin implements Listener {
     private void checkSoftDependencys(){
         if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
             U.mensajeConsola("&6&lSe ha detectado al plugin &fDiscordSRV&a&l!");
-            discordCase = true;
 
             String channelID = ymlConfig.getConfig().getString("discord_adminchat_channel");
             if(channelID!=null&&channelID.equalsIgnoreCase("CHANNELID")){
                 U.mensajeConsola("&eNo tienes especificado un canal de discord para adminchat en la config!");
             }
         } else {
-            discordCase = false;
+            U.mensajeDebugConsole("DiscordSRV no detectado");
         }
+    }
+    public static boolean isDiscordSrvAvailable(){
+        return Bukkit.getPluginManager().isPluginEnabled("DiscordSRV");
     }
 
     public static DottUtils getInstance(){
