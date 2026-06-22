@@ -1,5 +1,6 @@
 package mp.dottiewh.api.directors;
 
+import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.music.classes.LegacyMusic;
 import org.bukkit.entity.Player;
@@ -50,4 +51,7 @@ public class DuMusicsDirector {
         return LegacyMusic.getFromCache(id);
     }
 
+    public CustomConfig getCustomConfigMusicFile(String id){
+        return MusicConfig.getFile(id);
+    }
 }

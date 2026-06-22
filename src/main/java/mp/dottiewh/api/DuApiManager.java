@@ -12,7 +12,9 @@ import mp.dottiewh.utils.U;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,54 +30,93 @@ import java.util.UUID;
 public class DuApiManager {
     org.bukkit.plugin.Plugin plugin;
     String prefix;
+    String debugPrefix;
 
     public DuApiManager(org.bukkit.plugin.Plugin plugin, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
+        this.debugPrefix = "&c[DEBUG] " + prefix;
 
-        U.mensajeConsolaNP(prefix+"se ha suscrito correctamente a la api de "+ DottUtils.prefix);
+        U.mensajeConsolaNP(prefix + "se ha suscrito correctamente a la api de " + DottUtils.prefix);
     }
     //---
 
-    public List<String> getAdminList(){return Config.getAdminList();}
-    public boolean containsAdmin(String adm){return Config.containsAdmin(adm);}
-    public int onlineAdmins(){
+    public Plugin getDottUtilsPlugin() {
+        return DottUtils.getPlugin();
+    }
+
+    public List<String> getAdminList() {
+        return Config.getAdminList();
+    }
+
+    public boolean containsAdmin(String adm) {
+        return Config.containsAdmin(adm);
+    }
+
+    public int onlineAdmins() {
         return Config.getAdminsOnline();
     }
 
-    public boolean enablePvP(){return Config.onPvP();}
-    public boolean disablePvP(){return Config.offPvP();}
-    public boolean isPvPenabled(){return Config.getPvPStatus();}
-    //
-    public void targetMsg(Player player, String msg){
-        targetMsgNP(player, prefix+msg);
+    public boolean enablePvP() {
+        return Config.onPvP();
     }
-    public void targetMsgNP(Player p, String msg){
+
+    public boolean disablePvP() {
+        return Config.offPvP();
+    }
+
+    public boolean isPvPenabled() {
+        return Config.getPvPStatus();
+    }
+
+    //
+    public void targetMsg(Player player, String msg) {
+        targetMsgNP(player, prefix + msg);
+    }
+
+    public void targetMsgNP(Player p, String msg) {
         U.targetMessageNP(p, msg);
     }
-    public Component mensajeConPrefix(String msg){
-        return mensajeConColor(prefix+msg);
+
+    public Component mensajeConPrefix(String msg) {
+        return mensajeConColor(prefix + msg);
     }
-    public Component mensajeConColor(String msg){
+
+    public Component mensajeConColor(String msg) {
         return U.mensajeConColor(msg);
     }
-    public void mensajeConsola(String msg){
-        mensajeConsolaNP(prefix+msg);
+
+    public void mensajeConsola(String msg) {
+        mensajeConsolaNP(prefix + msg);
     }
-    public void mensajeConsolaNP(String msg){
+
+    public void mensajeConsolaNP(String msg) {
         U.mensajeConsolaNP(msg);
     }
-    public String componentToString(Component component){
+
+    public String componentToString(Component component) {
         return U.componentToStringMsg(component);
     }
-    public Component componentFromString(String msg){
+    public Component componentFromStringMiniHex(String msg){
+        return U.componentColorHexMini(msg);
+    }
+    public Component componentFromString(String msg) {
         return U.componentColor(msg);
     }
-    public void mensajeForAllNP(String msg){
-        for(Player player : Bukkit.getOnlinePlayers()){
+
+    public void mensajeForAllNP(String msg) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             targetMsgNP(player, msg);
         }
     }
+
+    public void debugMsg(String msg, CommandSender sender) {
+        U.mensajeDebug(debugPrefix, msg, sender);
+    }
+    public void consoleDebugMsg(String msg){
+        U.mensajeDebugConsole(debugPrefix, msg);
+    }
+
     public void sendTitleTarget(Player p, String title, String subtitle, int fadeIn, int stay, int fadeOut){
         U.sendTitleTarget(p, title, subtitle, fadeIn, stay, fadeOut);
     }
@@ -266,4 +307,12 @@ public class DuApiManager {
     }
     //
     public String getPrefix(){return prefix;}
+
+    public String getDebugPrefix() {
+        return debugPrefix;
+    }
+
+    public void setDebugPrefix(String debugPrefix) {
+        this.debugPrefix = debugPrefix;
+    }
 }

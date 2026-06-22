@@ -57,9 +57,9 @@ public class BrigadierManager extends Commands{
         if(checkCmd(cConfig, "back")) listaLiterals.add(BackCommand.getLiteralBuilder());
         //=========
         if(checkCmd(cConfig, "adminchat")){
-            listaLiterals.add(AdminChat.getLiteralBuilder("adminchat"));
-            listaLiterals.add(AdminChat.getLiteralBuilder("achat"));
-            listaLiterals.add(AdminChat.getLiteralBuilder("ac"));
+            listaLiterals.add(AdminChat.getLiteralBuilder("adminchat", true));
+            listaLiterals.add(AdminChat.getLiteralBuilder("achat", true));
+            listaLiterals.add(AdminChat.getLiteralBuilder("ac", true));
         }
 
         //
@@ -83,9 +83,9 @@ public class BrigadierManager extends Commands{
                 .then(Reload.getLiteralBuilder())
                 .then(Help.getLiteralBuilder())
                 //
-                .then(AdminChat.getLiteralBuilder("adminchat"))
-                .then(AdminChat.getLiteralBuilder("achat"))
-                .then(AdminChat.getLiteralBuilder("ac"))
+                .then(AdminChat.getLiteralBuilder("adminchat", false))
+                .then(AdminChat.getLiteralBuilder("achat", false))
+                .then(AdminChat.getLiteralBuilder("ac", false))
                 //
                 .then(Whitelist.getLiteralBuilder())
                 .then(Pvp.getLiteralBuilder())

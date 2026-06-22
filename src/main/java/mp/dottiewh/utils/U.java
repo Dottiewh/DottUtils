@@ -122,8 +122,14 @@ public class U { //Stands for utils
     }
 
     public static void mensajeDebug(@NotNull String mensaje, @NotNull CommandSender sender){
+        mensajeDebug(debugPrefix, mensaje, sender);
+    }
+    public static void mensajeDebug(@NotNull String prefixDbg, @NotNull String mensaje, @NotNull CommandSender sender){
         if(!debugMode) return;
-        targetMessageNP(sender, debugPrefix+mensaje);
+        targetMessageNP(sender, prefixDbg+mensaje);
+    }
+    public static void mensajeDebugConsole(@NotNull String prefixDbg, @NotNull String mensaje) {
+        mensajeDebug(prefixDbg, mensaje, Bukkit.getConsoleSender());
     }
     public static void mensajeDebugConsole(@NotNull String mensaje) {
         mensajeDebug(mensaje, Bukkit.getConsoleSender());

@@ -603,7 +603,16 @@ public class ItemConfig{
                     else U.mensajeConsola("&cNo se ha podido cargar "+spacedKey+"! en "+name);
                 }
             }
+            //-----PLAYS_MUSIC----
+            String stringMusicPlay = section.getString("Plays_Music", null);
+            if(stringMusicPlay!=null){
+                JukeboxPlayableComponent jukeComponent = meta.getJukeboxPlayable();
+                jukeComponent.setSongKey(new NamespacedKey("minecraft", "pigstep"));
+                meta.setJukeboxPlayable(jukeComponent);
 
+                PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
+                persistentDataContainer.set(new NamespacedKey(plugin, "plays_music"), PersistentDataType.STRING, stringMusicPlay);
+            }
             //==================CUSTOMDATA================
             ConfigurationSection customDataSection = section.getConfigurationSection("CustomData");
             if(customDataSection!=null){

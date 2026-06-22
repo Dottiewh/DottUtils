@@ -22,12 +22,14 @@ import static io.papermc.paper.command.brigadier.Commands.literal;
 public class CommandSequence extends Commands {
     private final String type, name;
     private ConfigurationSection cmdSection = null;
+    private final boolean isPlayer;
 
     public CommandSequence(CommandContext<CommandSourceStack> ctx, @NotNull String type, @NotNull String name) {
         super(ctx);
 
         this.type=type;
         this.name=name;
+        this.isPlayer = sender instanceof Player;
 
         run();
     }
@@ -59,12 +61,26 @@ public class CommandSequence extends Commands {
     private void cmdRun(){
         List<String> commandList = cmdSection.getStringList("commands");
         for(String cmd : commandList){
+            if(isPlayer) cmd = checkVariables(cmd);
             U.consoleCommand(cmd);
             U.mensajeDebugConsole("&8> &7"+cmd);
         }
         senderMessage("&aSe ha ejecutado la secuencia de comandos &6"+name+"&a correctamente!");
     }
 
+    private String checkVariables(String cmd){
+        if(!cmd.contains("%")) return cmd;
+        if(!(sender instanceof Player player)) return cmd;
+
+
+        if(cmd.contains("%player%")) cmd = cmd.replace("%player%", player.getName());
+        if(cmd.contains("%player_x%")) cmd = cmd.replace("%player_x%", String.valueOf(player.getX()));
+        if(cmd.contains("%player_y%")) cmd = cmd.replace("%player_y%", String.valueOf(player.getY()));
+        if(cmd.contains("%player_z%")) cmd = cmd.replace("%player_z%", String.valueOf(player.getZ()));
+
+
+        return cmd;
+    }
 
     @NotNull
     public static List<String> getCommandSequences(){

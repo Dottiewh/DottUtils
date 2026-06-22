@@ -223,9 +223,9 @@ public class AdminChat extends Commands {
     }
 
     //
-    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder (String cmd){
+    public static LiteralArgumentBuilder<CommandSourceStack> getLiteralBuilder (String cmd, boolean noOp){
         return literal(cmd)
-                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.adminchat"))
+                .requires(ctx -> noOp||ctx.getSender().hasPermission("DottUtils.adminchat"))
                 .then(literal("toggle")
                         .executes(ctx->{
                             new AdminChat(ctx, "toggle", false);
