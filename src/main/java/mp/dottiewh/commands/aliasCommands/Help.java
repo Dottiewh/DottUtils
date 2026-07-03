@@ -14,6 +14,8 @@ public class Help extends Commands {
     private static final String prefixBellaco = DottUtils.prefix.replace("[", "").replace("]", "").replace(" ", "");
     int page;
 
+    private final int maxPage = 2;
+
     public Help(CommandContext<CommandSourceStack> ctx, int page) {
         super(ctx);
         this.page=page;
@@ -52,7 +54,7 @@ public class Help extends Commands {
         senderMessageNP("&7&lUsos: &etoggle, status");
 
         //
-        senderMessageNP("&8&l-&f&l1/2&8&l---------------------------------------");
+        senderMessageNP("&8&l-&f&l1/"+maxPage+"&8&l---------------------------------------");
     }
 
     private void msg2(){
@@ -69,8 +71,11 @@ public class Help extends Commands {
         senderMessageNP("&4-----");
         senderMessageNP("&8&lComando: &f/du cmdSequence");
         senderMessageNP("&7&lUsos: &erun");
+        senderMessageNP("&4-----");
+        senderMessageNP("&8&lComando: &f/du maintenance");
+        senderMessageNP("&7&lUsos: &etoggle, status");
         //
-        senderMessageNP("&8&l-&f&l2/2&8&l---------------------------------------");
+        senderMessageNP("&8&l-&f&l2/"+maxPage+"&8&l---------------------------------------");
     }
 
     //----------------------------------

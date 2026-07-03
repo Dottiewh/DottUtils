@@ -15,6 +15,7 @@ import mp.dottiewh.commands.noaliasCommands.tpacore.Tpa;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaAccept;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaCancel;
 import mp.dottiewh.commands.noaliasCommands.tpacore.TpaDeny;
+import mp.dottiewh.config.Config;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.items.ItemConfig;
 import mp.dottiewh.items.ItemMainCommand;
@@ -78,7 +79,7 @@ public class BrigadierManager extends Commands{
     //
     public static LiteralArgumentBuilder<CommandSourceStack> createAlias(org.bukkit.plugin.Plugin pl, String name){
         return literal(name)
-                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
+                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils") || Config.containsAdmin(ctx.getSender().getName()))
                 .then(Admin.getLiteralBuilder())
                 .then(Reload.getLiteralBuilder())
                 .then(Help.getLiteralBuilder())

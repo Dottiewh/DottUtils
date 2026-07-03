@@ -14,12 +14,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.C;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
@@ -161,7 +158,7 @@ public class ItemMainCommand extends ReferibleCommand {
             return;
         }
 
-        coreGet(player, name, amount, false);
+        coreGet(new ArrayList<>(List.of(player)), name, amount, false);
     }
     private void give() {
         debugMsg("ItemMainCommand.give");
@@ -177,15 +174,11 @@ public class ItemMainCommand extends ReferibleCommand {
             return;
         }
 
-        for(Player p : playerList){
-            if(!coreGet(p, name, amount, true)){
-                break;
-            }
-        }
+        coreGet(playerList, name, amount, true);
     }
 
     //--------------
-    private boolean coreGet(Player player, String name, int amount, boolean isConsole){
+    private boolean coreGet(List<Player> players, String name, int amount, boolean isConsole){
         debugMsg("ItemMainCommand.coreGet");
         if (amount>max){
             senderMessageIPr("&cHas sobrepasado el limite definido en config. &e("+max+")");
@@ -197,7 +190,7 @@ public class ItemMainCommand extends ReferibleCommand {
         if(name.contains(".")){
             String[] nameArray = name.split("\\.", 2);
             if(nameArray[1].contains(".")){
-                senderMessageIPr("&cEl id de tu item no puede contener un '&4.&c'! ("+nameArray[1]+")");
+                senderMessageIPr("&cEl id de tu item no puede contener un '&4.&c'! (&4"+nameArray[1]+"&c)");
                 return false;
             }
             fileName=nameArray[0];
@@ -228,29 +221,42 @@ public class ItemMainCommand extends ReferibleCommand {
         }
 
 
-        boolean successMsg = false, fullMsg = false;
-        int count = amount;
-        for (int i=0; i<amount; i++) {
-            Map<Integer, ItemStack> sobrante = player.getInventory().addItem(item);
-            if (sobrante.isEmpty()) {
-                if (!successMsg){
-                    playerMessageIPr(player, "&aHas recibido tu item &f" + name + "&a! &e(x"+amount+")");
-                    successMsg = true;
+        for(Player player : players){
+            boolean successMsg = false, fullMsg = false;
+            int count = amount;
+            for (int i=0; i<amount; i++) {
+                Map<Integer, ItemStack> sobrante = player.getInventory().addItem(item);
+                if (sobrante.isEmpty()) {
+                    if (!successMsg){
+                        playerMessageIPr(player, "&aHas recibido un item &f" + name + "&a! &e(x"+amount+")");
+                        successMsg = true;
+                    }
+                } else {
+                    for (ItemStack left : sobrante.values()) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), left);
+                    }
+                    if (!fullMsg) {
+                        playerMessageIPr(player, "&eNo has podido recibir tu &f" + name + "&e, pero ha sido dropeado. &c(x"+count+")");
+                        fullMsg = true;
+                    }
                 }
-            } else {
-                for (ItemStack left : sobrante.values()) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), left);
-                }
-                if (!fullMsg) {
-                    playerMessageIPr(player, "&eNo has podido recibir tu &f" + name + "&e, pero ha sido dropeado. &c(x"+count+")");
-                    fullMsg = true;
-                }
+                count--;
             }
-            count--;
         }
 
         if (isConsole){
-            senderMessageIPr("&aLe has dado un item &f"+name+" &aal jugador &f"+player.getName()+" &acorrectamente! &e(x"+amount+")");
+            boolean isPlural = players.size() > 1;
+            String afectados = players.stream().map(Player::getName).collect(Collectors.joining("&a, &f"));
+
+            StringBuilder msgToDeliver = new StringBuilder();
+
+            msgToDeliver.append("&aLe has dado un item &f").append(name).append(" ");
+            if(isPlural) msgToDeliver.append("&aa los jugadores &f");
+            else msgToDeliver.append("&aal jugador &f");
+            msgToDeliver.append(afectados).append(" ");
+            msgToDeliver.append("&acorrectamente! &e(x").append(amount).append(")"); // "&acorrectamente! &e(x"+amount+")"
+
+            senderMessageIPr(msgToDeliver.toString());
         }
         return true;
     }
@@ -267,22 +273,9 @@ public class ItemMainCommand extends ReferibleCommand {
         Component message = LegacyComponentSerializer.legacy('&').deserialize(msg);
         player.sendMessage(message);
     }
-    private boolean argNombreCheck(){
-        if (args.length<3){
-            senderMessageIPr("&cPorfavor, añade el nombre de algún item.");
-            return true;
-        }
-        else return false;
-    }
     // /du[0] item[1] get[2] nombre[3]
     private String getItemName(){
         return iName;
-    }
-    private boolean checkArgL4(){
-        return args.length >= 4;
-    }
-    private boolean checkArgL5(){
-        return args.length >= 5;
     }
 
     //----------------------------------

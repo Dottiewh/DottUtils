@@ -1,4 +1,17 @@
 Items:
+  sword:
+    Material: NETHERITE_SWORD
+    Name: '&c&lCustomSword'
+    Lore:
+      - '&cTest!'
+    Enchants:
+      sharpness: 5
+    CustomData:
+      onAttack:
+        effectapply: SLOWNESS;100;0
+        particles: LAVA;1;2;1;0.1;25
+      onKill:
+        particles: END_ROD;1;5;1;0.1;50
   bow:
     Material: BOW
     Name: '&d&lCustom bow!'

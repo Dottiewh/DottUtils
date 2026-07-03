@@ -672,7 +672,7 @@ public class ItemConfig{
         return item;
     }
     @Nullable
-    public static ParticleBuilder loadParticleData(ItemMeta meta, String key, @Nullable Location trailLocation){
+    public static ParticleBuilder loadParticleData(@NotNull ItemMeta meta, @NotNull String key, @Nullable Location trailLocation){
         String output = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, key+"_particle"), PersistentDataType.STRING);
         if(output==null){
             U.mensajeDebugConsole("output null "+key+"_particle");
