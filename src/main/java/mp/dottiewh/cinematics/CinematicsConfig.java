@@ -21,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -29,7 +30,7 @@ import java.util.*;
 
 // TO DO, cinematics that are in a chunk not loaded, are going to be weird
 public class CinematicsConfig {
-    private enum Status{
+    public enum Status{
         PAUSED,
         RECORDING
     }
@@ -40,30 +41,38 @@ public class CinematicsConfig {
     public static boolean hidePlayerOnCinematic = false;
 
     private static final List<UUID> listaCooldown = new LinkedList<>();
-    private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
-    private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
-    private static final HashMap<UUID, Map.Entry<String, Long>> mapaOnGoingRecords = new HashMap<>();
 
-    private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPlayerData = new HashMap<>();
-    private static final HashMap<UUID, Map.Entry<Mannequin, TextDisplay>> mapaPlayerDataTwo = new HashMap<>();
-    private static final HashMap<UUID, List<BukkitRunnable>> mapaPlayerReproduce = new HashMap<>();
-    private static final HashMap<UUID, Status> mapaPlayerStatus = new HashMap<>();
+    //private static final HashMap<UUID, BukkitRunnable> mapaRunnables = new HashMap<>();
+    //private static final HashMap<UUID, BukkitRunnable> mapaCountdown = new HashMap<>();
+    //rivate static final HashMap<UUID, Map.Entry<String, Long>> mapaOnGoingRecords = new HashMap<>();
+    //private static final HashMap<UUID, Status> mapaPlayerStatus = new HashMap<>();
+    private static final HashMap<UUID, CinematicRecordPlayerData> cinematicRecordPlayerDataMap = new HashMap<>();
 
-    private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPending = new HashMap<>();
+    //private static final HashMap<UUID, Map.Entry<GameMode, Location>> mapaPlayerData = new HashMap<>();
+    //private static final HashMap<UUID, Map.Entry<Mannequin, TextDisplay>> mapaPlayerDataTwo = new HashMap<>();
+    //private static final HashMap<UUID, List<BukkitRunnable>> mapaPlayerReproduce = new HashMap<>();
+    private static final HashMap<UUID, CinematicPlayerData> cinematicPlayerDataMap = new HashMap<>();
 
-    private static BukkitRunnable getMainRun(Player p, String fileName, long period){
+    private static final HashMap<UUID, CinematicPlayerData> mapaPending = new HashMap<>(); // HashMap<UUID, Map.Entry<GameMode, Location>>
+
+    /*
+    Main task
+     */
+    private static BukkitRunnable getMainRun(@NotNull CinematicRecordPlayerData pData, String fileName, long period){
         return new BukkitRunnable() {
             @Override
             public void run() {
+                Player p =  pData.getPlayer();
                 Location loc = p.getEyeLocation();
                 registerLocation(loc, fileName, period);
-                mapaPlayerStatus.put(p.getUniqueId(), Status.RECORDING);
+                //mapaPlayerStatus.put(p.getUniqueId(), Status.RECORDING);
+                pData.setStatus(Status.RECORDING);
             }
         };
     }
     public static void startRecording(Player p, String fileName, long period){
         UUID uuid = p.getUniqueId();
-        if(mapaRunnables.containsKey(uuid)){
+        if(cinematicRecordPlayerDataMap.containsKey(uuid)){
             cineMsg("&cYa estás grabando una animación.", p);
             return;
         }
@@ -75,11 +84,14 @@ public class CinematicsConfig {
             return;
         }
 
-        BukkitRunnable runnable = getMainRun(p, fileName, period);
-        mapaRunnables.put(uuid, runnable);
+        CinematicRecordPlayerData cPlayerData = CinematicRecordPlayerData.getInstance(p);
+        BukkitRunnable runnable = getMainRun(cPlayerData, fileName, period);
+        //mapaRunnables.put(uuid, runnable);
+        cPlayerData.setMainRunnable(runnable);
 
-        Map.Entry<String, Long> entryRecordToDeliver = new AbstractMap.SimpleEntry<>(fileName, period);
-        mapaOnGoingRecords.put(uuid, entryRecordToDeliver);
+        //Map.Entry<String, Long> entryRecordToDeliver = new AbstractMap.SimpleEntry<>(fileName, period);
+        //mapaOnGoingRecords.put(uuid, entryRecordToDeliver);
+        cPlayerData.setRecordFileName(fileName).setRecordPeriod(period);
 
         cineMsg("&aEmpezaras a grabar la cinemática &f"+fileName+" &aen 5 segundos. &e("+period+")", p);
         U.countdownForTarget(p, plugin, 5, "&6Tiempo restante: ");
@@ -93,11 +105,11 @@ public class CinematicsConfig {
                 runnable.runTaskTimer(plugin, 0, period);
                 U.staticActionBar(p, "&c&l● &cGrabando...");
                 giveItems(p);
-                removeCountdownMap(uuid);
+                removeCountdownMap(cPlayerData);
             }
         };
-        countdown.runTaskLater(plugin, 5*20L);
-        mapaCountdown.put(uuid, countdown);
+        //mapaCountdown.put(uuid, countdown);
+        cPlayerData.setCountdownTask(countdown.runTaskLater(plugin, 5*20L));
 
         CustomConfig config = getFile(fileName, true);
         if(config==null){
@@ -108,23 +120,27 @@ public class CinematicsConfig {
         List<String> stringList = new ArrayList<>();
         config.getConfig().set("Locations", stringList);
         config.saveConfig();
+        cinematicRecordPlayerDataMap.put(uuid, cPlayerData);
     }
 
     public static void pauseRecord(Player p) throws CinematicRecordingHasNotStarted, CinematicInvalidStatusException{
         UUID uuid = p.getUniqueId();
-        if(mapaPlayerStatus.get(uuid).equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere pausar una animación ya pausada.");
-        if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
 
-        BukkitRunnable mainRun = mapaRunnables.remove(uuid);
-        String fileName = mapaOnGoingRecords.get(uuid).getKey();
-        long period = mapaOnGoingRecords.get(uuid).getValue();
+        if(!(cinematicRecordPlayerDataMap.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+        CinematicRecordPlayerData playerData = cinematicRecordPlayerDataMap.get(uuid);
+        if(playerData.getStatus().equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere pausar una animación ya pausada.");
+
+        BukkitRunnable mainRun = playerData.getMainRunnable();
+        String fileName = playerData.getRecordFileName();
+        long period = playerData.getRecordPeriod();
 
         if(mainRun!=null){
             try {
                 mainRun.cancel();
-                mapaRunnables.put(uuid, getMainRun(p, fileName, period));
+                playerData.setMainRunnable(getMainRun(playerData, fileName, period));
                 U.staticActionBar(p, "&6&l● &eEn pausa...");
-                mapaPlayerStatus.put(uuid, Status.PAUSED);
+                //mapaPlayerStatus.put(uuid, Status.PAUSED);
+                playerData.setStatus(Status.PAUSED);
             } catch (IllegalStateException e){
                 throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación que no ha comenzado");
             }
@@ -132,13 +148,15 @@ public class CinematicsConfig {
     }
     public static void resumeRecord(Player p) throws CinematicRecordingHasNotStarted, CinematicInvalidStatusException{
         UUID uuid = p.getUniqueId();
-        if(!(mapaRunnables.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
-        if(!mapaPlayerStatus.get(uuid).equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere resumir una animación en marcha.");
-        BukkitRunnable mainRun = mapaRunnables.get(uuid);
+        if(!(cinematicRecordPlayerDataMap.containsKey(uuid))) throw new CinematicRecordingHasNotStarted(p.getName(), "El usuario quiere pausar una animación no registrada.");
+        CinematicRecordPlayerData playerData = cinematicRecordPlayerDataMap.get(uuid);
+        if(!playerData.getStatus().equals(Status.PAUSED)) throw new CinematicInvalidStatusException(p.getName(), "El usuario quiere resumir una animación en marcha.");
+
+        BukkitRunnable mainRun = playerData.getMainRunnable();
         if(mainRun!=null){
             try {
-                String fileName = mapaOnGoingRecords.get(uuid).getKey();
-                Long period = mapaOnGoingRecords.get(uuid).getValue();
+                String fileName = playerData.getRecordFileName();
+                Long period = playerData.getRecordPeriod();
                 mainRun.runTaskTimer(plugin, 5L, period);
                 cineMsg("&aResumiste correctamente la grabación de "+fileName, p);
                 U.staticActionBar(p, "&c&l● &cGrabando...");
@@ -172,7 +190,7 @@ public class CinematicsConfig {
     //
     public static void stopRegister(Player p){
         UUID uuid = p.getUniqueId();
-        if(mapaPlayerStatus.containsKey(uuid) && mapaPlayerStatus.get(uuid).equals(Status.PAUSED)){
+        if(cinematicRecordPlayerDataMap.containsKey(uuid) && cinematicRecordPlayerDataMap.get(uuid).getStatus().equals(Status.PAUSED)){
             cineMsg("&cDebes des-pausar tu grabación antes de acabarla!", p);
             return;
         }
@@ -182,16 +200,20 @@ public class CinematicsConfig {
     //
     public static void checkAndStop(UUID uuid){
         U.stopStaticActionBar(uuid);
-        removeCountdownMap(uuid);
-        if(!(mapaRunnables.containsKey(uuid))) return;
+
+        if(!(cinematicRecordPlayerDataMap.containsKey(uuid))) return;
+        CinematicRecordPlayerData playerData = cinematicRecordPlayerDataMap.remove(uuid);
+        removeCountdownMap(playerData);
 
         boolean badRecord=false;
 
         Player tryPlayer = Bukkit.getPlayer(uuid);
         if(tryPlayer!=null) U.playsoundTarget(tryPlayer, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
 
-        mapaPlayerStatus.remove(uuid);
-        BukkitRunnable mainRun = mapaRunnables.remove(uuid);
+        //mapaPlayerStatus.remove(uuid);
+        playerData.setStatus(null);
+        BukkitRunnable mainRun = playerData.getMainRunnable();
+        playerData.setMainRunnable(null);
         if(mainRun!=null){
             try {
                 if(!mainRun.isCancelled()) mainRun.cancel();
@@ -200,14 +222,17 @@ public class CinematicsConfig {
         //caso de que se grabó mal
         else badRecord=true;
 
-        if(!(mapaOnGoingRecords.containsKey(uuid))) return;
-        Player p = Bukkit.getPlayer(uuid);
-        if(p!=null){
+        //if(!(mapaOnGoingRecords.containsKey(uuid))) return;
+        if(playerData.getRecordFileName() == null) return;
+
+        Player p = playerData.getPlayer();
+        if(p.isOnline()){
             removeItems(p);
         }
 
         // destacar END en record
-        String fileName = mapaOnGoingRecords.remove(uuid).getKey();
+        String fileName = playerData.getRecordFileName();
+        playerData.setRecordFileName(null);
 
         CustomConfig file = getFile(fileName, false);
 
@@ -225,15 +250,15 @@ public class CinematicsConfig {
         file.getConfig().set("Locations", sList);
         file.saveConfig();
     }
-    private static void removeCountdownMap(UUID uuid){
-        if(mapaCountdown.containsKey(uuid)){
-            try{
-                mapaCountdown.get(uuid).cancel();
-            } catch (Exception e) {
-                U.mensajeConsolaNP("&c"+ Arrays.toString(e.getStackTrace()));
-            }
-            mapaCountdown.remove(uuid);
+    private static void removeCountdownMap(CinematicRecordPlayerData playerData){
+        BukkitTask countdownTask = playerData.getCountdownTask();
+        if(countdownTask==null) return;
+        try{
+            if(!countdownTask.isCancelled()) countdownTask.cancel();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
         }
+        playerData.setCountdownTask(null);
     }
 
     @NotNull
@@ -292,14 +317,14 @@ public class CinematicsConfig {
 
     //------------REPRODUCE THINSG---------------------
 
-    public static void reproduceCinematicForAll(String fileName, boolean clonePlayer) throws CinematicFileDontExist{
+    public static void reproduceCinematicForAll(@NotNull String fileName, boolean clonePlayer) throws CinematicFileDontExist{
         for(Player p : Bukkit.getOnlinePlayers()){
             reproduceCinematic(p, fileName, clonePlayer, true);
         }
     }
 
     // returns if success
-    public static boolean reproduceCinematicBoolean(Player p, String fileName, boolean clonePlayer){
+    public static boolean reproduceCinematicBoolean(@NotNull Player p, @NotNull String fileName, boolean clonePlayer){
         boolean result = true;
         try{
             reproduceCinematic(p, fileName, clonePlayer, true);
@@ -311,7 +336,7 @@ public class CinematicsConfig {
     /**
      * @param natural =false -> ONLY INTERNAL
      */
-    public static void reproduceCinematic(Player p, String fileName, boolean clonePlayer, boolean natural) throws CinematicFileDontExist{
+    public static void reproduceCinematic(@NotNull Player p, @NotNull String fileName, boolean clonePlayer, boolean natural) throws CinematicFileDontExist{
         CustomConfig config = getFile(fileName, false);
         if (!(checkFileExists(fileName)) || config == null){
             throw new CinematicFileDontExist("No se puede reproducir animación, pues posiblemente no existe.", "Cinematics/"+fileName);
@@ -359,9 +384,15 @@ public class CinematicsConfig {
         }
 
         Location playerLoc = p.getLocation();
-        Map.Entry<GameMode, Location> entryToDeliver = new AbstractMap.SimpleEntry<>(gmToDeliver, playerLoc);
 
-        if(natural) mapaPlayerData.put(uuid, entryToDeliver); // DATA IMPORTANTE
+
+        //Map.Entry<GameMode, Location> entryToDeliver = new AbstractMap.SimpleEntry<>(gmToDeliver, playerLoc);
+        CinematicPlayerData cinematicPlayerData;
+
+        if(natural) cinematicPlayerData = CinematicPlayerData.getInstance(p);
+        else cinematicPlayerData = cinematicPlayerDataMap.get(uuid);
+
+        if(natural) cinematicPlayerData.setPreviousGameMode(gmToDeliver).setPreviousLoc(playerLoc); // DATA IMPORTANTE
 
         if(hidePlayerOnCinematic) U.hidePlayerForAll(p);
         p.setGameMode(GameMode.SPECTATOR);
@@ -372,21 +403,21 @@ public class CinematicsConfig {
         textDisplay.setPersistent(true);
         textDisplay.setInvulnerable(true);
 
-        if(!natural){
-            npcToDeliver = mapaPlayerDataTwo.get(uuid).getKey();
+        if(!natural && cinematicPlayerDataMap.containsKey(uuid)){
+            npcToDeliver = cinematicPlayerDataMap.get(uuid).getMannequin();
             notNaturalClean(uuid);
         }
 
-        Map.Entry<Mannequin, TextDisplay> entryToDeliverTwo = new AbstractMap.SimpleEntry<>(npcToDeliver, textDisplay);
-        mapaPlayerDataTwo.put(uuid, entryToDeliverTwo); //DATADOS
-
+        //Map.Entry<Mannequin, TextDisplay> entryToDeliverTwo = new AbstractMap.SimpleEntry<>(npcToDeliver, textDisplay);
+        //mapaPlayerDataTwo.put(uuid, entryToDeliverTwo); //DATADOS
+        cinematicPlayerData.setMannequin(npcToDeliver).setTextDisplay(textDisplay);
 
         int count = 0;
         textDisplay.setInterpolationDelay(0);
         textDisplay.setInterpolationDuration((int) period);
         textDisplay.setTeleportDuration((int) period);
 
-        List<BukkitRunnable> lRunnables = new ArrayList<>();
+        List<BukkitTask> lTasks = new ArrayList<>();
 
         List<String> inputList = config.getConfig().getStringList("Locations");
         int totalInputs = inputList.size();
@@ -399,8 +430,8 @@ public class CinematicsConfig {
                     }
                 };
 
-                bringToAnotherRunnable.runTaskLater(plugin, count*period);
-                lRunnables.add(bringToAnotherRunnable);
+
+                lTasks.add(bringToAnotherRunnable.runTaskLater(plugin, count*period));
                 break;
             }
 
@@ -412,8 +443,7 @@ public class CinematicsConfig {
                             stopReproducing(uuid);
                         }
                     };
-                    finalTask.runTaskLater(plugin, count*period);
-                    lRunnables.add(finalTask);
+                    lTasks.add(finalTask.runTaskLater(plugin, count*period));
                     break;
                 }
                 //
@@ -430,8 +460,8 @@ public class CinematicsConfig {
                             U.sendTitleTarget(p, aI[1], aI[2], fadeIn, stay, fadeOut);
                         }
                     };
-                    task.runTaskLater(plugin, count*period);
-                    lRunnables.add(task);
+
+                    lTasks.add(task.runTaskLater(plugin, count*period));
                     continue;
                 }
 
@@ -466,8 +496,7 @@ public class CinematicsConfig {
                     }
                 };
 
-                task.runTaskLater(plugin, count*period);
-                lRunnables.add(task);
+                lTasks.add(task.runTaskLater(plugin, count*period));
             } catch (Exception e) {
                 stopReproducing(uuid);
                 U.printException(e);
@@ -476,12 +505,20 @@ public class CinematicsConfig {
             count++;
         }
 
-        mapaPlayerReproduce.put(uuid, lRunnables);
+        //mapaPlayerReproduce.put(uuid, lRunnables);
+        cinematicPlayerData.addRunnables(lTasks);
+        cinematicPlayerDataMap.put(uuid, cinematicPlayerData);
     }
 
+    /*
+    Se llama cuando hay una subsecuencia de animaciones a raiz de una, y borra el old textDisplay
+     */
     private static void notNaturalClean(UUID uuid){
-        Map.Entry<Mannequin, TextDisplay> entry = mapaPlayerDataTwo.remove(uuid);
-        entry.getValue().remove();
+        //Map.Entry<Mannequin, TextDisplay> entry = mapaPlayerDataTwo.remove(uuid);
+        //entry.getValue().remove();
+        CinematicPlayerData pData = cinematicPlayerDataMap.get(uuid);
+        if(pData==null) return;
+        pData.getTextDisplay().remove();
     }
 
     public static void stopReproducingForAll(){
@@ -490,31 +527,34 @@ public class CinematicsConfig {
         }
     }
     public static void stopReproducing(UUID uuid){
-        if(!(mapaPlayerData.containsKey(uuid))) return;
+        if(!(cinematicPlayerDataMap.containsKey(uuid))) return;
 
-        Player player = Bukkit.getPlayer(uuid);
-        boolean online = !(player==null);
+        CinematicPlayerData playerData = cinematicPlayerDataMap.remove(uuid);
+        //Player player = Bukkit.getPlayer(uuid);
+        //boolean online = !(player==null);
+        Player player = playerData.getPlayer();
+        boolean online = player.isOnline();
 
         //DATA
-        Map.Entry<GameMode, Location> eData = mapaPlayerData.remove(uuid);
-        Map.Entry<Mannequin, TextDisplay> eDataTwo = mapaPlayerDataTwo.remove(uuid);
+        //Map.Entry<GameMode, Location> eData = mapaPlayerData.remove(uuid);
+        //Map.Entry<Mannequin, TextDisplay> eDataTwo = mapaPlayerDataTwo.remove(uuid);
 
-        Location oldLoc = eData.getValue();
+        Location oldLoc = playerData.getPreviousLoc();
 
-        TextDisplay textDisplay = eDataTwo.getValue();
+        TextDisplay textDisplay = playerData.getTextDisplay();
         textDisplay.remove();
 
 
         //DATA2
 
 
-        Mannequin npc = eDataTwo.getKey();
+        Mannequin npc = playerData.getMannequin();
 
         //ups
         if(online)player.teleport(oldLoc);
         else{
-            Map.Entry<GameMode, Location> hmToDeliver = new AbstractMap.SimpleEntry<GameMode, Location>(eData.getKey(), oldLoc);
-            mapaPending.put(uuid, hmToDeliver);
+            //Map.Entry<GameMode, Location> hmToDeliver = new AbstractMap.SimpleEntry<GameMode, Location>(eData.getKey(), oldLoc);
+            mapaPending.put(uuid, playerData);
         }
 
         if(npc!=null&&online){
@@ -528,15 +568,16 @@ public class CinematicsConfig {
             }
         }
 
-        if(online) player.setGameMode(eData.getKey());
-        if(online&&eData.getKey().equals(GameMode.SPECTATOR)) player.setSpectatorTarget(player);
+        GameMode previousGameMode = playerData.getPreviousGameMode();
+        if(online) player.setGameMode(previousGameMode);
+        if(online && previousGameMode.equals(GameMode.SPECTATOR)) player.setSpectatorTarget(player);
 
         // STOP TASK AND REMOVE
-        List<BukkitRunnable> lRunnables = mapaPlayerReproduce.remove(uuid);
-        if(lRunnables!=null){
-            Iterator<BukkitRunnable> it = lRunnables.iterator();
+        List<BukkitTask> lTasks = playerData.getRunnableList();
+        if(lTasks!=null){
+            Iterator<BukkitTask> it = lTasks.iterator();
             while(it.hasNext()){
-                BukkitRunnable task = it.next();
+                BukkitTask task = it.next();
                 task.cancel();
                 it.remove();
             }
@@ -555,10 +596,11 @@ public class CinematicsConfig {
         UUID uuid = player.getUniqueId();
         if(!(mapaPending.containsKey(uuid))) return;
 
-        Map.Entry<GameMode, Location> entry = mapaPending.remove(uuid);
-        Location locToTp = entry.getValue();
+        //Map.Entry<GameMode, Location> entry = mapaPending.remove(uuid);
+        CinematicPlayerData cinematicPlayerData = mapaPending.remove(uuid);
+        Location locToTp = cinematicPlayerData.getPreviousLoc();
         player.teleport(locToTp);
-        player.setGameMode(entry.getKey());
+        player.setGameMode(cinematicPlayerData.getPreviousGameMode());
     }
     public static void onDisableCheck(){
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -581,7 +623,7 @@ public class CinematicsConfig {
     public static void onItemInteract(PlayerInteractEvent event){
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        if(!mapaOnGoingRecords.containsKey(uuid)) return;
+        if(!cinematicRecordPlayerDataMap.containsKey(uuid)) return;
         ItemStack item = event.getItem();
         if(item==null) return;
         if(!player.hasPermission("Dottutils.cinematic")) return;
@@ -633,7 +675,7 @@ public class CinematicsConfig {
         }
     }
     private static boolean itemInternalCheck(ItemStack item, Player player){
-        if(!mapaOnGoingRecords.containsKey(player.getUniqueId())) return false;
+        if(!cinematicRecordPlayerDataMap.containsKey(player.getUniqueId())) return false;
 
         ItemMeta meta = item.getItemMeta();
         if(meta==null) return false;
