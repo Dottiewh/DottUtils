@@ -13,10 +13,15 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class BackUtils {
+    private static final Map<UUID, BukkitTask> expireMap = new HashMap<>();
 
     public static void backOnDeathManagement(PlayerDeathEvent event){
         if (event.isCancelled()) return;
@@ -34,14 +39,23 @@ public class BackUtils {
         U.targetMessageNP(player, "&6Coords: &c"+U.truncar(x, 2)+", "+U.truncar(y, 2)+", "+U.truncar(z, 2));
         addDeathLoc(name, x, y, z ,world, uuid);
 
+        BukkitTask lastExpire = expireMap.remove(uuid);
+        if(lastExpire!=null){
+            if(!lastExpire.isCancelled()) lastExpire.cancel();
+        }
+
         int delay = Config.getInt("back_expire_time", 300);
         if(delay>0){
-            U.runTaskLater(t->{
-                delDeathLoc(name);
-                if(player.isOnline()){
-                    backSendMsg("&eTu último back ha expirado!", player);
+            BukkitTask task = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    delDeathLoc(name);
+                    if(player.isOnline()){
+                        backSendMsg("&eTu último back ha expirado!", player);
+                    }
                 }
-            }, delay*20L);
+            }.runTaskLater(DottUtils.getPlugin(), delay*20L);
+            expireMap.put(uuid, task);
         }
     }
     public static void addDeathLoc(Player player){

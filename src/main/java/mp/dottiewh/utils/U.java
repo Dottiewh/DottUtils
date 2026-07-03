@@ -44,10 +44,13 @@ public class U { //Stands for utils
     private static final String urlGithub = "https://api.github.com/repos/Dottiewh/DottUtils/releases/latest";
    // private static final MiniMessage miniMessage = MiniMessage.miniMessage();
     private static final Map<UUID, List<BukkitRunnable>> mapaCountdowns = new HashMap<>();
+    private static final List<BukkitTask> listaCountdownsGlobal = new ArrayList<>();
 
     private static final Map<UUID, BukkitRunnable> mapaRepetitivoScreen = new HashMap<>();
     private static final Map<UUID, BukkitRunnable> mapaRepetitivoActionBar = new HashMap<>();
     private static final Map<UUID, List<ItemDisplay>> mapaEntityScreen = new HashMap<>();
+
+
 
     public static boolean debugMode = false;
     public static String debugPrefix = "&8&l[&4&lDU &c&lDebug&8&l] &e"; // def
@@ -367,11 +370,21 @@ public class U { //Stands for utils
     public static void runTaskLater(@NotNull Consumer<? super BukkitTask> consumer, long delay){
         Bukkit.getScheduler().runTaskLater(DottUtils.getPlugin(), consumer, delay);
     }
-
     public static void countdownForAll(org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
         stopAllCountdowns();
-        for(Player p : Bukkit.getOnlinePlayers()){
-            countdownForTarget(p, pl, segundos, format);
+        if(segundos<=0) return;
+
+
+        for(int i=0; i<segundos; i++){
+            int finalSegundosRestantes = segundos-i;
+            Component componentMessage = componentColor(format+getFormattedTime(finalSegundosRestantes));
+            BukkitTask b = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Bukkit.getOnlinePlayers().forEach(p->p.sendActionBar(componentMessage));
+                }
+            }.runTaskLater(pl, i*20L);
+            listaCountdownsGlobal.add(b);
         }
     }
     public static void countdownForTarget(@NotNull Player p, org.bukkit.plugin.Plugin pl, int segundos, String format){ // Segundos restantes: 77
@@ -430,8 +443,28 @@ public class U { //Stands for utils
         for(Player p : Bukkit.getOnlinePlayers()){
             stopCountdownTarget(p.getUniqueId());
         }
+
+        Iterator<BukkitTask> itCountdownGlobal = listaCountdownsGlobal.iterator();
+        while (itCountdownGlobal.hasNext()){
+            BukkitTask task = itCountdownGlobal.next();
+            task.cancel();
+            itCountdownGlobal.remove();
+        }
     }
 
+    private static String getFormattedTime(int v){
+        int lHours = v / 3600;
+        int lMinutes = (v % 3600) / 60;
+        int lSegundos = v % 60;
+
+        if (v >= 3600) {
+            return lHours + "h, " + lMinutes + "m, " + lSegundos + "s.";
+        } else if (v >= 60) {
+            return lMinutes + "m, " + lSegundos + "s.";
+        } else {
+            return lSegundos + "s.";
+        }
+    }
     public static void blackScreenForAll(org.bukkit.plugin.Plugin plugin, boolean forceIt){
         for(Player p : Bukkit.getOnlinePlayers()){
             blackScreen(plugin, p, forceIt);

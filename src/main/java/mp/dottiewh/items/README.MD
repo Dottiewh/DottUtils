@@ -224,6 +224,8 @@ Items:
       onAttack:
         effectapply: SLOWNESS;100;1
         particles: DUST;0;10
+      onKill:
+        particles: END_ROD;1;5;1;0.1;50
   bow:
     Material: BOW
     Name: '&d&lCustom bow!'

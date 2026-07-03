@@ -6,6 +6,7 @@ load_cache_async: true # Applies for menú things like Musics
 pvp: true
 pvp_bypass: false # If true, admins can attack other victims even with pvp turned off
 whitelist_active: false
+maintenance_active: false # If true, only admins may join, even if the person is whitelisted
 no_fall: false
 item_display: true # If true, players may do <item> to display their main hand item.
 max_itemgive_amount: 250

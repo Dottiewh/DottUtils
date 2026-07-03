@@ -88,6 +88,7 @@ public class BrigadierManager extends Commands{
                 .then(AdminChat.getLiteralBuilder("ac", false))
                 //
                 .then(Whitelist.getLiteralBuilder())
+                .then(Maintenance.getLiteralBuilder())
                 .then(Pvp.getLiteralBuilder())
                 .then(NoFall.getLiteralBuilder())
 

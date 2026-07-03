@@ -90,8 +90,16 @@ public class ItemConfig{
             if (meta.hasEnchants()){
                 ConfigurationSection enchSection = section.createSection("Enchants");
                 //guardar cada encantamiento
-                meta.getEnchants().forEach((ench, lvl)->
-                    enchSection.set(ench.getKey().getKey(), lvl));
+                meta.getEnchants().forEach((ench, lvl)->{
+                    NamespacedKey namespacedKey = ench.getKey();
+
+                    if(namespacedKey.getNamespace().equalsIgnoreCase("minecraft")){
+                        enchSection.set(ench.getKey().getKey(), lvl);
+                    }else{
+                        enchSection.set(namespacedKey.getNamespace()+":"+namespacedKey.getKey(), lvl);
+                    }
+
+                });
             }
             //-------ATRIBUTOS-----------
             if (meta.hasAttributeModifiers()){
@@ -370,7 +378,14 @@ public class ItemConfig{
             if (enchSection!=null){
                 for (String originalEnchKey : enchSection.getKeys(false)){
                     String enchKey = originalEnchKey.toLowerCase();
-                    NamespacedKey key = NamespacedKey.minecraft(enchKey);
+                    NamespacedKey key;
+
+                    if(enchKey.contains(":")){
+                        String[] enchKeyArray = enchKey.split(":", 2);
+                        key = new NamespacedKey(enchKeyArray[0], enchKeyArray[1]);
+                    }else{
+                         key = NamespacedKey.minecraft(enchKey);
+                    }
 
                     try{ // no es lo óptimo, pero por si acasoooooo
                         RegistryAccess regAccess = RegistryAccess.registryAccess();

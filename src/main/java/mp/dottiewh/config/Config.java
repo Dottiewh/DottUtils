@@ -21,6 +21,7 @@ public class Config {
     private static List<String> admins;
     private static List<String> whitelist;
     private static boolean whitelistStatus;
+    private static boolean maintenanceStatus;
     private static boolean pvpStatus;
     private static boolean noFallStatus;
 
@@ -39,9 +40,10 @@ public class Config {
         AdminChat.acPrefixReload();
         admins = configLists.getConfig().getStringList("adminlist");
         whitelist = configLists.getConfig().getStringList("whitelist");
-        whitelistStatus = config.getConfig().getBoolean("whitelist_active");
-        pvpStatus = config.getConfig().getBoolean("pvp");
-        noFallStatus = config.getConfig().getBoolean("no_fall");
+        whitelistStatus = config.getConfig().getBoolean("whitelist_active", false);
+        maintenanceStatus = config.getConfig().getBoolean("maintenance_active", false);
+        pvpStatus = config.getConfig().getBoolean("pvp", true);
+        noFallStatus = config.getConfig().getBoolean("no_fall", false);
     }
     public static void configReload(){
         DottUtils.initCustomConfig();
@@ -145,6 +147,33 @@ public class Config {
         return contador;
     }
 
+    //-------MAINTENANCE-------
+    /**
+     * @return If the method took action
+     */
+    public static boolean onMaintenance(){ // boolean = Was successful?
+        if (getMaintenanceStatus()) return false;
+
+        config.getConfig().set("maintenance_active", true);
+        config.saveConfig();
+        maintenanceStatus = true;
+        return true;
+    }
+
+    /**
+     * @return If the method took action
+     */
+    public static boolean offMaintenance(){
+        if (!getMaintenanceStatus()) return false;
+
+        config.getConfig().set("maintenance_active", false);
+        config.saveConfig();
+        maintenanceStatus = false;
+        return true;
+    }
+    public static boolean getMaintenanceStatus(){
+        return maintenanceStatus;
+    }
     //-------WHITELIST---------
     public static boolean onWhitelist(){ // boolean = Was successful?
         if (getWhiteListStatus()) return false;

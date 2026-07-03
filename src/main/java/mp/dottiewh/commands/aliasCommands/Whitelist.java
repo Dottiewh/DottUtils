@@ -96,6 +96,7 @@ public class Whitelist extends Commands {
         String name = event.getName();
 
         if (!Config.getWhiteListStatus()) return; // return if off.
+        if (Config.getMaintenanceStatus()) return; // return if its in maintenance
         if (Config.containsAdmin(name)) return;
         if (Config.containsWhitelist(name)) return;
 
