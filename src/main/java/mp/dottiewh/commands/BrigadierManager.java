@@ -79,7 +79,7 @@ public class BrigadierManager extends Commands{
     //
     public static LiteralArgumentBuilder<CommandSourceStack> createAlias(org.bukkit.plugin.Plugin pl, String name){
         return literal(name)
-                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils") || Config.containsAdmin(ctx.getSender().getName()))
+                .requires(ctx -> ctx.getSender().hasPermission("DottUtils.dottutils"))
                 .then(Admin.getLiteralBuilder())
                 .then(Reload.getLiteralBuilder())
                 .then(Help.getLiteralBuilder())

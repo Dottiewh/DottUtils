@@ -25,6 +25,7 @@ public class Config {
     private static boolean pvpStatus;
     private static boolean noFallStatus;
 
+    private static ConfigYmlReader ymlReader;
 
     //----registered commands----
 
@@ -35,6 +36,8 @@ public class Config {
     //------config--------
     public static void configInit(){
         config = DottUtils.getRegisteredConfig();
+        ymlReader = new ConfigYmlReader(config);
+
         configLists = DottUtils.getRegisteredConfigLists();
 
         AdminChat.acPrefixReload();
@@ -50,60 +53,30 @@ public class Config {
     }
     //--getters--
     public static int getInt(String path){
-        return DottUtils.ymlConfig.getConfig().getInt(path, -1);
+        return ymlReader.getInt(path);
     }
     public static int getInt(String path, int def){
-        int toGive = DottUtils.ymlConfig.getConfig().getInt(path, -1);
-        if (toGive==-1){
-            DottUtils.ymlConfig.getConfig().set(path, def);
-            DottUtils.ymlConfig.saveConfig();
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
-            return def;
-        }
-        return toGive;
+        return ymlReader.getInt(path, def);
     }
     public static long getLong(String path){
-        return DottUtils.ymlConfig.getConfig().getLong(path, -1);
+        return ymlReader.getLong(path);
     }
     public static long getLong(String path, long def){
-        long toGive = DottUtils.ymlConfig.getConfig().getLong(path, -1);
-        if (toGive==-1){
-            DottUtils.ymlConfig.getConfig().set(path, def);
-            DottUtils.ymlConfig.saveConfig();
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
-            return def;
-        }
-        return toGive;
+        return ymlReader.getLong(path, def);
     }
     @Nullable
     public static String getString(@NotNull String path){
-        return DottUtils.ymlConfig.getConfig().getString(path,  null);
+        return ymlReader.getString(path);
     }
     @UnknownNullability
     public static String getString(@NotNull String path, String def){
-        String toGive = DottUtils.ymlConfig.getConfig().getString(path, null);
-        if (toGive==null){
-            DottUtils.ymlConfig.getConfig().set(path, def);
-            DottUtils.ymlConfig.saveConfig();
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
-            return def;
-        }
-        return toGive;
+        return ymlReader.getString(path, def);
     }
     public static boolean getBoolean(@NotNull String path){
-        return DottUtils.ymlConfig.getConfig().getBoolean(path,  false);
+        return ymlReader.getBoolean(path);
     }
     public static boolean getBoolean(@NotNull String path, boolean def){
-        Object got = DottUtils.ymlConfig.getConfig().get(path);
-        boolean success = (got instanceof Boolean);
-
-        if (!success){
-            DottUtils.ymlConfig.getConfig().set(path, def);
-            DottUtils.ymlConfig.saveConfig();
-            U.mensajeConsola("&cNo se ha detectado el path &f"+path+"&c en config. Regenerando con "+def+"...");
-            return def;
-        }
-        return (Boolean) got;
+        return ymlReader.getBoolean(path, def);
     }
     //------ADMINS--------
     public static boolean addAdmin(String newAdmin){ // boolean = Was successful?

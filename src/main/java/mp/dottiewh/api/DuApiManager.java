@@ -6,6 +6,7 @@ import mp.dottiewh.api.directors.DuItemsDirector;
 import mp.dottiewh.api.directors.DuMusicsDirector;
 import mp.dottiewh.cinematics.CinematicsConfig;
 import mp.dottiewh.config.Config;
+import mp.dottiewh.config.ConfigYmlReader;
 import mp.dottiewh.config.CustomConfig;
 import mp.dottiewh.music.MusicConfig;
 import mp.dottiewh.utils.U;
@@ -31,6 +32,7 @@ public class DuApiManager {
     org.bukkit.plugin.Plugin plugin;
     String prefix;
     String debugPrefix;
+    private boolean debugMode = false;
 
     public DuApiManager(org.bukkit.plugin.Plugin plugin, String prefix) {
         this.plugin = plugin;
@@ -71,11 +73,18 @@ public class DuApiManager {
 
     //
     public void targetMsg(Player player, String msg) {
-        targetMsgNP(player, prefix + msg);
+        U.targetMessageNP(player, prefix + msg);
     }
 
     public void targetMsgNP(Player p, String msg) {
         U.targetMessageNP(p, msg);
+    }
+    public void targetMsg(CommandSender sender, String msg) {
+        U.targetMessageNP(sender, prefix + msg);
+    }
+
+    public void targetMsgNP(CommandSender sender, String msg) {
+        U.targetMessageNP(sender, msg);
     }
 
     public Component mensajeConPrefix(String msg) {
@@ -111,10 +120,10 @@ public class DuApiManager {
     }
 
     public void debugMsg(String msg, CommandSender sender) {
-        U.mensajeDebug(debugPrefix, msg, sender);
+        if(debugMode) U.targetMessageNP(sender, debugPrefix+msg);
     }
     public void consoleDebugMsg(String msg){
-        U.mensajeDebugConsole(debugPrefix, msg);
+        if(debugMode) U.mensajeConsolaNP(debugPrefix+msg);
     }
 
     public void sendTitleTarget(Player p, String title, String subtitle, int fadeIn, int stay, int fadeOut){
@@ -305,6 +314,9 @@ public class DuApiManager {
     public CustomConfig createCustomConfig(@NotNull String fileName, @Nullable String folderName, boolean newFile){
         return new CustomConfig(fileName, folderName, plugin, newFile);
     }
+    public ConfigYmlReader createConfigYmlReader(CustomConfig config){
+        return new ConfigYmlReader(config, prefix);
+    }
     //
     public String getPrefix(){return prefix;}
 
@@ -314,5 +326,13 @@ public class DuApiManager {
 
     public void setDebugPrefix(String debugPrefix) {
         this.debugPrefix = debugPrefix;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+    public DuApiManager setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        return this;
     }
 }
