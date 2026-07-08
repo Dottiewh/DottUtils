@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import mp.dottiewh.commands.Commands;
+import mp.dottiewh.commands.miscs.ToggletableTargetCommand;
 import mp.dottiewh.utils.U;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -16,15 +17,17 @@ import java.util.UUID;
 
 import static io.papermc.paper.command.brigadier.Commands.literal;
 
-public class Coordenadas extends Commands {
+public class Coordenadas extends ToggletableTargetCommand {
     private static final Map<UUID, BukkitTask> taskMap = new HashMap<>();
 
+    private static final String className = "Coordenadas";
+
     public Coordenadas(CommandContext<CommandSourceStack> ctx) {
-        super(ctx);
-        run();
+        super(ctx, className);
+        //run();
     }
 
-    @Override
+    /*@Override
     protected void run(){
         if (!(sender instanceof Player player)){
             senderMessageNP("&cEste comando solo lo puede usar un jugador.");
@@ -34,26 +37,37 @@ public class Coordenadas extends Commands {
         UUID uuid = player.getUniqueId();
 
         if (taskMap.containsKey(uuid)){
-            cancelAndRemove(uuid, taskMap.get(uuid));
-            senderMessageNP("&8> &eCoords display &cOff!");
+
         }else{
-            BukkitTask task = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    int x = player.getLocation().getBlockX();
-                    int y = player.getLocation().getBlockY();
-                    int z = player.getLocation().getBlockZ();
-                    BlockFace blockFace = player.getFacing();
-                    String facing = String.valueOf(blockFace).toLowerCase();
-                    String toDisplay = String.join("&6, &c&l", String.valueOf(x), String.valueOf(y), String.valueOf(z));
 
-                    player.sendActionBar(U.mensajeConColor("&c&l"+toDisplay+" &8| &6(&a"+facing+"&6)"));
-                }
-            }.runTaskTimer(plugin, 0L, 10L);
-
-            taskMap.put(uuid, task);
-            senderMessageNP("&8> &eCoords display &aOn!");
         }
+    }*/
+
+
+    @Override
+    public void onEnable() {
+        BukkitTask task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                int x = player.getLocation().getBlockX();
+                int y = player.getLocation().getBlockY();
+                int z = player.getLocation().getBlockZ();
+                BlockFace blockFace = player.getFacing();
+                String facing = String.valueOf(blockFace).toLowerCase();
+                String toDisplay = String.join("&6, &c&l", String.valueOf(x), String.valueOf(y), String.valueOf(z));
+
+                player.sendActionBar(U.mensajeConColor("&c&l"+toDisplay+" &8| &6(&a"+facing+"&6)"));
+            }
+        }.runTaskTimer(plugin, 0L, 10L);
+
+        taskMap.put(playerUUID, task);
+        senderMessageNP("&8> &eCoords display &aOn!");
+    }
+
+    @Override
+    public void onDisable() {
+        cancelAndRemove(playerUUID, taskMap.get(playerUUID));
+        senderMessageNP("&8> &eCoords display &cOff!");
     }
     private void cancelAndRemove(UUID uuid, BukkitTask task){
         task.cancel();
@@ -70,4 +84,6 @@ public class Coordenadas extends Commands {
                 //
                 ;
     }
+
+
 }

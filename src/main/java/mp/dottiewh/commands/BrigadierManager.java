@@ -48,6 +48,11 @@ public class BrigadierManager extends Commands{
             listaLiterals.add(Coordenadas.getLiteralBuilder("coords"));
             listaLiterals.add(Coordenadas.getLiteralBuilder("coordenadas"));
         }
+        if(checkCmd(cConfig, "velocimetro")){
+            listaLiterals.add(Velocimetro.getLiteralBuilder("velocimetro"));
+            listaLiterals.add(Velocimetro.getLiteralBuilder("bps"));
+        }
+
         if(checkCmd(cConfig, "tpa")){
             listaLiterals.add(Tpa.getLiteralBuilder());
             listaLiterals.add(TpaAccept.getLiteralBuilder());

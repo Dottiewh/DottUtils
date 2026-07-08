@@ -287,12 +287,14 @@ public class U { //Stands for utils
                 return body.substring(start, end);
             } else {
                 mensajeConsola("&cError al obtener versión: " + response.statusCode());
+                mensajeConsolaNP("&4"+response.body());
                 return null;
             }
 
         }catch(Exception e){
             mensajeConsola("&cOcurrió un problema intentando conseguir la última versión de github. Details:");
-            mensajeConsolaNP("c"+Arrays.toString(e.getStackTrace()));
+            //mensajeConsolaNP("c"+Arrays.toString(e.getStackTrace()));
+            e.printStackTrace(System.out);
             return null;
         }
     }

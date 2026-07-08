@@ -6,6 +6,7 @@ back: true
 playtime: true
 tpa: true # And all alias
 coords: true
+velocimetro: true
 countdown: true
 feed: true
 fly: true
